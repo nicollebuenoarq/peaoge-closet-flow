@@ -10,6 +10,7 @@ const navItems = [
   { label: 'CATÁLOGO', path: '/catalogo', icon: ShoppingBag },
   { label: 'VENDAS', path: '/vendas', icon: Receipt },
   { label: 'FORNECEDORAS', path: '/fornecedoras', icon: Users },
+  { label: 'PLANEJAMENTO', path: '/planejamento', icon: ClipboardList },
   { label: 'CONFIGURAÇÕES', path: '/configuracoes', icon: Settings },
 ];
 
