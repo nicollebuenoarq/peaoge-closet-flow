@@ -187,18 +187,18 @@ export default function Dashboard() {
             {disponíveis.length} peças disponíveis
           </span>
         </div>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           <div>
             <p className="label-upper text-white/50">Fat. Previsto</p>
-            <p className="font-display text-3xl mt-1 text-white">{fmt(prevFaturamento)}</p>
+            <p className="font-display text-2xl sm:text-3xl mt-1 text-white">{fmt(prevFaturamento)}</p>
           </div>
           <div>
             <p className="label-upper text-white/50">Comissão Prev.</p>
-            <p className="font-display text-3xl mt-1 text-white">{fmt(prevComissao)}</p>
+            <p className="font-display text-2xl sm:text-3xl mt-1 text-white">{fmt(prevComissao)}</p>
           </div>
           <div>
             <p className="label-upper text-white/50">Parcela Brechó</p>
-            <p className="font-display text-3xl mt-1 text-white">{fmt(prevParcelaBrecho)}</p>
+            <p className="font-display text-2xl sm:text-3xl mt-1 text-white">{fmt(prevParcelaBrecho)}</p>
           </div>
         </div>
       </div>
