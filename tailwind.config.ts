@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         display: ['Bebas Neue', 'sans-serif'],
         serif: ['DM Serif Display', 'serif'],
+        body: ['Inter', 'sans-serif'],
         mono: ['Space Mono', 'monospace'],
       },
       colors: {
