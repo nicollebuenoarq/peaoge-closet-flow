@@ -266,8 +266,22 @@ export default function Vendas() {
 
       {/* Table */}
       <div className="card-editorial overflow-hidden">
-        <div className="overflow-x-auto">
           <table className="w-full text-sm table-editorial">
+            <colgroup>
+              <col className="w-[8%]" />
+              <col className="w-[5%]" />
+              <col className="w-[16%]" />
+              <col className="w-[10%]" />
+              <col className="w-[5%]" />
+              <col className="w-[6%]" />
+              <col className="w-[8%]" />
+              <col className="w-[7%]" />
+              <col className="w-[7%]" />
+              <col className="w-[7%]" />
+              <col className="w-[4%]" />
+              <col className="w-[11%]" />
+              <col className="w-[6%]" />
+            </colgroup>
             <thead>
               <tr>
                 <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('dataVenda')}>
@@ -279,7 +293,7 @@ export default function Vendas() {
                 <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('descricaoPeca')}>
                   <span className="flex items-center">DESCRIÇÃO <SortIcon column="descricaoPeca" sortBy={sortBy} sortDir={sortDir} /></span>
                 </th>
-                <th className="text-left">FORNECEDORA</th>
+                <th className="text-left">FORN.</th>
                 <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('drop')}>
                   <span className="flex items-center">DROP <SortIcon column="drop" sortBy={sortBy} sortDir={sortDir} /></span>
                 </th>
@@ -293,7 +307,7 @@ export default function Vendas() {
                 </th>
                 <th className="text-left">BRECHÓ</th>
                 <th className="text-left">PAGO?</th>
-                <th className="text-left">COMPRADORA</th>
+                <th className="text-left">COMPR.</th>
                 <th></th>
               </tr>
             </thead>
@@ -302,25 +316,25 @@ export default function Vendas() {
                 <tr key={v.id} className="border-b last:border-0">
                   <td className="text-muted-foreground text-sm">{v.dataVenda}</td>
                   <td className="font-mono-price text-xs text-muted-foreground">#{v.skuPeca}</td>
-                  <td className="font-medium text-sm">{v.descricaoPeca}</td>
-                  <td className="text-muted-foreground text-sm">{getFornNome(v.fornecedoraId)}</td>
+                  <td className="font-medium text-sm truncate">{v.descricaoPeca}</td>
+                  <td className="text-muted-foreground text-sm truncate">{getFornNome(v.fornecedoraId)}</td>
                   <td><span className="pill-badge bg-muted text-foreground">{v.drop}</span></td>
                   <td className="text-muted-foreground text-sm">{v.desconto > 0 ? fmt(v.desconto) : '—'}</td>
                   <td className="font-mono-price text-primary text-xs">{fmt(v.precoFinal)}</td>
-                  <td><span className="pill-badge bg-muted text-foreground">{v.pagamento}</span></td>
+                  <td className="truncate"><span className="pill-badge bg-muted text-foreground">{v.pagamento}</span></td>
                   <td className="font-mono-price text-muted-foreground text-xs">{fmt(v.comissaoFornecedora)}</td>
                   <td className="font-mono-price text-muted-foreground text-xs">{fmt(v.parcelaBrecho)}</td>
                   <td>
                     <Checkbox checked={v.pagoFornecedora} onCheckedChange={() => togglePago(v.id)} />
                   </td>
-                  <td className="text-muted-foreground text-sm">{v.compradora || '—'}</td>
+                  <td className="text-muted-foreground text-sm truncate">{v.compradora || '—'}</td>
                   <td>
                     <div className="flex gap-1">
-                      <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-primary/10" onClick={() => openEdit(v)}>
-                        <Edit className="h-3.5 w-3.5" />
+                      <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full hover:bg-primary/10" onClick={() => openEdit(v)}>
+                        <Edit className="h-3 w-3" />
                       </Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-destructive/10 text-destructive" onClick={() => setShowDeleteConfirm(v)}>
-                        <Trash2 className="h-3.5 w-3.5" />
+                      <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full hover:bg-destructive/10 text-destructive" onClick={() => setShowDeleteConfirm(v)}>
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
                   </td>
@@ -341,19 +355,18 @@ export default function Vendas() {
             {filtered.length > 0 && (
               <tfoot>
                 <tr className="border-t bg-primary text-white font-semibold">
-                  <td className="py-4 px-4" colSpan={6}>
+                  <td className="py-3 px-3" colSpan={6}>
                     <span className="text-white/70 text-xs">{filtered.length} vendas</span>
                   </td>
-                  <td className="py-4 px-4 font-mono-price text-white text-xs">{fmt(totalFaturamento)}</td>
-                  <td className="py-4 px-4"></td>
-                  <td className="py-4 px-4 font-mono-price text-white/80 text-xs">{fmt(totalComissao)}</td>
+                  <td className="py-3 px-3 font-mono-price text-white text-xs">{fmt(totalFaturamento)}</td>
+                  <td className="py-3 px-3"></td>
+                  <td className="py-3 px-3 font-mono-price text-white/80 text-xs">{fmt(totalComissao)}</td>
                   <td className="py-4 px-4 font-mono-price text-white/80 text-xs">{fmt(totalBrecho)}</td>
                   <td className="py-4 px-4" colSpan={3}></td>
                 </tr>
               </tfoot>
             )}
           </table>
-        </div>
       </div>
 
       {/* Nova Venda Dialog */}

@@ -220,7 +220,6 @@ export default function Dashboard() {
 
             <TabsContent value="repasses" className="mt-0">
               {repasses.length > 0 ? (
-                <div className="overflow-x-auto">
                   <table className="w-full text-sm table-editorial">
                     <thead>
                       <tr>
@@ -275,8 +274,7 @@ export default function Dashboard() {
                         );
                       })}
                     </tbody>
-                  </table>
-                </div>
+                   </table>
               ) : (
                 <div className="empty-state py-12">
                   <p className="text-sm">Nenhum repasse registrado</p>
@@ -286,8 +284,7 @@ export default function Dashboard() {
 
             <TabsContent value="previsao" className="mt-0">
               {previsaoForn.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm table-editorial">
+                   <table className="w-full text-sm table-editorial">
                     <thead>
                       <tr>
                         <th className="text-left">NOME</th>
@@ -318,8 +315,7 @@ export default function Dashboard() {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
-                </div>
+                   </table>
               ) : (
                 <div className="empty-state py-12">
                   <p className="text-sm">Nenhuma peça disponível para previsão</p>
