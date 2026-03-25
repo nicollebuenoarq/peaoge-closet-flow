@@ -108,13 +108,13 @@ export default function Dashboard() {
     <div className="space-y-8 animate-fade-up">
 
       {/* PHOTO STRIP */}
-      <section className="grid grid-cols-5 gap-1 h-[160px] rounded-2xl overflow-hidden">
+      <section className="flex md:grid md:grid-cols-5 gap-1 h-[120px] md:h-[160px] rounded-2xl overflow-x-auto md:overflow-hidden scrollbar-hide">
         {photoStrip.map((photo, i) => {
           const isActive = location.pathname === photo.path;
           return (
             <div
               key={photo.label}
-              className="relative overflow-hidden group cursor-pointer"
+              className="relative overflow-hidden group cursor-pointer min-w-[120px] md:min-w-0 flex-shrink-0"
               onClick={() => navigate(photo.path)}
               role="link"
             >
@@ -126,7 +126,7 @@ export default function Dashboard() {
               <div className={`absolute inset-0 transition-colors duration-300 ${isActive ? 'bg-gradient-to-t from-black/30 to-transparent' : 'bg-gradient-to-t from-black/60 to-black/10'}`} />
               <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ backgroundColor: topBarColors[i] }} />
               <span
-                className={`absolute bottom-4 left-3 font-display text-sm tracking-[0.1em] transition-colors duration-300 text-secondary-foreground ${isActive ? 'brightness-125' : ''}`}
+                className={`absolute bottom-3 left-2 md:bottom-4 md:left-3 font-display text-[10px] md:text-sm tracking-[0.1em] transition-colors duration-300 text-secondary-foreground ${isActive ? 'brightness-125' : ''}`}
                 style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}
               >
                 {photo.label}
