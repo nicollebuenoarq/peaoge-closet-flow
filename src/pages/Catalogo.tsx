@@ -67,7 +67,7 @@ export default function Catalogo() {
     if (dropFilter !== 'all' && p.drop !== Number(dropFilter)) return false;
     if (statusFilter !== 'all' && p.status !== statusFilter) return false;
     if (fornFilter !== 'all' && p.fornecedoraId !== fornFilter) return false;
-    if (catFilter && p.categoria !== catFilter) return false;
+    if (catFilter !== 'all' && p.categoria !== catFilter) return false;
     if (busca) {
       const q = busca.toLowerCase();
       if (!p.descricao.toLowerCase().includes(q) && !String(p.sku).includes(q)) return false;
