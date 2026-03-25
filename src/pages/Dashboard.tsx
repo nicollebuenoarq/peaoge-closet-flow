@@ -117,7 +117,7 @@ export default function Dashboard() {
 
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
           <div>
-            <h1 className="font-display text-5xl md:text-7xl text-primary leading-[0.9] tracking-[0.04em]">
+            <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-primary leading-[0.85] tracking-[0.04em]">
               GESTÃO DE<br />
               <span className="font-serif-italic text-accent">Estilo</span>
             </h1>
