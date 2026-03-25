@@ -24,8 +24,8 @@ const photoStrip = [
   { src: camisetasRosa, label: 'CAMISETAS' },
 ];
 
-const borderColors = ['border-t-[#2d4a2e]', 'border-t-[#e8527a]', 'border-t-[#4a7a4b]', 'border-t-[#2d4a2e]', 'border-t-[#e8527a]'];
-const iconBgs = ['bg-primary/10 text-primary', 'bg-accent/10 text-accent', 'bg-primary-medium/10 text-primary-medium', 'bg-primary/10 text-primary', 'bg-accent/10 text-accent'];
+const topBarColors = ['#2d4a2e', '#e8527a', '#f0a500', '#3ab5a0', '#7b61ff'];
+const iconBgs = ['bg-primary/10 text-primary', 'bg-accent/10 text-accent', 'bg-[#f0a500]/10 text-[#f0a500]', 'bg-[#3ab5a0]/10 text-[#3ab5a0]', 'bg-[#7b61ff]/10 text-[#7b61ff]'];
 
 export default function Dashboard() {
   const [, setTick] = useState(0);
@@ -102,9 +102,9 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-8 animate-fade-up">
-      {/* HERO BANNER */}
-      <section className="relative overflow-hidden py-8 md:py-12">
+    <div className="space-y-10 animate-fade-up">
+      {/* HERO BANNER — oversized */}
+      <section className="relative overflow-hidden py-14 md:py-20">
         {/* Ghost text */}
         <div
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
@@ -117,7 +117,7 @@ export default function Dashboard() {
 
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
           <div>
-            <h1 className="font-display text-5xl md:text-7xl text-primary leading-[0.9] tracking-[0.04em]">
+            <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-primary leading-[0.85] tracking-[0.04em]">
               GESTÃO DE<br />
               <span className="font-serif-italic text-accent">Estilo</span>
             </h1>
@@ -142,7 +142,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* PHOTO STRIP */}
+      {/* PHOTO STRIP — extra spacing below */}
       <section className="grid grid-cols-5 gap-1 h-[160px] rounded-2xl overflow-hidden">
         {photoStrip.map((photo) => (
           <div key={photo.label} className="relative overflow-hidden group cursor-pointer">
@@ -160,17 +160,21 @@ export default function Dashboard() {
       </section>
 
       {/* METRIC CARDS */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 animate-stagger">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 animate-stagger mt-10">
         {indicators.map((ind, i) => (
           <div
             key={ind.label}
-            className={`card-editorial p-5 border-t-[3px] ${borderColors[i]}`}
+            className="bg-card border border-border overflow-hidden transition-transform duration-300 hover:translate-y-[-2px]"
+            style={{ borderRadius: '0 0 16px 16px' }}
           >
-            <div className={`icon-circle h-10 w-10 mb-3 rounded-full ${iconBgs[i]}`}>
-              <ind.icon className="h-5 w-5" />
+            <div className="h-[3px]" style={{ backgroundColor: topBarColors[i] }} />
+            <div className="p-5">
+              <div className={`icon-circle h-10 w-10 mb-3 rounded-full ${iconBgs[i]}`}>
+                <ind.icon className="h-5 w-5" />
+              </div>
+              <p className="font-display text-[40px] leading-none text-foreground">{ind.value}</p>
+              <p className="label-upper mt-2">{ind.label}</p>
             </div>
-            <p className="font-display text-[34px] leading-none text-foreground">{ind.value}</p>
-            <p className="label-upper mt-2">{ind.label}</p>
           </div>
         ))}
       </div>
