@@ -16,6 +16,7 @@ import flatlay2 from '@/assets/photos/flatlay2_edit.png';
 import shortsJeans from '@/assets/photos/shorts_jeans_edit.png';
 import looksCabide from '@/assets/photos/looks_cabide_edit.png';
 import camisetasRosa from '@/assets/photos/camisetas_rosa_edit.png';
+import flatlayPlan from '@/assets/photos/flatlay_edited.jpg';
 
 const photoStrip = [
   { src: saiaXadrez, label: 'DASHBOARD', path: '/' },
