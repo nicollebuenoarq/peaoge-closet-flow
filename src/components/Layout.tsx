@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Receipt, Users, Settings, Menu, X } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Receipt, Users, Settings, Menu, X, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import logo from '@/assets/logo_peaoge_sem_fundo.png';
 
