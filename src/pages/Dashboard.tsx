@@ -274,8 +274,7 @@ export default function Dashboard() {
                         );
                       })}
                     </tbody>
-                  </table>
-                </div>
+                   </table>
               ) : (
                 <div className="empty-state py-12">
                   <p className="text-sm">Nenhum repasse registrado</p>
