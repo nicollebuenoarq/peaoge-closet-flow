@@ -142,7 +142,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* PHOTO STRIP */}
+      {/* PHOTO STRIP — extra spacing below */}
       <section className="grid grid-cols-5 gap-1 h-[160px] rounded-2xl overflow-hidden">
         {photoStrip.map((photo) => (
           <div key={photo.label} className="relative overflow-hidden group cursor-pointer">
