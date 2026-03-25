@@ -1,40 +1,47 @@
 
 
-## Plano: Remover scrollbar horizontal das tabelas
+## Plano: Adaptar o site para mobile
 
-### Problema
-As tabelas de Catálogo, Vendas e Dashboard têm `overflow-x-auto`, o que cria uma barra de rolagem horizontal ruim para usabilidade.
+### Problema principal
+As tabelas de Catálogo (10 colunas) e Vendas (13 colunas) são impossíveis de ler no celular. O photo strip do Dashboard com 5 fotos fica minúsculo. Os cards de métricas e filtros ficam apertados.
 
-### Solução
-Remover o scroll horizontal e fazer as tabelas caberem na tela com ajustes de layout:
+### Mudanças por página
 
-### Mudanças
+**1. Dashboard (`src/pages/Dashboard.tsx`)**
+- Photo strip: `grid-cols-5` apenas em `md+`. No mobile, mostrar como scroll horizontal ou `grid-cols-3` com as 2 últimas escondidas
+- Metric cards: já tem `grid-cols-2 md:grid-cols-3 lg:grid-cols-5` — ok
+- Forecast card: `grid-cols-1` no mobile em vez de `grid-cols-3`
+- Tabelas de repasses/previsão: mostrar como **cards empilhados** no mobile (`md:hidden` / `hidden md:block`)
 
-**1. Catálogo (`src/pages/Catalogo.tsx`)**
-- Remover `overflow-x-auto` do wrapper
-- Usar `table-fixed` e definir larguras proporcionais nas colunas
-- Truncar texto longo (descrição) com `truncate max-w-[...]`
-- Reduzir padding das células
+**2. Catálogo (`src/pages/Catalogo.tsx`)**
+- Summary cards: `grid-cols-1 sm:grid-cols-3` 
+- Filter bar: já é flex-wrap — ok, mas reduzir `min-w` do campo busca
+- **Tabela → Cards no mobile**: No mobile, cada peça vira um card compacto com SKU, descrição, status badge, preço, fornecedora. A tabela fica `hidden md:block` e os cards `md:hidden`
+- Botão de ações (vender/editar/excluir) acessível no card
 
-**2. Vendas (`src/pages/Vendas.tsx`)**
-- Mesma abordagem: remover scroll, `table-fixed`, truncar texto
-- Vendas tem 12 colunas — condensar: combinar colunas similares (ex: COM./BRECHÓ), usar abreviações menores
+**3. Vendas (`src/pages/Vendas.tsx`)**
+- Mesma abordagem: tabela escondida no mobile, cards empilhados com info essencial (data, SKU, descrição, preço, status pago, ações)
 
-**3. Dashboard (`src/pages/Dashboard.tsx`)**
-- Remover `overflow-x-auto` das tabelas de repasses e previsão
+**4. Fornecedoras (`src/pages/Fornecedoras.tsx`)**
+- Grid de cards: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` (já é quase isso)
+- Summary cards: `grid-cols-1 sm:grid-cols-3`
 
-**4. Table UI component (`src/components/ui/table.tsx`)**
-- Trocar `overflow-auto` por `overflow-hidden` no wrapper padrão
+**5. Login (`src/pages/Login.tsx`)**
+- Já funciona bem no mobile (lado esquerdo escondido com `hidden lg:flex`)
 
-**5. CSS global (`src/index.css`)**
-- Adicionar ao `.table-editorial`: `table-layout: fixed` e cells com `overflow: hidden; text-overflow: ellipsis; white-space: nowrap`
+**6. Layout (`src/components/Layout.tsx`)**
+- Já tem hamburger mobile — ok
+- Reduzir padding do main em mobile
 
-### Arquivos
+### Componente reutilizável
+Criar um componente `MobileCard` genérico não vale a pena — cada página tem dados diferentes. Melhor fazer inline com `md:hidden` / `hidden md:block`.
+
+### Arquivos a editar
 | Arquivo | Mudança |
 |---|---|
-| `src/index.css` | table-editorial com table-fixed + truncate |
-| `src/components/ui/table.tsx` | overflow-hidden |
-| `src/pages/Catalogo.tsx` | Remover overflow-x-auto, ajustar larguras |
-| `src/pages/Vendas.tsx` | Remover overflow-x-auto, ajustar larguras |
-| `src/pages/Dashboard.tsx` | Remover overflow-x-auto |
+| `src/pages/Dashboard.tsx` | Photo strip responsivo, forecast cols, tabelas → cards mobile |
+| `src/pages/Catalogo.tsx` | Summary cards responsivo, tabela → cards mobile |
+| `src/pages/Vendas.tsx` | Tabela → cards mobile |
+| `src/pages/Fornecedoras.tsx` | Summary cards responsivo |
+| `src/components/Layout.tsx` | Padding mobile menor |
 
