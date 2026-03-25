@@ -105,17 +105,15 @@ export default function Dashboard() {
     <div className="space-y-10 animate-fade-up">
       {/* HERO BANNER — oversized */}
       <section className="relative overflow-hidden py-14 md:py-20">
-        {/* Ghost text */}
-        <div
-          className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-          aria-hidden
+        {/* Ghost text — pinned right, bleeding off-screen */}
+        <span
+          className="absolute top-1/2 -translate-y-1/2 right-[-20px] pointer-events-none select-none font-display text-[140px] md:text-[200px] lg:text-[260px] text-primary/[0.06] leading-none tracking-[0.08em] whitespace-nowrap z-0"
+          aria-hidden="true"
         >
-          <span className="font-display text-[120px] md:text-[180px] lg:text-[220px] text-primary/[0.06] leading-none tracking-[0.08em]">
-            PEAOGÊ
-          </span>
-        </div>
+          PEAOGÊ
+        </span>
 
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+        <div className="relative z-[1] flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-primary leading-[0.85] tracking-[0.04em]">
               GESTÃO DE<br />
