@@ -9,6 +9,14 @@ import { Progress } from '@/components/ui/progress';
 import { DollarSign, TrendingUp, Users, Package, Wallet, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
+const iconColors = [
+  'bg-primary/10 text-primary',
+  'bg-accent/10 text-accent',
+  'bg-primary/10 text-primary',
+  'bg-status-available/10 text-status-available',
+  'bg-destructive/10 text-destructive',
+];
+
 export default function Dashboard() {
   const [, setTick] = useState(0);
   const reload = () => setTick(t => t + 1);
@@ -74,20 +82,20 @@ export default function Dashboard() {
   };
 
   const indicators = [
-    { label: 'Faturamento Bruto', value: fmt(faturamento), icon: DollarSign, gradient: 'indicator-gradient-green' },
-    { label: 'Comissão Fornecedoras', value: fmt(comissaoTotal), icon: Users, gradient: 'indicator-gradient-gold' },
-    { label: 'Parcela Brechó', value: fmt(parcelaBrecho), icon: TrendingUp, gradient: 'indicator-gradient-green' },
-    { label: 'Total Pago', value: fmt(totalPago), icon: CheckCircle, gradient: 'indicator-gradient-teal' },
-    { label: 'Saldo a Pagar', value: fmt(saldoPagar), icon: Wallet, gradient: 'indicator-gradient-red' },
+    { label: 'Faturamento Bruto', value: fmt(faturamento), icon: DollarSign, colorIdx: 0 },
+    { label: 'Comissão Fornecedoras', value: fmt(comissaoTotal), icon: Users, colorIdx: 1 },
+    { label: 'Parcela Brechó', value: fmt(parcelaBrecho), icon: TrendingUp, colorIdx: 2 },
+    { label: 'Total Pago', value: fmt(totalPago), icon: CheckCircle, colorIdx: 3 },
+    { label: 'Saldo a Pagar', value: fmt(saldoPagar), icon: Wallet, colorIdx: 4 },
   ];
 
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Drop filter */}
-      <div className="glass rounded-xl p-4 flex items-center gap-3">
-        <label className="font-heading font-semibold text-sm text-muted-foreground uppercase tracking-wider">Drop:</label>
+      <div className="filter-bar flex items-center gap-4">
+        <label className="label-upper">Drop:</label>
         <Select value={dropFilter} onValueChange={setDropFilter}>
-          <SelectTrigger className="w-40 bg-card border-border/50"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-44 rounded-full bg-muted/50 border-0"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os Drops</SelectItem>
             {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d}</SelectItem>)}
@@ -96,48 +104,46 @@ export default function Dashboard() {
       </div>
 
       {/* Indicator cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 animate-stagger">
-        {indicators.map(ind => (
-          <Card key={ind.label} className={`card-elevated ${ind.gradient} border-0 overflow-hidden`}>
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="h-10 w-10 rounded-xl bg-card/80 flex items-center justify-center shadow-sm">
-                  <ind.icon className="h-5 w-5 text-foreground" />
-                </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 animate-stagger">
+        {indicators.map((ind, i) => (
+          <Card key={ind.label} className="card-modern border-0 bg-card overflow-hidden">
+            <CardContent className="p-6">
+              <div className={`icon-circle h-12 w-12 mb-4 ${iconColors[i]}`}>
+                <ind.icon className="h-6 w-6" />
               </div>
-              <p className="text-2xl font-bold font-heading tracking-tight">{ind.value}</p>
-              <p className="text-xs text-muted-foreground mt-1">{ind.label}</p>
+              <p className="text-3xl font-bold font-heading tracking-tight">{ind.value}</p>
+              <p className="label-upper mt-2">{ind.label}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
       {/* Forecast card */}
-      <Card className="card-elevated border-dashed border-2 border-accent/30 bg-accent/5">
+      <Card className="card-modern border-2 border-dashed border-accent/30 bg-accent/5">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base font-heading flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-accent/20 flex items-center justify-center">
-              <Package className="h-4 w-4 text-accent-foreground" />
+          <CardTitle className="text-lg font-heading flex items-center gap-3">
+            <div className="icon-circle h-10 w-10 bg-accent/15 text-accent">
+              <Package className="h-5 w-5" />
             </div>
             Previsão de Faturamento
-            <Badge variant="outline" className="ml-2 text-xs border-accent/30 text-accent-foreground font-normal">
+            <Badge className="ml-2 pill-badge bg-accent/15 text-accent border-0">
               {disponíveis.length} peças disponíveis
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Fat. Previsto</p>
-              <p className="text-xl font-bold font-heading mt-1">{fmt(prevFaturamento)}</p>
+              <p className="label-upper">Fat. Previsto</p>
+              <p className="text-2xl font-bold font-heading mt-1">{fmt(prevFaturamento)}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Comissão Prevista</p>
-              <p className="text-xl font-bold font-heading mt-1">{fmt(prevComissao)}</p>
+              <p className="label-upper">Comissão Prevista</p>
+              <p className="text-2xl font-bold font-heading mt-1">{fmt(prevComissao)}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Parcela Brechó Prev.</p>
-              <p className="text-xl font-bold font-heading mt-1">{fmt(prevParcelaBrecho)}</p>
+              <p className="label-upper">Parcela Brechó Prev.</p>
+              <p className="text-2xl font-bold font-heading mt-1">{fmt(prevParcelaBrecho)}</p>
             </div>
           </div>
         </CardContent>
@@ -145,55 +151,55 @@ export default function Dashboard() {
 
       {/* Repasses table */}
       {repasses.length > 0 && (
-        <Card className="card-elevated overflow-hidden">
-          <CardHeader className="pb-3 bg-muted/20">
-            <CardTitle className="text-base font-heading">Repasses por Fornecedora</CardTitle>
+        <Card className="card-modern overflow-hidden border-0">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-heading">Repasses por Fornecedora</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm table-modern table-zebra">
+              <table className="w-full text-sm table-premium">
                 <thead>
-                  <tr className="border-b">
-                    <th className="p-3 text-left">Nome</th>
-                    <th className="p-3 text-left">Comissão Devida</th>
-                    <th className="p-3 text-left">Parte Brechó</th>
-                    <th className="p-3 text-left">Total a Receber</th>
-                    <th className="p-3 text-left">Progresso</th>
-                    <th className="p-3 text-left">Status</th>
-                    <th className="p-3"></th>
+                  <tr>
+                    <th className="text-left">Nome</th>
+                    <th className="text-left">Comissão Devida</th>
+                    <th className="text-left">Parte Brechó</th>
+                    <th className="text-left">Total a Receber</th>
+                    <th className="text-left">Progresso</th>
+                    <th className="text-left">Status</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   {repasses.map(r => {
                     const progress = r.comissaoDevida > 0 ? (r.pago / r.comissaoDevida) * 100 : 100;
                     return (
-                      <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
-                        <td className="p-3 font-medium">
-                          <div className="flex items-center gap-2">
-                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                      <tr key={r.id} className="border-b last:border-0">
+                        <td className="font-medium">
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center text-xs font-bold text-primary">
                               {r.nome.charAt(0).toUpperCase()}
                             </div>
                             <span>{r.nome}</span>
-                            {r.ehSocia && <Badge variant="outline" className="text-xs border-accent text-accent-foreground">⭐ Sócia</Badge>}
+                            {r.ehSocia && <Badge className="pill-badge bg-accent/15 text-accent border-0">⭐ Sócia</Badge>}
                           </div>
                         </td>
-                        <td className="p-3 font-mono-price">{fmt(r.comissaoDevida)}</td>
-                        <td className="p-3 font-mono-price">{r.ehSocia ? fmt(r.parteBrechoSocia) : '—'}</td>
-                        <td className="p-3 font-mono-price font-bold">{fmt(r.totalReceber)}</td>
-                        <td className="p-3 min-w-[120px]">
-                          <Progress value={progress} className="h-2" />
+                        <td className="font-mono-price">{fmt(r.comissaoDevida)}</td>
+                        <td className="font-mono-price">{r.ehSocia ? fmt(r.parteBrechoSocia) : '—'}</td>
+                        <td className="font-mono-price font-bold text-primary">{fmt(r.totalReceber)}</td>
+                        <td className="min-w-[120px]">
+                          <Progress value={progress} className="h-2.5 rounded-full" />
                           <p className="text-xs text-muted-foreground mt-1">{Math.round(progress)}% pago</p>
                         </td>
-                        <td className="p-3">
+                        <td>
                           {r.pendente <= 0 ? (
-                            <Badge className="bg-status-available/15 text-status-available border-status-available/30 border">✓ Pago</Badge>
+                            <span className="pill-badge bg-status-available/15 text-status-available">✓ Pago</span>
                           ) : (
-                            <Badge variant="outline" className="border-destructive/30 text-destructive">Pendente ({r.vendasPendentes})</Badge>
+                            <span className="pill-badge bg-destructive/10 text-destructive">Pendente ({r.vendasPendentes})</span>
                           )}
                         </td>
-                        <td className="p-3">
+                        <td>
                           {r.vendasPendentes > 0 && (
-                            <Button size="sm" variant="outline" className="hover:bg-primary hover:text-primary-foreground transition-colors" onClick={() => handlePagarTudo(r.id)}>
+                            <Button size="sm" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-sm" onClick={() => handlePagarTudo(r.id)}>
                               Pagar Tudo
                             </Button>
                           )}
@@ -210,39 +216,39 @@ export default function Dashboard() {
 
       {/* Previsão por fornecedora */}
       {previsaoForn.length > 0 && (
-        <Card className="card-elevated overflow-hidden">
-          <CardHeader className="pb-3 bg-muted/20">
-            <CardTitle className="text-base font-heading">Previsão por Fornecedora</CardTitle>
+        <Card className="card-modern overflow-hidden border-0">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-heading">Previsão por Fornecedora</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm table-modern table-zebra">
+              <table className="w-full text-sm table-premium">
                 <thead>
-                  <tr className="border-b">
-                    <th className="p-3 text-left">Nome</th>
-                    <th className="p-3 text-left">Qtd Peças</th>
-                    <th className="p-3 text-left">Prev. Comissão</th>
-                    <th className="p-3 text-left">Prev. Parcela Brechó</th>
-                    <th className="p-3 text-left">Total Previsto</th>
+                  <tr>
+                    <th className="text-left">Nome</th>
+                    <th className="text-left">Qtd Peças</th>
+                    <th className="text-left">Prev. Comissão</th>
+                    <th className="text-left">Prev. Parcela Brechó</th>
+                    <th className="text-left">Total Previsto</th>
                   </tr>
                 </thead>
                 <tbody>
                   {previsaoForn.map(r => (
-                    <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
-                      <td className="p-3 font-medium">
-                        <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-full bg-accent/15 flex items-center justify-center text-xs font-bold text-accent-foreground">
+                    <tr key={r.id} className="border-b last:border-0">
+                      <td className="font-medium">
+                        <div className="flex items-center gap-3">
+                          <div className="h-9 w-9 rounded-full bg-accent/15 flex items-center justify-center text-xs font-bold text-accent">
                             {r.nome.charAt(0).toUpperCase()}
                           </div>
                           {r.nome}
                         </div>
                       </td>
-                      <td className="p-3">
-                        <Badge variant="outline" className="font-mono">{r.qtd}</Badge>
+                      <td>
+                        <span className="pill-badge bg-muted text-foreground">{r.qtd}</span>
                       </td>
-                      <td className="p-3 font-mono-price">{fmt(r.prevComissao)}</td>
-                      <td className="p-3 font-mono-price">{fmt(r.prevBrecho)}</td>
-                      <td className="p-3 font-mono-price font-bold">{fmt(r.prevTotal)}</td>
+                      <td className="font-mono-price">{fmt(r.prevComissao)}</td>
+                      <td className="font-mono-price">{fmt(r.prevBrecho)}</td>
+                      <td className="font-mono-price font-bold text-primary">{fmt(r.prevTotal)}</td>
                     </tr>
                   ))}
                 </tbody>

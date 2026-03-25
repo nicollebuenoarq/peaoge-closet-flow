@@ -6,60 +6,56 @@
 
 @layer base {
   :root {
-    --background: 37 45% 93%;
-    --foreground: 90 22% 20%;
+    --background: 40 35% 97%;
+    --foreground: 90 20% 12%;
 
-    --card: 40 30% 97%;
-    --card-foreground: 90 22% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 90 20% 12%;
 
-    --popover: 40 30% 97%;
-    --popover-foreground: 90 22% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 90 20% 12%;
 
-    --primary: 90 22% 29%;
-    --primary-foreground: 37 45% 96%;
+    --primary: 90 35% 18%;
+    --primary-foreground: 40 35% 97%;
 
-    --secondary: 90 13% 48%;
-    --secondary-foreground: 37 45% 96%;
+    --secondary: 350 75% 58%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 37 25% 88%;
-    --muted-foreground: 90 10% 40%;
+    --muted: 40 20% 92%;
+    --muted-foreground: 40 10% 45%;
 
-    --accent: 33 37% 65%;
-    --accent-foreground: 90 22% 15%;
+    --accent: 350 75% 58%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 65% 50%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 37 20% 82%;
-    --input: 37 20% 82%;
-    --ring: 90 22% 29%;
+    --border: 40 15% 88%;
+    --input: 40 15% 85%;
+    --ring: 350 75% 58%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    --sidebar-background: 90 22% 29%;
-    --sidebar-foreground: 37 45% 93%;
-    --sidebar-primary: 37 45% 96%;
-    --sidebar-primary-foreground: 90 22% 20%;
-    --sidebar-accent: 90 18% 24%;
-    --sidebar-accent-foreground: 37 45% 93%;
-    --sidebar-border: 90 15% 35%;
-    --sidebar-ring: 33 37% 65%;
+    --sidebar-background: 90 30% 8%;
+    --sidebar-foreground: 40 35% 93%;
+    --sidebar-primary: 350 75% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 90 20% 15%;
+    --sidebar-accent-foreground: 40 35% 93%;
+    --sidebar-border: 90 15% 20%;
+    --sidebar-ring: 350 75% 58%;
 
-    --status-available: 120 40% 45%;
-    --status-sold: 0 0% 55%;
-    --status-reserved: 30 80% 55%;
-    --status-returned: 0 65% 50%;
+    --status-available: 145 60% 42%;
+    --status-sold: 0 0% 50%;
+    --status-reserved: 35 90% 52%;
+    --status-returned: 0 72% 51%;
 
     --font-heading: 'Playfair Display', serif;
     --font-body: 'Inter', sans-serif;
 
-    /* New design tokens */
-    --gradient-sidebar: linear-gradient(180deg, hsl(90 22% 29%), hsl(90 22% 20%));
-    --glass-bg: hsl(40 30% 97% / 0.7);
-    --glass-border: hsl(37 20% 82% / 0.5);
-    --shadow-card: 0 1px 3px hsl(90 22% 20% / 0.06), 0 4px 12px hsl(90 22% 20% / 0.04);
-    --shadow-card-hover: 0 4px 16px hsl(90 22% 20% / 0.1), 0 8px 32px hsl(90 22% 20% / 0.06);
-    --shadow-glow: 0 0 20px hsl(33 37% 65% / 0.15);
+    --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.04), 0 6px 24px hsl(0 0% 0% / 0.06);
+    --shadow-card-hover: 0 8px 30px hsl(0 0% 0% / 0.12), 0 2px 8px hsl(0 0% 0% / 0.06);
+    --shadow-nav: 0 1px 0 hsl(0 0% 0% / 0.05), 0 4px 20px hsl(0 0% 0% / 0.04);
   }
 }
 
@@ -79,34 +75,46 @@
 }
 
 @layer utilities {
-  .glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-  }
-
-  .gradient-sidebar {
-    background: var(--gradient-sidebar);
-  }
-
-  .card-elevated {
+  .card-modern {
     box-shadow: var(--shadow-card);
+    border-radius: 1.5rem;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
   }
 
-  .card-elevated:hover {
+  .card-modern:hover {
     box-shadow: var(--shadow-card-hover);
-    transform: translateY(-2px);
+    transform: translateY(-4px);
   }
 
-  .table-zebra tbody tr:nth-child(even) {
-    background: hsl(37 25% 88% / 0.3);
+  .filter-bar {
+    @apply bg-card rounded-2xl p-5;
+    box-shadow: var(--shadow-card);
   }
 
-  .table-modern thead th {
-    @apply text-xs uppercase tracking-wider font-semibold;
-    color: hsl(90 10% 40%);
-    background: hsl(37 25% 88% / 0.5);
+  .table-premium thead th {
+    @apply text-xs uppercase tracking-[0.15em] font-semibold py-4 px-4;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+
+  .table-premium thead th:first-child {
+    border-radius: 0.75rem 0 0 0;
+  }
+
+  .table-premium thead th:last-child {
+    border-radius: 0 0.75rem 0 0;
+  }
+
+  .table-premium tbody tr {
+    @apply transition-colors duration-200;
+  }
+
+  .table-premium tbody tr:hover {
+    background: hsl(var(--accent) / 0.06);
+  }
+
+  .table-premium tbody td {
+    @apply py-4 px-4;
   }
 
   .font-mono-price {
@@ -115,45 +123,43 @@
     font-weight: 600;
   }
 
+  .label-upper {
+    @apply text-xs uppercase font-medium text-muted-foreground;
+    letter-spacing: 0.15em;
+  }
+
   .animate-stagger > * {
-    animation: fade-in-up 0.4s ease-out backwards;
+    animation: fade-in-up 0.5s ease-out backwards;
   }
   .animate-stagger > *:nth-child(1) { animation-delay: 0ms; }
-  .animate-stagger > *:nth-child(2) { animation-delay: 60ms; }
-  .animate-stagger > *:nth-child(3) { animation-delay: 120ms; }
-  .animate-stagger > *:nth-child(4) { animation-delay: 180ms; }
-  .animate-stagger > *:nth-child(5) { animation-delay: 240ms; }
-  .animate-stagger > *:nth-child(6) { animation-delay: 300ms; }
-
-  .indicator-gradient-green {
-    background: linear-gradient(135deg, hsl(90 22% 29% / 0.08), hsl(90 22% 29% / 0.02));
-    border-left: 3px solid hsl(90 22% 29%);
-  }
-
-  .indicator-gradient-gold {
-    background: linear-gradient(135deg, hsl(33 37% 65% / 0.12), hsl(33 37% 65% / 0.03));
-    border-left: 3px solid hsl(33 37% 65%);
-  }
-
-  .indicator-gradient-red {
-    background: linear-gradient(135deg, hsl(0 65% 50% / 0.08), hsl(0 65% 50% / 0.02));
-    border-left: 3px solid hsl(0 65% 50%);
-  }
-
-  .indicator-gradient-teal {
-    background: linear-gradient(135deg, hsl(120 40% 45% / 0.08), hsl(120 40% 45% / 0.02));
-    border-left: 3px solid hsl(120 40% 45%);
-  }
+  .animate-stagger > *:nth-child(2) { animation-delay: 100ms; }
+  .animate-stagger > *:nth-child(3) { animation-delay: 200ms; }
+  .animate-stagger > *:nth-child(4) { animation-delay: 300ms; }
+  .animate-stagger > *:nth-child(5) { animation-delay: 400ms; }
+  .animate-stagger > *:nth-child(6) { animation-delay: 500ms; }
 
   .empty-state {
-    @apply flex flex-col items-center justify-center py-16 text-muted-foreground;
+    @apply flex flex-col items-center justify-center py-20 text-muted-foreground;
+  }
+
+  .logo-blend {
+    mix-blend-mode: multiply;
+    filter: contrast(1.1) saturate(1.2);
+  }
+
+  .pill-badge {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
+  }
+
+  .icon-circle {
+    @apply flex items-center justify-center rounded-2xl shrink-0;
   }
 }
 
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -161,7 +167,12 @@
   }
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }

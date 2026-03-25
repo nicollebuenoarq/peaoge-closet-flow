@@ -15,10 +15,10 @@ import { Plus, Search, ShoppingCart, Edit, Trash2, Download, ArrowUpDown, ArrowU
 import { toast } from 'sonner';
 
 const statusColors: Record<StatusPeca, string> = {
-  'Disponível': 'bg-status-available/15 text-status-available border-status-available/30',
-  'Vendido': 'bg-status-sold/15 text-status-sold border-status-sold/30',
-  'Reservado': 'bg-status-reserved/15 text-status-reserved border-status-reserved/30',
-  'Devolvido': 'bg-status-returned/15 text-status-returned border-status-returned/30',
+  'Disponível': 'bg-status-available/15 text-status-available',
+  'Vendido': 'bg-status-sold/15 text-status-sold',
+  'Reservado': 'bg-status-reserved/15 text-status-reserved',
+  'Devolvido': 'bg-status-returned/15 text-status-returned',
 };
 
 type SortKey = 'sku' | 'descricao' | 'categoria' | 'preco' | 'drop' | 'status' | 'dataEntrada';
@@ -26,7 +26,7 @@ type SortDir = 'asc' | 'desc';
 
 function SortIcon({ column, sortBy, sortDir }: { column: SortKey; sortBy: SortKey | null; sortDir: SortDir }) {
   if (sortBy !== column) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-30" />;
-  return sortDir === 'asc' ? <ArrowUp className="h-3 w-3 ml-1 text-primary" /> : <ArrowDown className="h-3 w-3 ml-1 text-primary" />;
+  return sortDir === 'asc' ? <ArrowUp className="h-3 w-3 ml-1" /> : <ArrowDown className="h-3 w-3 ml-1" />;
 }
 
 export default function Catalogo() {
@@ -229,11 +229,11 @@ export default function Catalogo() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Filter bar */}
-      <div className="glass rounded-xl p-4 flex flex-wrap gap-3 items-end">
+      <div className="filter-bar flex flex-wrap gap-4 items-end">
         <div>
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Drop</Label>
+          <Label className="label-upper">Drop</Label>
           <Select value={dropFilter} onValueChange={setDropFilter}>
-            <SelectTrigger className="w-32 bg-card/80"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-32 rounded-full bg-muted/50 border-0 mt-1"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
               {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d} ({dropCounts[d]})</SelectItem>)}
@@ -241,9 +241,9 @@ export default function Catalogo() {
           </Select>
         </div>
         <div>
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Status</Label>
+          <Label className="label-upper">Status</Label>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40 bg-card/80"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-40 rounded-full bg-muted/50 border-0 mt-1"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos ({pecas.length})</SelectItem>
               {config.statusValidos.map(s => <SelectItem key={s} value={s}>{s} ({statusCounts[s] || 0})</SelectItem>)}
@@ -251,9 +251,9 @@ export default function Catalogo() {
           </Select>
         </div>
         <div>
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Fornecedora</Label>
+          <Label className="label-upper">Fornecedora</Label>
           <Select value={fornFilter} onValueChange={setFornFilter}>
-            <SelectTrigger className="w-36 bg-card/80"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-36 rounded-full bg-muted/50 border-0 mt-1"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas</SelectItem>
               {fornecedoras.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
@@ -262,9 +262,9 @@ export default function Catalogo() {
         </div>
         {categorias.length > 0 && (
           <div>
-            <Label className="text-xs uppercase tracking-wider text-muted-foreground">Categoria</Label>
+            <Label className="label-upper">Categoria</Label>
             <Select value={catFilter} onValueChange={setCatFilter}>
-              <SelectTrigger className="w-32 bg-card/80"><SelectValue placeholder="Todas" /></SelectTrigger>
+              <SelectTrigger className="w-32 rounded-full bg-muted/50 border-0 mt-1"><SelectValue placeholder="Todas" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
                 {categorias.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
@@ -273,77 +273,77 @@ export default function Catalogo() {
           </div>
         )}
         <div className="flex-1 min-w-[180px]">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Buscar</Label>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-8 bg-card/80" placeholder="SKU ou descrição..." value={busca} onChange={e => setBusca(e.target.value)} />
+          <Label className="label-upper">Buscar</Label>
+          <div className="relative mt-1">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input className="pl-9 rounded-full bg-muted/50 border-0" placeholder="SKU ou descrição..." value={busca} onChange={e => setBusca(e.target.value)} />
           </div>
         </div>
-        <Button variant="outline" onClick={handleExportCSV} className="shrink-0 hover:bg-primary hover:text-primary-foreground transition-colors">
+        <Button variant="outline" onClick={handleExportCSV} className="shrink-0 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-300">
           <Download className="h-4 w-4 mr-1" /> CSV
         </Button>
-        <Button onClick={openNew} className="shrink-0 shadow-md hover:shadow-lg transition-shadow">
+        <Button onClick={openNew} className="shrink-0 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-md hover:shadow-lg transition-all duration-300">
           <Plus className="h-4 w-4 mr-1" /> Nova Peça
         </Button>
       </div>
 
       {/* Table */}
-      <Card className="card-elevated overflow-hidden border-0">
+      <Card className="card-modern overflow-hidden border-0">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm table-modern table-zebra">
+            <table className="w-full text-sm table-premium">
               <thead>
-                <tr className="border-b">
-                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('sku')}>
+                <tr>
+                  <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('sku')}>
                     <span className="flex items-center">SKU <SortIcon column="sku" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
-                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('descricao')}>
+                  <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('descricao')}>
                     <span className="flex items-center">Descrição <SortIcon column="descricao" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
-                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('categoria')}>
+                  <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('categoria')}>
                     <span className="flex items-center">Categoria <SortIcon column="categoria" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
-                  <th className="p-3 text-left">Tam.</th>
-                  <th className="p-3 text-left">Fornecedora</th>
-                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('dataEntrada')}>
+                  <th className="text-left">Tam.</th>
+                  <th className="text-left">Fornecedora</th>
+                  <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('dataEntrada')}>
                     <span className="flex items-center">Entrada <SortIcon column="dataEntrada" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
-                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('status')}>
+                  <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('status')}>
                     <span className="flex items-center">Status <SortIcon column="status" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
-                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('preco')}>
+                  <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('preco')}>
                     <span className="flex items-center">Preço <SortIcon column="preco" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
-                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('drop')}>
+                  <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('drop')}>
                     <span className="flex items-center">Drop <SortIcon column="drop" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
-                  <th className="p-3"></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map(p => (
-                  <tr key={p.sku} className="border-b last:border-0 hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => setSelectedPeca(p)}>
-                    <td className="p-3 font-mono text-xs text-muted-foreground">#{p.sku}</td>
-                    <td className="p-3 font-medium">{p.descricao}</td>
-                    <td className="p-3 text-muted-foreground">{p.categoria}</td>
-                    <td className="p-3 text-muted-foreground">{p.tamanho}</td>
-                    <td className="p-3 text-muted-foreground">{getFornNome(p.fornecedoraId)}</td>
-                    <td className="p-3 text-xs text-muted-foreground">{p.dataEntrada}</td>
-                    <td className="p-3">
-                      <Badge variant="outline" className={`${statusColors[p.status]} rounded-full px-2.5`}>{p.status}</Badge>
+                  <tr key={p.sku} className="border-b last:border-0 cursor-pointer" onClick={() => setSelectedPeca(p)}>
+                    <td className="font-mono text-xs text-muted-foreground">#{p.sku}</td>
+                    <td className="font-medium">{p.descricao}</td>
+                    <td className="text-muted-foreground">{p.categoria}</td>
+                    <td className="text-muted-foreground">{p.tamanho}</td>
+                    <td className="text-muted-foreground">{getFornNome(p.fornecedoraId)}</td>
+                    <td className="text-xs text-muted-foreground">{p.dataEntrada}</td>
+                    <td>
+                      <span className={`pill-badge ${statusColors[p.status]}`}>{p.status}</span>
                     </td>
-                    <td className="p-3 font-mono-price">{fmt(p.preco)}</td>
-                    <td className="p-3">
-                      <Badge variant="outline" className="font-mono text-xs">{p.drop}</Badge>
+                    <td className="font-mono-price text-primary">{fmt(p.preco)}</td>
+                    <td>
+                      <span className="pill-badge bg-muted text-foreground">{p.drop}</span>
                     </td>
-                    <td className="p-3" onClick={e => e.stopPropagation()}>
+                    <td onClick={e => e.stopPropagation()}>
                       <div className="flex gap-1">
-                        <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-primary/10" onClick={() => openEdit(p)}>
-                          <Edit className="h-3 w-3" />
+                        <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-primary/10" onClick={() => openEdit(p)}>
+                          <Edit className="h-3.5 w-3.5" />
                         </Button>
                         {p.status === 'Disponível' && (
-                          <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-status-available/10 text-status-available" onClick={() => { setShowVenda(p); setVendaDesconto('0'); setVendaPagamento('Pix'); }}>
-                            <ShoppingCart className="h-3 w-3" />
+                          <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-status-available/10 text-status-available" onClick={() => { setShowVenda(p); setVendaDesconto('0'); setVendaPagamento('Pix'); }}>
+                            <ShoppingCart className="h-3.5 w-3.5" />
                           </Button>
                         )}
                       </div>
@@ -354,9 +354,9 @@ export default function Catalogo() {
                   <tr>
                     <td colSpan={10} className="p-0">
                       <div className="empty-state">
-                        <Package className="h-12 w-12 mb-3 opacity-30" />
-                        <p className="text-lg font-heading">Nenhuma peça encontrada</p>
-                        <p className="text-sm">Tente ajustar os filtros ou cadastre uma nova</p>
+                        <Package className="h-16 w-16 mb-4 opacity-20" />
+                        <p className="text-xl font-heading">Nenhuma peça encontrada</p>
+                        <p className="text-sm mt-1">Tente ajustar os filtros ou cadastre uma nova</p>
                       </div>
                     </td>
                   </tr>
@@ -365,13 +365,13 @@ export default function Catalogo() {
               {filtered.length > 0 && (
                 <tfoot>
                   <tr className="border-t bg-primary/5 font-semibold">
-                    <td className="p-3" colSpan={6}>
+                    <td className="py-4 px-4" colSpan={6}>
                       <span className="text-muted-foreground">{filtered.length} peças</span>
                       <span className="text-xs text-muted-foreground/70 ml-2">({totalDisponivel} disponíveis)</span>
                     </td>
-                    <td className="p-3"></td>
-                    <td className="p-3 font-mono-price">{fmt(totalPreco)}</td>
-                    <td className="p-3" colSpan={2}></td>
+                    <td className="py-4 px-4"></td>
+                    <td className="py-4 px-4 font-mono-price text-primary">{fmt(totalPreco)}</td>
+                    <td className="py-4 px-4" colSpan={2}></td>
                   </tr>
                 </tfoot>
               )}
@@ -382,33 +382,33 @@ export default function Catalogo() {
 
       {/* Nova/Editar Peça Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-md overflow-hidden">
-          <DialogHeader className="bg-primary/5 -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
-            <DialogTitle className="font-heading text-lg">{editingPeca ? `Editar Peça #${editingPeca.sku}` : 'Nova Peça'}</DialogTitle>
+        <DialogContent className="max-w-md overflow-hidden rounded-3xl">
+          <DialogHeader className="bg-primary -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
+            <DialogTitle className="font-heading text-lg text-primary-foreground">{editingPeca ? `Editar Peça #${editingPeca.sku}` : 'Nova Peça'}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Descrição</Label><Input value={formDescricao} onChange={e => setFormDescricao(e.target.value)} className="mt-1" /></div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Categoria</Label><Input value={formCategoria} onChange={e => setFormCategoria(e.target.value)} className="mt-1" /></div>
-              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Tamanho</Label><Input value={formTamanho} onChange={e => setFormTamanho(e.target.value)} className="mt-1" /></div>
+          <div className="space-y-5">
+            <div><Label className="label-upper">Descrição</Label><Input value={formDescricao} onChange={e => setFormDescricao(e.target.value)} className="mt-1.5 rounded-xl" /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label className="label-upper">Categoria</Label><Input value={formCategoria} onChange={e => setFormCategoria(e.target.value)} className="mt-1.5 rounded-xl" /></div>
+              <div><Label className="label-upper">Tamanho</Label><Input value={formTamanho} onChange={e => setFormTamanho(e.target.value)} className="mt-1.5 rounded-xl" /></div>
             </div>
             <div>
-              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Fornecedora</Label>
+              <Label className="label-upper">Fornecedora</Label>
               <Select value={formFornecedoraId} onValueChange={setFormFornecedoraId}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue placeholder="Selecione" /></SelectTrigger>
                 <SelectContent>
                   {fornecedoras.filter(f => f.ativa).map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Preço (R$)</Label><Input type="number" step="0.01" value={formPreco} onChange={e => setFormPreco(e.target.value)} className="mt-1" /></div>
-              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Drop</Label><Input type="number" value={formDrop} onChange={e => setFormDrop(e.target.value)} className="mt-1" /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label className="label-upper">Preço (R$)</Label><Input type="number" step="0.01" value={formPreco} onChange={e => setFormPreco(e.target.value)} className="mt-1.5 rounded-xl" /></div>
+              <div><Label className="label-upper">Drop</Label><Input type="number" value={formDrop} onChange={e => setFormDrop(e.target.value)} className="mt-1.5 rounded-xl" /></div>
             </div>
           </div>
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setShowForm(false)}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={!formDescricao || !formFornecedoraId} className="shadow-md">Salvar</Button>
+          <DialogFooter className="mt-5">
+            <Button variant="outline" onClick={() => setShowForm(false)} className="rounded-full">Cancelar</Button>
+            <Button onClick={handleSave} disabled={!formDescricao || !formFornecedoraId} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-md">Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -419,33 +419,33 @@ export default function Catalogo() {
           {selectedPeca && (
             <>
               <SheetHeader className="pb-4 border-b">
-                <SheetTitle className="font-heading text-xl">Peça #{selectedPeca.sku}</SheetTitle>
+                <SheetTitle className="font-heading text-2xl">Peça #{selectedPeca.sku}</SheetTitle>
               </SheetHeader>
               <div className="mt-6 space-y-5">
-                <div><p className="text-xs text-muted-foreground uppercase tracking-wider">Descrição</p><p className="font-medium mt-1">{selectedPeca.descricao}</p></div>
+                <div><p className="label-upper">Descrição</p><p className="font-medium mt-1">{selectedPeca.descricao}</p></div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><p className="text-xs text-muted-foreground uppercase tracking-wider">Categoria</p><p className="mt-1">{selectedPeca.categoria}</p></div>
-                  <div><p className="text-xs text-muted-foreground uppercase tracking-wider">Tamanho</p><p className="mt-1">{selectedPeca.tamanho}</p></div>
+                  <div><p className="label-upper">Categoria</p><p className="mt-1">{selectedPeca.categoria}</p></div>
+                  <div><p className="label-upper">Tamanho</p><p className="mt-1">{selectedPeca.tamanho}</p></div>
                 </div>
-                <div><p className="text-xs text-muted-foreground uppercase tracking-wider">Fornecedora</p><p className="mt-1">{getFornNome(selectedPeca.fornecedoraId)}</p></div>
+                <div><p className="label-upper">Fornecedora</p><p className="mt-1">{getFornNome(selectedPeca.fornecedoraId)}</p></div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 rounded-xl bg-muted/30">
-                    <p className="text-xs text-muted-foreground">Preço</p>
-                    <p className="font-bold text-xl font-mono-price mt-1">{fmt(selectedPeca.preco)}</p>
+                  <div className="p-4 rounded-2xl bg-muted/40">
+                    <p className="label-upper">Preço</p>
+                    <p className="font-bold text-2xl font-mono-price text-primary mt-1">{fmt(selectedPeca.preco)}</p>
                   </div>
-                  <div className="p-3 rounded-xl bg-muted/30">
-                    <p className="text-xs text-muted-foreground">Drop</p>
-                    <p className="font-bold text-xl mt-1">{selectedPeca.drop}</p>
+                  <div className="p-4 rounded-2xl bg-muted/40">
+                    <p className="label-upper">Drop</p>
+                    <p className="font-bold text-2xl mt-1">{selectedPeca.drop}</p>
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Status</p>
-                  <Badge variant="outline" className={`${statusColors[selectedPeca.status]} rounded-full px-3 py-1`}>{selectedPeca.status}</Badge>
+                  <p className="label-upper mb-2">Status</p>
+                  <span className={`pill-badge ${statusColors[selectedPeca.status]} text-sm px-4 py-1.5`}>{selectedPeca.status}</span>
                 </div>
                 <div>
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">Alterar Status</Label>
+                  <Label className="label-upper">Alterar Status</Label>
                   <Select value={selectedPeca.status} onValueChange={(v) => handleStatusChange(selectedPeca.sku, v as StatusPeca)}>
-                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {config.statusValidos.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                     </SelectContent>
@@ -453,20 +453,20 @@ export default function Catalogo() {
                 </div>
                 <div className="flex gap-2">
                   {selectedPeca.status === 'Disponível' && (
-                    <Button className="flex-1 shadow-md" onClick={() => { setShowVenda(selectedPeca); setSelectedPeca(null); setVendaDesconto('0'); setVendaPagamento('Pix'); }}>
+                    <Button className="flex-1 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-md" onClick={() => { setShowVenda(selectedPeca); setSelectedPeca(null); setVendaDesconto('0'); setVendaPagamento('Pix'); }}>
                       <ShoppingCart className="h-4 w-4 mr-2" /> Vender
                     </Button>
                   )}
-                  <Button variant="outline" className="flex-1" onClick={() => { openEdit(selectedPeca); setSelectedPeca(null); }}>
+                  <Button variant="outline" className="flex-1 rounded-full" onClick={() => { openEdit(selectedPeca); setSelectedPeca(null); }}>
                     <Edit className="h-4 w-4 mr-2" /> Editar
                   </Button>
-                  <Button variant="destructive" size="icon" onClick={() => setShowDeleteConfirm(selectedPeca)}>
+                  <Button variant="destructive" size="icon" className="rounded-full" onClick={() => setShowDeleteConfirm(selectedPeca)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="pt-3 border-t space-y-1">
-                  <p className="text-xs text-muted-foreground">Comissão Fornecedora: <span className="font-mono-price">{fmt(selectedPeca.preco * config.percentualFornecedora)}</span></p>
-                  <p className="text-xs text-muted-foreground">Parcela Brechó: <span className="font-mono-price">{fmt(selectedPeca.preco * config.percentualBrecho)}</span></p>
+                <div className="pt-4 border-t space-y-2">
+                  <p className="text-sm text-muted-foreground">Comissão Fornecedora: <span className="font-mono-price text-foreground">{fmt(selectedPeca.preco * config.percentualFornecedora)}</span></p>
+                  <p className="text-sm text-muted-foreground">Parcela Brechó: <span className="font-mono-price text-foreground">{fmt(selectedPeca.preco * config.percentualBrecho)}</span></p>
                 </div>
               </div>
             </>
@@ -476,74 +476,74 @@ export default function Catalogo() {
 
       {/* Delete Confirm */}
       <Dialog open={!!showDeleteConfirm} onOpenChange={() => setShowDeleteConfirm(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm rounded-3xl">
           <DialogHeader>
-            <DialogTitle>Excluir Peça</DialogTitle>
+            <DialogTitle className="font-heading">Excluir Peça</DialogTitle>
             <DialogDescription>
               Tem certeza que deseja excluir a peça #{showDeleteConfirm?.sku} — {showDeleteConfirm?.descricao}? As vendas associadas também serão removidas.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteConfirm(null)}>Cancelar</Button>
-            <Button variant="destructive" onClick={() => showDeleteConfirm && handleDelete(showDeleteConfirm)}>Excluir</Button>
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(null)} className="rounded-full">Cancelar</Button>
+            <Button variant="destructive" onClick={() => showDeleteConfirm && handleDelete(showDeleteConfirm)} className="rounded-full">Excluir</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Status Warning */}
       <Dialog open={!!showStatusWarning} onOpenChange={() => setShowStatusWarning(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm rounded-3xl">
           <DialogHeader>
-            <DialogTitle>Atenção</DialogTitle>
+            <DialogTitle className="font-heading">Atenção</DialogTitle>
             <DialogDescription>
               Esta peça está marcada como "Vendido". Alterar o status pode desconectar da venda registrada. Deseja continuar?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowStatusWarning(null)}>Cancelar</Button>
-            <Button onClick={() => showStatusWarning && applyStatusChange(showStatusWarning.peca.sku, showStatusWarning.newStatus)}>Continuar</Button>
+            <Button variant="outline" onClick={() => setShowStatusWarning(null)} className="rounded-full">Cancelar</Button>
+            <Button onClick={() => showStatusWarning && applyStatusChange(showStatusWarning.peca.sku, showStatusWarning.newStatus)} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90">Continuar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Venda Dialog */}
       <Dialog open={!!showVenda} onOpenChange={() => setShowVenda(null)}>
-        <DialogContent className="max-w-md overflow-hidden">
-          <DialogHeader className="bg-status-available/5 -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
-            <DialogTitle className="font-heading text-lg">Registrar Venda</DialogTitle>
+        <DialogContent className="max-w-md overflow-hidden rounded-3xl">
+          <DialogHeader className="bg-primary -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
+            <DialogTitle className="font-heading text-lg text-primary-foreground">Registrar Venda</DialogTitle>
           </DialogHeader>
           {showVenda && (
-            <div className="space-y-4">
-              <div className="bg-muted/30 p-3 rounded-xl">
+            <div className="space-y-5">
+              <div className="bg-muted/40 p-4 rounded-2xl">
                 <p className="font-medium">#{showVenda.sku} — {showVenda.descricao}</p>
                 <p className="text-sm text-muted-foreground">{getFornNome(showVenda.fornecedoraId)} • Drop {showVenda.drop} • {fmt(showVenda.preco)}</p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} className="mt-1" /></div>
-                <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Pagamento</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label className="label-upper">Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} className="mt-1.5 rounded-xl" /></div>
+                <div><Label className="label-upper">Pagamento</Label>
                   <Select value={vendaPagamento} onValueChange={setVendaPagamento}>
-                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {config.meiosPagamento.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-              <div className="bg-accent/10 p-4 rounded-xl text-sm space-y-1.5 border border-accent/20">
-                <p>Preço Final: <strong className="font-mono-price">{fmt(vendaPrecoFinal)}</strong></p>
+              <div className="bg-accent/10 p-5 rounded-2xl text-sm space-y-2 border border-accent/20">
+                <p>Preço Final: <strong className="font-mono-price text-primary">{fmt(vendaPrecoFinal)}</strong></p>
                 {vendaPagamento === 'Cartão Crédito' && <p className="text-xs text-muted-foreground">Taxa 5% aplicada → Base: {fmt(vendaBase)}</p>}
                 <p>Comissão Forn.: <strong className="font-mono-price">{fmt(vendaBase * config.percentualFornecedora)}</strong></p>
                 <p>Parcela Brechó: <strong className="font-mono-price">{fmt(vendaBase * config.percentualBrecho)}</strong></p>
                 {vendaPrecoFinal < 0 && <p className="text-destructive font-semibold">⚠️ Desconto maior que o preço!</p>}
               </div>
-              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Compradora</Label><Input value={vendaCompradora} onChange={e => setVendaCompradora(e.target.value)} className="mt-1" /></div>
-              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Endereço de Entrega</Label><Input value={vendaEndereco} onChange={e => setVendaEndereco(e.target.value)} className="mt-1" /></div>
-              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Data de Entrega</Label><Input type="date" value={vendaDataEntrega} onChange={e => setVendaDataEntrega(e.target.value)} className="mt-1" /></div>
+              <div><Label className="label-upper">Compradora</Label><Input value={vendaCompradora} onChange={e => setVendaCompradora(e.target.value)} className="mt-1.5 rounded-xl" /></div>
+              <div><Label className="label-upper">Endereço de Entrega</Label><Input value={vendaEndereco} onChange={e => setVendaEndereco(e.target.value)} className="mt-1.5 rounded-xl" /></div>
+              <div><Label className="label-upper">Data de Entrega</Label><Input type="date" value={vendaDataEntrega} onChange={e => setVendaDataEntrega(e.target.value)} className="mt-1.5 rounded-xl" /></div>
             </div>
           )}
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setShowVenda(null)}>Cancelar</Button>
-            <Button onClick={handleVenda} disabled={!showVenda || vendaPrecoFinal < 0} className="shadow-md">Confirmar Venda</Button>
+          <DialogFooter className="mt-5">
+            <Button variant="outline" onClick={() => setShowVenda(null)} className="rounded-full">Cancelar</Button>
+            <Button onClick={handleVenda} disabled={!showVenda || vendaPrecoFinal < 0} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-md">Confirmar Venda</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

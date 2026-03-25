@@ -17,12 +17,12 @@ import { Plus, Edit, Star, Search, Phone, Key, Users } from 'lucide-react';
 import { toast } from 'sonner';
 
 const avatarColors = [
-  'bg-primary/15 text-primary',
-  'bg-accent/20 text-accent-foreground',
-  'bg-secondary/15 text-secondary',
-  'bg-destructive/10 text-destructive',
-  'bg-status-available/15 text-status-available',
-  'bg-status-reserved/15 text-status-reserved',
+  'bg-primary/30 text-primary',
+  'bg-accent/25 text-accent',
+  'bg-status-available/25 text-status-available',
+  'bg-status-reserved/25 text-status-reserved',
+  'bg-destructive/20 text-destructive',
+  'bg-muted-foreground/20 text-muted-foreground',
 ];
 
 function getAvatarColor(name: string) {
@@ -101,11 +101,11 @@ export default function Fornecedoras() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Filter bar */}
-      <div className="glass rounded-xl p-4 flex flex-wrap gap-3 items-end">
+      <div className="filter-bar flex flex-wrap gap-4 items-end">
         <div>
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Tipo</Label>
+          <Label className="label-upper">Tipo</Label>
           <Select value={tipoFilter} onValueChange={setTipoFilter}>
-            <SelectTrigger className="w-28 bg-card/80"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-28 rounded-full bg-muted/50 border-0 mt-1"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas ({fornecedoras.length})</SelectItem>
               <SelectItem value="socia">Sócias ({fornecedoras.filter(f => f.ehSocia).length})</SelectItem>
@@ -114,9 +114,9 @@ export default function Fornecedoras() {
           </Select>
         </div>
         <div>
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Status</Label>
+          <Label className="label-upper">Status</Label>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-28 bg-card/80"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-28 rounded-full bg-muted/50 border-0 mt-1"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas</SelectItem>
               <SelectItem value="ativa">Ativas ({fornecedoras.filter(f => f.ativa).length})</SelectItem>
@@ -125,13 +125,13 @@ export default function Fornecedoras() {
           </Select>
         </div>
         <div className="flex-1 min-w-[150px]">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Buscar</Label>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-8 bg-card/80" placeholder="Nome..." value={busca} onChange={e => setBusca(e.target.value)} />
+          <Label className="label-upper">Buscar</Label>
+          <div className="relative mt-1">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input className="pl-9 rounded-full bg-muted/50 border-0" placeholder="Nome..." value={busca} onChange={e => setBusca(e.target.value)} />
           </div>
         </div>
-        <Button onClick={openNew} className="shadow-md hover:shadow-lg transition-shadow">
+        <Button onClick={openNew} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-md hover:shadow-lg transition-all duration-300">
           <Plus className="h-4 w-4 mr-1" /> Nova Fornecedora
         </Button>
       </div>
@@ -139,7 +139,7 @@ export default function Fornecedoras() {
       <p className="text-sm text-muted-foreground">{filtered.length} fornecedoras</p>
 
       {/* Cards grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 animate-stagger">
         {filtered.map(f => {
           const totalPecas = pecas.filter(p => p.fornecedoraId === f.id).length;
           const vendasF = vendas.filter(v => v.fornecedoraId === f.id);
@@ -152,33 +152,33 @@ export default function Fornecedoras() {
           return (
             <Card
               key={f.id}
-              className={`card-elevated cursor-pointer border-0 overflow-hidden ${!f.ativa ? 'opacity-50' : ''}`}
+              className={`card-modern cursor-pointer border-0 overflow-hidden ${!f.ativa ? 'opacity-50' : ''}`}
               onClick={() => setDetailForn(f)}
             >
-              <CardContent className="p-5">
-                <div className="flex items-start gap-3 mb-4">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4 mb-5">
                   {/* Avatar */}
-                  <div className={`h-12 w-12 rounded-xl flex items-center justify-center text-lg font-bold shrink-0 ${getAvatarColor(f.nome)}`}>
+                  <div className={`h-14 w-14 rounded-2xl flex items-center justify-center text-xl font-bold shrink-0 ${getAvatarColor(f.nome)}`}>
                     {f.nome.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-heading font-semibold text-lg truncate flex items-center gap-2">
                       {f.nome}
                       {f.ehSocia && (
-                        <span className="inline-flex items-center gap-0.5 text-xs bg-accent/20 text-accent-foreground px-2 py-0.5 rounded-full">
+                        <span className="pill-badge bg-accent/20 text-accent text-xs gap-0.5">
                           <Star className="h-3 w-3 fill-current" /> Sócia
                         </span>
                       )}
                     </h3>
-                    {!f.ativa && <Badge variant="outline" className="text-xs mt-0.5">Inativa</Badge>}
+                    {!f.ativa && <Badge variant="outline" className="text-xs mt-1 rounded-full">Inativa</Badge>}
                   </div>
-                  <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={(e) => { e.stopPropagation(); openEdit(f); }}>
+                  <Button size="icon" variant="ghost" className="h-9 w-9 shrink-0 rounded-full" onClick={(e) => { e.stopPropagation(); openEdit(f); }}>
                     <Edit className="h-4 w-4" />
                   </Button>
                 </div>
 
                 {/* Contact info */}
-                <div className="space-y-1 mb-4">
+                <div className="space-y-1.5 mb-5">
                   {f.contato && (
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
                       <Phone className="h-3.5 w-3.5" /> {f.contato}
@@ -192,17 +192,17 @@ export default function Fornecedoras() {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-3 gap-2 mb-3">
-                  <div className="text-center p-2 rounded-lg bg-muted/30">
-                    <p className="text-xs text-muted-foreground">Peças</p>
-                    <p className="font-bold text-lg">{totalPecas}</p>
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  <div className="text-center p-3 rounded-2xl bg-muted/40">
+                    <p className="label-upper text-[10px]">Peças</p>
+                    <p className="font-bold text-xl font-heading">{totalPecas}</p>
                   </div>
-                  <div className="text-center p-2 rounded-lg bg-muted/30">
-                    <p className="text-xs text-muted-foreground">Vendido</p>
+                  <div className="text-center p-3 rounded-2xl bg-muted/40">
+                    <p className="label-upper text-[10px]">Vendido</p>
                     <p className="font-bold text-sm font-mono-price">{fmt(totalVendido)}</p>
                   </div>
-                  <div className="text-center p-2 rounded-lg bg-muted/30">
-                    <p className="text-xs text-muted-foreground">Pendente</p>
+                  <div className="text-center p-3 rounded-2xl bg-muted/40">
+                    <p className="label-upper text-[10px]">Pendente</p>
                     <p className="font-bold text-sm font-mono-price text-destructive">{fmt(totalPendente)}</p>
                   </div>
                 </div>
@@ -210,11 +210,11 @@ export default function Fornecedoras() {
                 {/* Progress bar */}
                 {totalComissao > 0 && (
                   <div>
-                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                    <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
                       <span>Pago: {fmt(totalPago)}</span>
                       <span>{Math.round(progress)}%</span>
                     </div>
-                    <Progress value={progress} className="h-1.5" />
+                    <Progress value={progress} className="h-2.5 rounded-full" />
                   </div>
                 )}
               </CardContent>
@@ -224,24 +224,24 @@ export default function Fornecedoras() {
 
         {filtered.length === 0 && (
           <div className="col-span-full empty-state">
-            <Users className="h-12 w-12 mb-3 opacity-30" />
-            <p className="text-lg font-heading">Nenhuma fornecedora encontrada</p>
-            <p className="text-sm">Tente ajustar os filtros ou cadastre uma nova</p>
+            <Users className="h-16 w-16 mb-4 opacity-20" />
+            <p className="text-xl font-heading">Nenhuma fornecedora encontrada</p>
+            <p className="text-sm mt-1">Tente ajustar os filtros ou cadastre uma nova</p>
           </div>
         )}
       </div>
 
       {/* Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-md overflow-hidden">
-          <DialogHeader className="bg-primary/5 -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
-            <DialogTitle className="font-heading text-lg">{editing ? 'Editar' : 'Nova'} Fornecedora</DialogTitle>
+        <DialogContent className="max-w-md overflow-hidden rounded-3xl">
+          <DialogHeader className="bg-primary -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
+            <DialogTitle className="font-heading text-lg text-primary-foreground">{editing ? 'Editar' : 'Nova'} Fornecedora</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Nome</Label><Input value={nome} onChange={e => setNome(e.target.value)} className="mt-1" /></div>
-            <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Contato (telefone)</Label><Input value={contato} onChange={e => setContato(e.target.value)} className="mt-1" /></div>
-            <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Chave Pix</Label><Input value={chavePix} onChange={e => setChavePix(e.target.value)} className="mt-1" /></div>
-            <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Observações</Label><Textarea value={observacoes} onChange={e => setObservacoes(e.target.value)} className="mt-1" /></div>
+          <div className="space-y-5">
+            <div><Label className="label-upper">Nome</Label><Input value={nome} onChange={e => setNome(e.target.value)} className="mt-1.5 rounded-xl" /></div>
+            <div><Label className="label-upper">Contato (telefone)</Label><Input value={contato} onChange={e => setContato(e.target.value)} className="mt-1.5 rounded-xl" /></div>
+            <div><Label className="label-upper">Chave Pix</Label><Input value={chavePix} onChange={e => setChavePix(e.target.value)} className="mt-1.5 rounded-xl" /></div>
+            <div><Label className="label-upper">Observações</Label><Textarea value={observacoes} onChange={e => setObservacoes(e.target.value)} className="mt-1.5 rounded-xl" /></div>
             <div className="flex items-center gap-6 pt-2">
               <div className="flex items-center gap-2">
                 <Switch checked={ativa} onCheckedChange={setAtiva} /><Label>Ativa</Label>
@@ -251,9 +251,9 @@ export default function Fornecedoras() {
               </div>
             </div>
           </div>
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setShowForm(false)}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={!nome} className="shadow-md">Salvar</Button>
+          <DialogFooter className="mt-5">
+            <Button variant="outline" onClick={() => setShowForm(false)} className="rounded-full">Cancelar</Button>
+            <Button onClick={handleSave} disabled={!nome} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-md">Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -263,21 +263,21 @@ export default function Fornecedoras() {
         <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
           {detailForn && (
             <>
-              <SheetHeader className="pb-4 border-b">
-                <div className="flex items-center gap-3">
-                  <div className={`h-14 w-14 rounded-xl flex items-center justify-center text-xl font-bold ${getAvatarColor(detailForn.nome)}`}>
+              <SheetHeader className="pb-5 border-b">
+                <div className="flex items-center gap-4">
+                  <div className={`h-16 w-16 rounded-2xl flex items-center justify-center text-2xl font-bold ${getAvatarColor(detailForn.nome)}`}>
                     {detailForn.nome.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <SheetTitle className="font-heading flex items-center gap-2">
+                    <SheetTitle className="font-heading text-xl flex items-center gap-2">
                       {detailForn.nome}
                       {detailForn.ehSocia && (
-                        <span className="inline-flex items-center gap-0.5 text-xs bg-accent/20 text-accent-foreground px-2 py-0.5 rounded-full">
+                        <span className="pill-badge bg-accent/20 text-accent text-xs gap-0.5">
                           <Star className="h-3 w-3 fill-current" /> Sócia
                         </span>
                       )}
                     </SheetTitle>
-                    {detailForn.contato && <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1"><Phone className="h-3 w-3" /> {detailForn.contato}</p>}
+                    {detailForn.contato && <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1"><Phone className="h-3 w-3" /> {detailForn.contato}</p>}
                   </div>
                 </div>
               </SheetHeader>
@@ -287,21 +287,21 @@ export default function Fornecedoras() {
                   <p className="text-sm flex items-center gap-2 text-muted-foreground"><Key className="h-4 w-4" /> {detailForn.chavePix}</p>
                 )}
                 {detailForn.observacoes && (
-                  <p className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">{detailForn.observacoes}</p>
+                  <p className="text-sm text-muted-foreground bg-muted/40 p-4 rounded-2xl">{detailForn.observacoes}</p>
                 )}
 
                 {/* Summary cards */}
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center p-3 rounded-xl bg-muted/30">
-                    <p className="text-xs text-muted-foreground">Peças</p>
-                    <p className="font-bold text-xl">{detailPecas.length}</p>
+                  <div className="text-center p-4 rounded-2xl bg-muted/40">
+                    <p className="label-upper text-[10px]">Peças</p>
+                    <p className="font-bold text-2xl font-heading">{detailPecas.length}</p>
                   </div>
-                  <div className="text-center p-3 rounded-xl bg-status-available/10">
-                    <p className="text-xs text-muted-foreground">Pago</p>
+                  <div className="text-center p-4 rounded-2xl bg-status-available/10">
+                    <p className="label-upper text-[10px]">Pago</p>
                     <p className="font-bold text-sm font-mono-price text-status-available">{fmt(detailTotalPago)}</p>
                   </div>
-                  <div className="text-center p-3 rounded-xl bg-destructive/5">
-                    <p className="text-xs text-muted-foreground">Pendente</p>
+                  <div className="text-center p-4 rounded-2xl bg-destructive/5">
+                    <p className="label-upper text-[10px]">Pendente</p>
                     <p className="font-bold text-sm font-mono-price text-destructive">{fmt(detailTotalPendente)}</p>
                   </div>
                 </div>
@@ -309,11 +309,11 @@ export default function Fornecedoras() {
                 {/* Progress */}
                 {detailTotal > 0 && (
                   <div>
-                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                    <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
                       <span>Progresso de pagamento</span>
                       <span>{Math.round(detailProgress)}%</span>
                     </div>
-                    <Progress value={detailProgress} className="h-2" />
+                    <Progress value={detailProgress} className="h-2.5 rounded-full" />
                   </div>
                 )}
 
@@ -322,17 +322,17 @@ export default function Fornecedoras() {
                     <h4 className="font-heading font-semibold text-sm mb-3">Vendas ({detailVendas.length})</h4>
                     <div className="space-y-2 max-h-60 overflow-y-auto">
                       {detailVendas.map(v => (
-                        <div key={v.id} className="flex justify-between items-center p-3 rounded-xl bg-card border text-sm hover:shadow-sm transition-shadow">
+                        <div key={v.id} className="flex justify-between items-center p-4 rounded-2xl bg-card border text-sm hover:shadow-sm transition-all duration-200">
                           <div>
                             <span className="font-mono text-xs text-muted-foreground">#{v.skuPeca}</span>{' '}
                             <span className="font-medium">{v.descricaoPeca}</span>
                             <p className="text-xs text-muted-foreground mt-0.5">{v.dataVenda} • {v.compradora || 'Sem compradora'}</p>
                           </div>
                           <div className="text-right">
-                            <p className="font-mono-price">{fmt(v.precoFinal)}</p>
-                            <Badge variant="outline" className={`text-xs ${v.pagoFornecedora ? 'border-status-available/30 text-status-available' : 'border-destructive/30 text-destructive'}`}>
+                            <p className="font-mono-price text-primary">{fmt(v.precoFinal)}</p>
+                            <span className={`pill-badge text-[10px] mt-1 ${v.pagoFornecedora ? 'bg-status-available/15 text-status-available' : 'bg-destructive/10 text-destructive'}`}>
                               {v.pagoFornecedora ? '✓ Pago' : 'Pendente'}
-                            </Badge>
+                            </span>
                           </div>
                         </div>
                       ))}
@@ -343,13 +343,18 @@ export default function Fornecedoras() {
                 {detailPecas.length > 0 && (
                   <div>
                     <h4 className="font-heading font-semibold text-sm mb-3">Peças ({detailPecas.length})</h4>
-                    <div className="space-y-1 max-h-40 overflow-y-auto">
+                    <div className="space-y-1.5 max-h-40 overflow-y-auto">
                       {detailPecas.map(p => (
-                        <div key={p.sku} className="flex justify-between items-center p-2.5 rounded-lg bg-card border text-sm hover:shadow-sm transition-shadow">
+                        <div key={p.sku} className="flex justify-between items-center p-3 rounded-xl bg-card border text-sm hover:shadow-sm transition-all duration-200">
                           <span><span className="font-mono text-xs text-muted-foreground">#{p.sku}</span> {p.descricao}</span>
                           <div className="flex items-center gap-2">
-                            <span className="font-mono-price text-xs">{fmt(p.preco)}</span>
-                            <Badge variant="outline" className="text-xs">{p.status}</Badge>
+                            <span className="font-mono-price text-xs text-primary">{fmt(p.preco)}</span>
+                            <span className={`pill-badge text-[10px] ${
+                              p.status === 'Disponível' ? 'bg-status-available/15 text-status-available' :
+                              p.status === 'Vendido' ? 'bg-status-sold/15 text-status-sold' :
+                              p.status === 'Reservado' ? 'bg-status-reserved/15 text-status-reserved' :
+                              'bg-status-returned/15 text-status-returned'
+                            }`}>{p.status}</span>
                           </div>
                         </div>
                       ))}
