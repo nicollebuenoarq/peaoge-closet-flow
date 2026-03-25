@@ -72,10 +72,3 @@ export interface AppConfig {
   statusValidos: string[];
   meiosPagamento: string[];
 }
-  percentualFornecedora: number;
-  percentualBrecho: number;
-  taxaCartao: number;
-  dropAtual: number;
-  statusValidos: string[];
-  meiosPagamento: string[];
-}
