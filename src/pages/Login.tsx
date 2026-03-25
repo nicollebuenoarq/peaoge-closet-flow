@@ -15,7 +15,7 @@ import flatlayEdit from '@/assets/photos/flatlay_edit.png';
 const photos = [saiaXadrez, flatlay2, shortsJeans, looksCabide, camisetasRosa, flatlayEdit];
 
 const socias = [
-  { name: 'Nicolle', cargo: 'Sócia-fundadora', color: '#e8527a', senha: 'nicolle123' },
+  { name: 'Nicolle', cargo: 'Sócia', color: '#e8527a', senha: 'nicolle123' },
   { name: 'Larissa', cargo: 'Sócia', color: '#4a7a4b', senha: 'larissa123' },
   { name: 'Joice', cargo: 'Sócia', color: '#2d4a2e', senha: 'joice123' },
 ];
