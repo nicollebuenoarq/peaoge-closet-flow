@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { X, Plus, Save, RotateCcw, Settings2, CreditCard, Tags, Database } from 'lucide-react';
+import { X, Plus, Save, RotateCcw, Settings2, CreditCard, Tags, Database, Lock } from 'lucide-react';
 import { toast } from 'sonner';
+
+const sociasList = ['Nicolle', 'Larissa', 'Joice'] as const;
 
 export default function Configuracoes() {
   const [, setTick] = useState(0);
