@@ -405,7 +405,9 @@ function LembreteCard({ lembrete: l, onToggle, onEdit, onDelete }: {
   onEdit: (l: Lembrete) => void;
   onDelete: (id: string) => void;
 }) {
-  const isOverdue = l.dataLimite && !l.concluido && new Date(l.dataLimite) < new Date();
+  const todayLocal = new Date();
+  todayLocal.setHours(0, 0, 0, 0);
+  const isOverdue = l.dataLimite && !l.concluido && new Date(l.dataLimite + 'T00:00:00') < todayLocal;
 
   return (
     <div className={`p-4 rounded-2xl border transition-all ${l.concluido ? 'bg-muted/30 border-border opacity-60' : isOverdue ? 'bg-destructive/5 border-destructive/30' : 'bg-card border-border'}`}>
