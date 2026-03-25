@@ -319,8 +319,19 @@ export default function Catalogo() {
 
       {/* Table */}
       <div className="card-editorial overflow-hidden">
-        <div className="overflow-x-auto">
           <table className="w-full text-sm table-editorial">
+            <colgroup>
+              <col className="w-[6%]" />
+              <col className="w-[22%]" />
+              <col className="w-[12%]" />
+              <col className="w-[6%]" />
+              <col className="w-[14%]" />
+              <col className="w-[10%]" />
+              <col className="w-[12%]" />
+              <col className="w-[9%]" />
+              <col className="w-[5%]" />
+              <col className="w-[4%]" />
+            </colgroup>
             <thead>
               <tr>
                 <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('sku')}>
@@ -330,10 +341,10 @@ export default function Catalogo() {
                   <span className="flex items-center">DESCRIÇÃO <SortIcon column="descricao" sortBy={sortBy} sortDir={sortDir} /></span>
                 </th>
                 <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('categoria')}>
-                  <span className="flex items-center">CATEGORIA <SortIcon column="categoria" sortBy={sortBy} sortDir={sortDir} /></span>
+                  <span className="flex items-center">CAT. <SortIcon column="categoria" sortBy={sortBy} sortDir={sortDir} /></span>
                 </th>
                 <th className="text-left">TAM.</th>
-                <th className="text-left">FORNECEDORA</th>
+                <th className="text-left">FORN.</th>
                 <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('dataEntrada')}>
                   <span className="flex items-center">ENTRADA <SortIcon column="dataEntrada" sortBy={sortBy} sortDir={sortDir} /></span>
                 </th>
@@ -353,10 +364,10 @@ export default function Catalogo() {
               {filtered.map(p => (
                 <tr key={p.sku} className="border-b last:border-0 cursor-pointer" onClick={() => setSelectedPeca(p)}>
                   <td className="font-mono-price text-xs text-muted-foreground">#{p.sku}</td>
-                  <td className="font-medium text-sm">{p.descricao}</td>
-                  <td className="text-muted-foreground text-sm">{p.categoria}</td>
+                  <td className="font-medium text-sm truncate">{p.descricao}</td>
+                  <td className="text-muted-foreground text-sm truncate">{p.categoria}</td>
                   <td className="text-muted-foreground text-sm">{p.tamanho}</td>
-                  <td className="text-muted-foreground text-sm">{getFornNome(p.fornecedoraId)}</td>
+                  <td className="text-muted-foreground text-sm truncate">{getFornNome(p.fornecedoraId)}</td>
                   <td className="text-muted-foreground text-sm">{p.dataEntrada}</td>
                   <td>
                     <span className={`pill-badge ${statusColors[p.status]}`}>{p.status}</span>

@@ -220,7 +220,6 @@ export default function Dashboard() {
 
             <TabsContent value="repasses" className="mt-0">
               {repasses.length > 0 ? (
-                <div className="overflow-x-auto">
                   <table className="w-full text-sm table-editorial">
                     <thead>
                       <tr>
