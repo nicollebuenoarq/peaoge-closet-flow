@@ -32,12 +32,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-40 bg-background border-b border-border">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
           <div className="flex items-center h-16 gap-6">
-            {/* Logo — rotated, no container */}
+            {/* Logo — rotated, no container, no bg */}
             <img
               src={logo}
               alt="Brechó Peaogê"
-              className="h-[52px] w-auto object-contain cursor-pointer"
-              style={{ transform: 'rotate(-3deg)' }}
+              className="h-[52px] w-auto object-contain cursor-pointer border-none p-0 bg-transparent"
+              style={{ transform: 'rotate(-3deg)', background: 'none' }}
               onClick={() => nav('/')}
             />
 
