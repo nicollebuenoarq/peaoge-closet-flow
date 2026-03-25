@@ -54,7 +54,24 @@ export default function Planejamento() {
     ? lembretes
     : lembretes.filter(l => l.responsavel.includes(filtroResp as Responsavel));
 
-  const pendentes = filteredLembretes.filter(l => !l.concluido);
+  // Sort: overdue first, then by closest deadline, then no-deadline last
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const sortByUrgency = (list: Lembrete[]) =>
+    [...list].sort((a, b) => {
+      const da = a.dataLimite ? new Date(a.dataLimite + 'T00:00:00') : null;
+      const db = b.dataLimite ? new Date(b.dataLimite + 'T00:00:00') : null;
+      const overA = da && da < today ? 1 : 0;
+      const overB = db && db < today ? 1 : 0;
+      if (overA !== overB) return overB - overA; // overdue first
+      if (da && db) return da.getTime() - db.getTime(); // closest deadline
+      if (da) return -1; // has deadline before no-deadline
+      if (db) return 1;
+      return 0;
+    });
+
+  const pendentes = sortByUrgency(filteredLembretes.filter(l => !l.concluido));
   const concluidos = filteredLembretes.filter(l => l.concluido);
 
   // Checkbox toggle logic
@@ -388,7 +405,9 @@ function LembreteCard({ lembrete: l, onToggle, onEdit, onDelete }: {
   onEdit: (l: Lembrete) => void;
   onDelete: (id: string) => void;
 }) {
-  const isOverdue = l.dataLimite && !l.concluido && new Date(l.dataLimite) < new Date();
+  const todayLocal = new Date();
+  todayLocal.setHours(0, 0, 0, 0);
+  const isOverdue = l.dataLimite && !l.concluido && new Date(l.dataLimite + 'T00:00:00') < todayLocal;
 
   return (
     <div className={`p-4 rounded-2xl border transition-all ${l.concluido ? 'bg-muted/30 border-border opacity-60' : isOverdue ? 'bg-destructive/5 border-destructive/30' : 'bg-card border-border'}`}>
@@ -413,7 +432,7 @@ function LembreteCard({ lembrete: l, onToggle, onEdit, onDelete }: {
           <div className="flex items-center gap-3 mt-2">
             {l.dataLimite && (
               <span className={`text-[10px] ${isOverdue ? 'text-destructive font-bold' : 'text-muted-foreground'}`}>
-                📅 {new Date(l.dataLimite).toLocaleDateString('pt-BR')}
+                📅 {new Date(l.dataLimite + 'T12:00:00').toLocaleDateString('pt-BR')}
                 {isOverdue && ' — Atrasado!'}
               </span>
             )}

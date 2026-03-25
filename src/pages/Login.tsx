@@ -14,11 +14,22 @@ import flatlayEdit from '@/assets/photos/flatlay_edit.png';
 
 const photos = [saiaXadrez, flatlay2, shortsJeans, looksCabide, camisetasRosa, flatlayEdit];
 
+const sociaDefaults: Record<string, string> = {
+  Nicolle: 'nicolle123',
+  Larissa: 'larissa123',
+  Joice: 'joice123',
+};
+
 const socias = [
-  { name: 'Nicolle', cargo: 'Sócia', color: '#e8527a', senha: 'nicolle123' },
-  { name: 'Larissa', cargo: 'Sócia', color: '#4a7a4b', senha: 'larissa123' },
-  { name: 'Joice', cargo: 'Sócia', color: '#2d4a2e', senha: 'joice123' },
+  { name: 'Nicolle', cargo: 'Sócia', color: '#e8527a' },
+  { name: 'Larissa', cargo: 'Sócia', color: '#4a7a4b' },
+  { name: 'Joice', cargo: 'Sócia', color: '#2d4a2e' },
 ];
+
+function getSenha(name: string): string {
+  const custom = localStorage.getItem(`brecho_senha_${name}`);
+  return custom || sociaDefaults[name] || '';
+}
 
 export default function Login() {
   const navigate = useNavigate();
@@ -28,7 +39,7 @@ export default function Login() {
   const handleLogin = () => {
     if (selected === null) return;
     const socia = socias[selected];
-    if (senha !== socia.senha) {
+    if (senha !== getSenha(socia.name)) {
       toast.error('Senha incorreta. Tente novamente.');
       return;
     }
