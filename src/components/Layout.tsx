@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, Receipt, Users, Settings, Menu, X, LogOut, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import logo from '@/assets/logo_peaoge_sem_fundo.png';
+import LembretesPopup from '@/components/LembretesPopup';
 
 const navItems = [
   { label: 'DASHBOARD', path: '/', icon: LayoutDashboard },
