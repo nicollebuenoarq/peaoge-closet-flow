@@ -432,7 +432,7 @@ function LembreteCard({ lembrete: l, onToggle, onEdit, onDelete }: {
           <div className="flex items-center gap-3 mt-2">
             {l.dataLimite && (
               <span className={`text-[10px] ${isOverdue ? 'text-destructive font-bold' : 'text-muted-foreground'}`}>
-                📅 {new Date(l.dataLimite).toLocaleDateString('pt-BR')}
+                📅 {new Date(l.dataLimite + 'T12:00:00').toLocaleDateString('pt-BR')}
                 {isOverdue && ' — Atrasado!'}
               </span>
             )}

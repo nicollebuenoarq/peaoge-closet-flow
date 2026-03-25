@@ -39,7 +39,7 @@ export default function Login() {
   const handleLogin = () => {
     if (selected === null) return;
     const socia = socias[selected];
-    if (senha !== socia.senha) {
+    if (senha !== getSenha(socia.name)) {
       toast.error('Senha incorreta. Tente novamente.');
       return;
     }

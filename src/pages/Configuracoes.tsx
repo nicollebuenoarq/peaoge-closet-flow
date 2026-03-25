@@ -158,6 +158,27 @@ export default function Configuracoes() {
         </div>
       </div>
 
+      {/* Senhas */}
+      <div className="card-editorial overflow-hidden">
+        <div className="bg-primary/5 px-6 py-4 border-b border-border">
+          <h3 className="font-display text-lg tracking-wide flex items-center gap-3">
+            <div className="icon-circle h-10 w-10 bg-primary/10 text-primary rounded-full">
+              <Lock className="h-5 w-5" />
+            </div>
+            SENHAS DE ACESSO
+          </h3>
+        </div>
+        <div className="p-6 space-y-4">
+          <p className="text-xs text-muted-foreground">Altere as senhas de login de cada sócia.</p>
+          {sociasList.map(name => {
+            const key = `brecho_senha_${name}`;
+            return (
+              <SenhaField key={name} name={name} storageKey={key} />
+            );
+          })}
+        </div>
+      </div>
+
       <div className="card-editorial overflow-hidden border-destructive/30 border-2">
         <div className="bg-destructive/5 px-6 py-4 border-b border-border">
           <h3 className="font-display text-lg tracking-wide flex items-center gap-3">
