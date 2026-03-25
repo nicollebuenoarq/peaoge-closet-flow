@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { store } from '@/lib/store';
+import { resetAndReimport } from '@/lib/initialData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { X, Plus, Save } from 'lucide-react';
+import { X, Plus, Save, RotateCcw } from 'lucide-react';
 
 export default function Configuracoes() {
   const [, setTick] = useState(0);
@@ -129,6 +130,20 @@ export default function Configuracoes() {
             <Input value={novoPgto} onChange={e => setNovoPgto(e.target.value)} placeholder="Novo meio..." className="flex-1" />
             <Button size="sm" onClick={addPgto}><Plus className="h-4 w-4" /></Button>
           </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle className="font-heading text-base">Dados</CardTitle></CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-3">Limpa todos os dados e reimporta os dados iniciais da planilha original.</p>
+          <Button variant="destructive" onClick={() => {
+            if (confirm('Tem certeza? Todos os dados atuais serão perdidos!')) {
+              resetAndReimport();
+              window.location.reload();
+            }
+          }}>
+            <RotateCcw className="h-4 w-4 mr-1" /> Resetar e Reimportar
+          </Button>
         </CardContent>
       </Card>
     </div>
