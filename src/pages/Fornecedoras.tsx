@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Edit, Star, Search, Phone, Key } from 'lucide-react';
+import { Plus, Edit, Star, Search, Phone, Key, Users } from 'lucide-react';
 import { toast } from 'sonner';
 
 const avatarColors = [
