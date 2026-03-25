@@ -44,7 +44,10 @@ export const store = {
   getNextSku: (): number => get(KEYS.nextSku, 1),
   setNextSku: (n: number) => set(KEYS.nextSku, n),
 
-  getLembretes: (): Lembrete[] => get(KEYS.lembretes, []),
+  getLembretes: (): Lembrete[] => get<any[]>(KEYS.lembretes, []).map(l => ({
+    ...l,
+    responsavel: Array.isArray(l.responsavel) ? l.responsavel : [l.responsavel],
+  })),
   setLembretes: (d: Lembrete[]) => set(KEYS.lembretes, d),
 
   getDropPlans: (): DropPlan[] => get(KEYS.dropPlans, []),

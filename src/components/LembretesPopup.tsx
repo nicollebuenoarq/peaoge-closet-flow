@@ -16,7 +16,7 @@ export default function LembretesPopup() {
 
     const userName = localStorage.getItem('brecho_user_name') || '';
     const lembretes = store.getLembretes().filter(
-      l => !l.concluido && (l.responsavel === userName || l.responsavel === 'Todas')
+      l => !l.concluido && (l.responsavel.includes(userName as any) || l.responsavel.includes('Todas'))
     );
 
     if (lembretes.length > 0) {
@@ -47,9 +47,11 @@ export default function LembretesPopup() {
             <div key={l.id} className="p-4 rounded-2xl bg-muted/50 border border-border space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <h4 className="font-display text-sm tracking-wide text-foreground">{l.titulo}</h4>
-                <Badge variant="secondary" className="text-[10px] shrink-0">
-                  {l.responsavel}
-                </Badge>
+                {l.responsavel.map(r => (
+                  <Badge key={r} variant="secondary" className="text-[10px] shrink-0">
+                    {r}
+                  </Badge>
+                ))}
               </div>
               {l.descricao && (
                 <p className="text-xs text-muted-foreground leading-relaxed">{l.descricao}</p>

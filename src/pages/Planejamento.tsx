@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { store } from '@/lib/store';
 import { Lembrete, DropPlan, Responsavel } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -9,10 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Bell, CalendarPlus, Plus, Trash2, CheckCircle, Edit2, Package } from 'lucide-react';
 import { toast } from 'sonner';
 
 const responsaveis: Responsavel[] = ['Nicolle', 'Larissa', 'Joice', 'Todas'];
+const socias: Responsavel[] = ['Nicolle', 'Larissa', 'Joice'];
 
 const responsavelColors: Record<string, string> = {
   Nicolle: 'bg-[#e8527a]/15 text-[#e8527a]',
@@ -35,7 +37,7 @@ export default function Planejamento() {
   const [lTitulo, setLTitulo] = useState('');
   const [lDescricao, setLDescricao] = useState('');
   const [lDataLimite, setLDataLimite] = useState('');
-  const [lResponsavel, setLResponsavel] = useState<Responsavel>('Todas');
+  const [lResponsavel, setLResponsavel] = useState<Responsavel[]>(['Todas']);
 
   // Form states - drops
   const [dDrop, setDDrop] = useState('');
@@ -50,15 +52,32 @@ export default function Planejamento() {
 
   const filteredLembretes = filtroResp === 'all'
     ? lembretes
-    : lembretes.filter(l => l.responsavel === filtroResp);
+    : lembretes.filter(l => l.responsavel.includes(filtroResp as Responsavel));
 
   const pendentes = filteredLembretes.filter(l => !l.concluido);
   const concluidos = filteredLembretes.filter(l => l.concluido);
 
+  // Checkbox toggle logic
+  const toggleResponsavel = (r: Responsavel) => {
+    if (r === 'Todas') {
+      setLResponsavel(['Todas']);
+    } else {
+      let next: Responsavel[] = lResponsavel.filter(x => x !== 'Todas');
+      if (next.includes(r)) {
+        next = next.filter(x => x !== r);
+      } else {
+        next = [...next, r];
+      }
+      if (next.length === 0) next = ['Todas'];
+      if (next.length === 3 && socias.every(s => next.includes(s))) next = ['Todas'];
+      setLResponsavel(next);
+    }
+  };
+
   // Lembrete CRUD
   const openNewLembrete = () => {
     setEditLembrete(null);
-    setLTitulo(''); setLDescricao(''); setLDataLimite(''); setLResponsavel('Todas');
+    setLTitulo(''); setLDescricao(''); setLDataLimite(''); setLResponsavel(['Todas']);
     setShowLembrete(true);
   };
 
@@ -169,14 +188,13 @@ export default function Planejamento() {
 
         {/* === LEMBRETES === */}
         <TabsContent value="lembretes" className="mt-4 space-y-4">
-          {/* Toolbar */}
           <div className="flex flex-col sm:flex-row gap-3">
             <Select value={filtroResp} onValueChange={setFiltroResp}>
               <SelectTrigger className="w-full sm:w-48 rounded-full bg-card border-border text-sm">
                 <SelectValue placeholder="Filtrar responsável" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas as sócias</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 {responsaveis.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -185,7 +203,6 @@ export default function Planejamento() {
             </Button>
           </div>
 
-          {/* Pending */}
           {pendentes.length > 0 ? (
             <div className="space-y-3">
               {pendentes.map(l => (
@@ -199,7 +216,6 @@ export default function Planejamento() {
             </div>
           )}
 
-          {/* Completed */}
           {concluidos.length > 0 && (
             <details className="group">
               <summary className="cursor-pointer text-xs font-bold text-muted-foreground uppercase tracking-widest py-2">
@@ -298,12 +314,17 @@ export default function Planejamento() {
               </div>
               <div>
                 <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Responsável</Label>
-                <Select value={lResponsavel} onValueChange={v => setLResponsavel(v as Responsavel)}>
-                  <SelectTrigger className="mt-1 rounded-xl"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {responsaveis.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <div className="mt-2 space-y-2">
+                  {responsaveis.map(r => (
+                    <label key={r} className="flex items-center gap-2 text-sm cursor-pointer">
+                      <Checkbox
+                        checked={lResponsavel.includes(r)}
+                        onCheckedChange={() => toggleResponsavel(r)}
+                      />
+                      <span>{r}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -380,9 +401,13 @@ function LembreteCard({ lembrete: l, onToggle, onEdit, onDelete }: {
             <h4 className={`font-display text-sm tracking-wide ${l.concluido ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
               {l.titulo}
             </h4>
-            <Badge className={`text-[10px] shrink-0 border-none ${responsavelColors[l.responsavel] || ''}`}>
-              {l.responsavel}
-            </Badge>
+            <div className="flex gap-1 shrink-0 flex-wrap justify-end">
+              {l.responsavel.map(r => (
+                <Badge key={r} className={`text-[10px] border-none ${responsavelColors[r] || ''}`}>
+                  {r}
+                </Badge>
+              ))}
+            </div>
           </div>
           {l.descricao && <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{l.descricao}</p>}
           <div className="flex items-center gap-3 mt-2">

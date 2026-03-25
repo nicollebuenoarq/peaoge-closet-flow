@@ -51,7 +51,7 @@ export interface Lembrete {
   titulo: string;
   descricao: string;
   dataLimite: string | null;
-  responsavel: Responsavel;
+  responsavel: Responsavel[];
   concluido: boolean;
   criadoEm: string;
 }
