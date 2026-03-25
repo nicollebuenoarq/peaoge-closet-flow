@@ -16,7 +16,7 @@ export default function LembretesPopup() {
 
     const userName = localStorage.getItem('brecho_user_name') || '';
     const lembretes = store.getLembretes().filter(
-      l => !l.concluido && (l.responsavel === userName || l.responsavel === 'Todas')
+      l => !l.concluido && (l.responsavel.includes(userName as any) || l.responsavel.includes('Todas'))
     );
 
     if (lembretes.length > 0) {
