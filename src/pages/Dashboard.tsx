@@ -18,11 +18,11 @@ import camisetasRosa from '@/assets/photos/camisetas_rosa_edit.png';
 import flatlayEdit from '@/assets/photos/flatlay_edit.png';
 
 const photoStrip = [
-  { src: saiaXadrez, label: 'SAIA' },
-  { src: flatlay2, label: 'CASUAL' },
-  { src: shortsJeans, label: 'JEANS' },
-  { src: looksCabide, label: 'LOOKS' },
-  { src: camisetasRosa, label: 'CAMISETAS' },
+  { src: saiaXadrez, label: 'DASHBOARD', path: '/' },
+  { src: flatlay2, label: 'CATÁLOGO', path: '/catalogo' },
+  { src: shortsJeans, label: 'VENDAS', path: '/vendas' },
+  { src: looksCabide, label: 'FORNECEDORAS', path: '/fornecedoras' },
+  { src: camisetasRosa, label: 'CONFIG', path: '/configuracoes' },
 ];
 
 const topBarColors = ['#2d4a2e', '#e8527a', '#f0a500', '#3ab5a0', '#7b61ff'];
