@@ -54,7 +54,24 @@ export default function Planejamento() {
     ? lembretes
     : lembretes.filter(l => l.responsavel.includes(filtroResp as Responsavel));
 
-  const pendentes = filteredLembretes.filter(l => !l.concluido);
+  // Sort: overdue first, then by closest deadline, then no-deadline last
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const sortByUrgency = (list: Lembrete[]) =>
+    [...list].sort((a, b) => {
+      const da = a.dataLimite ? new Date(a.dataLimite + 'T00:00:00') : null;
+      const db = b.dataLimite ? new Date(b.dataLimite + 'T00:00:00') : null;
+      const overA = da && da < today ? 1 : 0;
+      const overB = db && db < today ? 1 : 0;
+      if (overA !== overB) return overB - overA; // overdue first
+      if (da && db) return da.getTime() - db.getTime(); // closest deadline
+      if (da) return -1; // has deadline before no-deadline
+      if (db) return 1;
+      return 0;
+    });
+
+  const pendentes = sortByUrgency(filteredLembretes.filter(l => !l.concluido));
   const concluidos = filteredLembretes.filter(l => l.concluido);
 
   // Checkbox toggle logic
