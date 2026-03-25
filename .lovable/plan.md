@@ -1,123 +1,153 @@
 
 
-## Plano: Redesign Total -- Novo Layout, Nova Identidade
+## Plano: Redesign Editorial Y2K -- Brecho Peaoge
 
-Vou redesenhar TUDO: layout, navegacao, cores, tipografia, componentes. Nao e um ajuste -- e um site novo com a mesma funcionalidade.
+Redesign completo com estetica editorial/Y2K, novas fontes, nova paleta, photo strip, hero banner, login page, e grain overlay.
 
 ---
 
-### Mudanca de paradigma: Top Navigation + Layout aberto
-
-Trocar a sidebar por um **header fixo com navegacao horizontal**. Isso abre o conteudo, da mais respiro e e mais moderno. A logo fica grande e centralizada no topo.
+### Visao geral do novo layout
 
 ```text
 ┌─────────────────────────────────────────────────┐
-│  [Logo grande]     Nav: Dashboard Catalogo ...  │
-│                                                 │
-│  Saudacao + Data                    [Filtros]   │
+│ [Logo -3°]   Dashboard Catalogo Vendas ...  [P] │  <- Navbar creme
 ├─────────────────────────────────────────────────┤
-│                                                 │
-│              Conteudo principal                  │
-│                                                 │
-└─────────────────────────────────────────────────┘
+│  GESTAO DE                    [Filtro Drop]     │
+│  *Estilo*            "PEAOGE" fantasma atras    │  <- Hero banner
+├────┬────┬────┬────┬────┤                        │
+│SAIA│CASUAL│JEANS│LOOKS│CAMISETAS│                │  <- Photo strip
+├─────────────────────────────────────────────────┤
+│ [Card][Card][Card][Card][Card]  │  [Card Rosa]  │
+│                                 │  [Foto+Label] │  <- Metricas + lateral
+│ Tabela de Repasses              │               │
+│ Previsao por Fornecedora        │               │
+└──────────────── Logo marca dagua 15% ───────────┘
 ```
 
 ---
 
-### 1. Header/Nav completamente novo
+### Arquivos e mudancas
 
-- **Logo grande** no canto esquerdo, sem fundo, limpa (vou remover fundo da imagem via CSS: mix-blend-mode ou fundo transparente)
-- Navegacao horizontal com itens estilo pill/tab, hover com fundo suave, ativo com fundo solido coral
-- Fundo do header: branco puro com sombra sutil na parte inferior
-- No mobile: hamburguer que abre drawer lateral com animacao slide-in
-- Saudacao ("Boa tarde, Peaoge") como subtitulo discreto abaixo da nav
+#### 1. Copiar assets (7 imagens + logo)
+- Copiar `logo_peaoge_sem_fundo.png` para `src/assets/`
+- Copiar 6 fotos editadas para `src/assets/photos/`
 
-### 2. Nova paleta de cores -- alto contraste
+#### 2. `src/index.css` -- Design system completo novo
+- Fontes: Bebas Neue, DM Serif Display, Space Mono (Google Fonts import)
+- Paleta: `--background: #f5f0e8`, `--primary: #2d4a2e`, `--accent: #e8527a`, `--accent-light: #f7b8cc`, `--foreground: #111111`, `--primary-medium: #4a7a4b`
+- Grain overlay via `::after` no body com SVG noise pattern, opacity 2.5%, pointer-events none, fixed
+- Remover todas as utilidades antigas (card-modern, table-premium, etc)
+- Novas utilidades:
+  - `.font-display` (Bebas Neue), `.font-serif` (DM Serif Display), `.font-mono` (Space Mono)
+  - `.label-upper` em Space Mono uppercase tracking wide
+  - `.card-editorial` com border-radius 16px, border sutil, sem sombra pesada
+  - Animacoes fadeUp com stagger
 
-Inspirado no mix IceBox (dark/bold) + Desapegae (coral/quente):
+#### 3. `tailwind.config.ts` -- Tokens novos
+- fontFamily: display (Bebas Neue), serif (DM Serif Display), mono (Space Mono)
+- Cores novas mapeadas para os tokens CSS
+- Border-radius 16px como padrao
+- Animacoes fade-up customizadas
 
-- **Background**: creme quente limpo `hsl(40 35% 97%)`
-- **Cards**: branco puro `hsl(0 0% 100%)` com sombras reais fortes
-- **Primary**: verde muito escuro `hsl(90 35% 18%)` -- profundo e elegante
-- **Accent/CTA**: coral vibrante `hsl(350 75% 58%)` -- para botoes, badges, destaques
-- **Textos**: quase preto `hsl(90 20% 12%)` para contraste maximo
-- **Muted**: cinza-quente suave para textos secundarios
+#### 4. `src/components/Layout.tsx` -- Reescrita completa
+- **Navbar**: fundo `#f5f0e8`, logo com cores originais h-[52px] rotate-[-3deg], nav links em verde escuro, link ativo com bg rosa `#e8527a` e texto branco (pill), chip do usuario com inicial colorida no canto direito
+- **Sem hero/greeting global** -- o hero fica DENTRO do Dashboard
+- **Footer**: logo como marca dagua 80px rotate-[8deg] opacity-15
+- Mobile: hamburger abre drawer com mesma estetica
 
-### 3. Tipografia dramatica
+#### 5. `src/pages/Dashboard.tsx` -- Redesign total
+Secoes de cima pra baixo:
 
-- **Playfair Display 3xl-4xl** para titulos de pagina e numeros financeiros grandes
-- **Inter** para corpo, labels, tabelas
-- Labels em **uppercase, tracking 0.15em, text-xs** 
-- Numeros financeiros em **3xl bold** com cor primary nos cards
+**Hero Banner**:
+- Texto fantasma "PEAOGE" em Bebas Neue ~150px, cor verde, opacity 6%, position absolute
+- Titulo "GESTAO DE" em Bebas Neue verde + "*Estilo*" em DM Serif Display italic rosa
+- Filtro de drop no canto direito do hero
+- Fundo creme, sem borda
 
-### 4. Dashboard transformado
+**Photo Strip**:
+- 5 colunas, h-[160px], overflow hidden
+- Cada coluna: imagem importada, object-cover, hover scale 1.05
+- Label no canto inferior esquerdo de cada foto em Bebas Neue branco com sombra de texto
+- Fotos usadas como estao (ja editadas em P&B com grain)
 
-- Cards de indicadores: **branco puro, border-radius 1.5rem, sombra forte**
-- Cada card com icone grande (48px) em circulo colorido (cor unica por card)
-- Numero principal em **3xl-4xl Playfair Display bold**
-- Hover: translateY(-6px) + sombra dramatica
-- Previsao de faturamento: card com borda coral tracejada e fundo coral/5
-- Tabelas de repasses: header com fundo primary escuro e texto branco (invertido)
+**Cards de Metricas** (grid 5 colunas desktop, 2 mobile):
+- Fundo branco, border-top 3px colorida (cada card cor diferente: verde escuro, rosa, verde medio, verde, vermelho)
+- Icone em circulo com bg suave
+- Valor em Bebas Neue 34px
+- Label em Space Mono uppercase tiny tracking wide
 
-### 5. Catalogo e Vendas -- tabelas premium
+**Card de Previsao**:
+- Fundo verde escuro `#2d4a2e`, texto branco
+- Grid 3 colunas com valores em Bebas Neue grande
+- Badge rosa com pecas disponiveis
 
-- **Header da tabela**: fundo `primary` (verde escuro) com texto branco
-- Linhas com padding generoso `py-4`
-- Hover com fundo `accent/8` (coral sutil)
-- Badges de status: pills super arredondados (9999px) com cores saturadas
-- Precos em tamanho maior, peso bold, cor primary
-- Barra de filtros: fundo branco puro, border-radius 1.5rem, sombra, sem glass
+**Layout 2 colunas** (conteudo principal + lateral):
 
-### 6. Fornecedoras -- cards grandes e visuais
+Coluna principal:
+- Tabela de repasses com cabecalho verde escuro/texto branco uppercase
+- Linhas com hover sutil, avatar colorido com inicial
+- Barra de progresso slim
+- Badges: verde (Pago), amarelo (Pendente), rosa (Parcial)
+- Tabela de previsao por fornecedora (mesmo estilo)
 
-- Cards com padding `p-6`, border-radius `1.5rem`
-- Avatar com fundo de cor **forte** (30-40% opacity, nao 10-15%)
-- Hover com `scale(1.03)` + sombra dramatica real
-- Badge de socia com fundo coral e estrela dourada
-- Barra de progresso mais grossa `h-3` com cor coral
+Coluna lateral:
+- **Card rosa** `#e8527a`: headline em Bebas Neue + DM Serif italic, texto branco, botao branco com texto rosa
+- **Foto lookbook** (flatlay_edit): overlay gradiente escuro, label "FLAT LAY" em Bebas Neue + subtitulo "NOVIDADES DO DROP"
 
-### 7. Dialogs repaginados
+**Marca dagua**: logo colorida 80px, rotate +8deg, opacity 15%, position fixed bottom-right
 
-- Border-radius `1.5rem`
-- Header com fundo primary escuro e texto branco
-- Campos com mais espaco entre si `gap-5`
-- Botao primario com fundo coral (accent) em vez de verde
+#### 6. `src/pages/Login.tsx` -- Pagina nova
+- Rota `/login` no App.tsx (fora do Layout)
+- Split 50/50:
+  - **Lado esquerdo**: fundo `#2d4a2e`, grid 2x3 com as 6 fotos em opacity 35%, logo branca (filter: brightness(0) invert(1)) 200px rotate-[-4deg] centralizada, headline "BRECHO / Peaoge" em Bebas Neue branco + DM Serif rosa, sticker "Moda Circular ✦" rotacionado em rosa
+  - **Lado direito**: fundo creme, cards de socias (avatar colorido + nome), campo senha, botao verde escuro
+- Ao logar: salvar nome/cor no localStorage, redirecionar para /
 
-### 8. Logo tratada
+#### 7. `src/pages/Catalogo.tsx` -- Ajustes de estilo
+- Filter bar: fundo branco, border-radius 16px, bordas sutis
+- Tabela: cabecalho verde escuro com texto branco em Space Mono uppercase
+- Badges de status em pill com cores saturadas
+- Precos em Bebas Neue ou bold com cor verde escuro
+- Manter toda logica funcional intacta
 
-- Usar `mix-blend-mode: multiply` ou `darken` para remover fundo branco da logo
-- Logo com tamanho generoso no header
-- Possivel adicionar filtro CSS para harmonizar com a paleta
+#### 8. `src/pages/Vendas.tsx` -- Mesmos ajustes de tabela
+- Cabecalho verde escuro, badges coloridos, hover sutil
+- Manter logica intacta
 
-### 9. Animacoes visiveis
+#### 9. `src/pages/Fornecedoras.tsx` -- Cards com nova estetica
+- Avatar com fundo forte (40% opacity)
+- Badge socia em rosa com estrela
+- Border-radius 16px, bordas sutis em vez de sombras
+- Progress bar slim com cor verde medio `#4a7a4b`
 
-- Fade-in com `translateY(20px)` (mais perceptivel)
-- Stagger de `100ms` entre cards
-- Transicoes de `300ms` (mais suave)
-- Cards clicaveis com `scale(1.03)` no hover
-- Botoes com transicao de cor `200ms`
+#### 10. `src/pages/Configuracoes.tsx` -- Ajustes visuais
+- Card headers com fundo verde escuro e texto branco
+- Botao salvar em rosa `#e8527a`
+- Border-radius 16px
 
-### 10. Configuracoes modernizada
-
-- Cards com icones coloridos em circulos maiores
-- Botao de salvar com fundo coral
-- Botao destructive com borda vermelha mais forte
-- Mais espaco entre secoes
+#### 11. `src/App.tsx` -- Rota de login
+- Adicionar rota `/login` renderizando Login fora do Layout
+- Manter todas as outras rotas dentro do Layout
 
 ---
 
 ### Detalhes tecnicos
 
-**Arquivos editados (todos):**
-- `src/index.css` -- paleta nova completa, novas sombras, novos tokens, sem glass
-- `tailwind.config.ts` -- border-radius maiores (1.5rem), animacoes mais fortes, cores novas
-- `src/components/Layout.tsx` -- **reescrito**: sidebar removida, header horizontal com nav pills, logo grande, mobile drawer
-- `src/App.tsx` -- sem mudanca estrutural
-- `src/pages/Dashboard.tsx` -- cards com icones grandes 3xl, tabelas com header dark
-- `src/pages/Catalogo.tsx` -- filtros solidos, tabela premium, badges pill
-- `src/pages/Vendas.tsx` -- mesmas melhorias de tabela
-- `src/pages/Fornecedoras.tsx` -- cards grandes, avatares fortes, hover dramatico
-- `src/pages/Configuracoes.tsx` -- cards com mais espaco, botoes coral
+**Fontes carregadas via Google Fonts** no index.css:
+```
+Bebas Neue (400)
+DM Serif Display (400, 400italic)
+Space Mono (400, 700)
+```
 
-**Abordagem:** Reescrita do Layout inteiro (sidebar -> top nav). Mudanca real de tokens CSS. Nenhuma lib nova.
+**Assets copiados**: 7 imagens para src/assets, importadas como ES6 modules nos componentes.
+
+**Logo comportamento**:
+- Navbar: cores originais, h-[52px], rotate-[-3deg], sem filtro
+- Login esquerdo: filter brightness(0) invert(1), w-[200px], rotate-[-4deg]
+- Marca dagua dashboard: cores originais, w-[80px], rotate-[8deg], opacity 15%
+
+**Grain overlay**: pseudo-elemento `::after` no body com background SVG noise inline, fixed, full-screen, pointer-events none.
+
+**Nenhuma lib nova**. Tudo com Tailwind + CSS custom.
 
