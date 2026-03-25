@@ -1,4 +1,4 @@
-import { Fornecedora, Peca, Venda, AppConfig } from '@/types';
+import { Fornecedora, Peca, Venda, AppConfig, Lembrete, DropPlan } from '@/types';
 
 const KEYS = {
   fornecedoras: 'brecho_fornecedoras',
