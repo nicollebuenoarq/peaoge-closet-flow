@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { store } from '@/lib/store';
 import { fmt } from '@/lib/fmt';
 import { Badge } from '@/components/ui/badge';
@@ -17,17 +18,19 @@ import camisetasRosa from '@/assets/photos/camisetas_rosa_edit.png';
 import flatlayEdit from '@/assets/photos/flatlay_edit.png';
 
 const photoStrip = [
-  { src: saiaXadrez, label: 'SAIA' },
-  { src: flatlay2, label: 'CASUAL' },
-  { src: shortsJeans, label: 'JEANS' },
-  { src: looksCabide, label: 'LOOKS' },
-  { src: camisetasRosa, label: 'CAMISETAS' },
+  { src: saiaXadrez, label: 'DASHBOARD', path: '/' },
+  { src: flatlay2, label: 'CATÁLOGO', path: '/catalogo' },
+  { src: shortsJeans, label: 'VENDAS', path: '/vendas' },
+  { src: looksCabide, label: 'FORNECEDORAS', path: '/fornecedoras' },
+  { src: camisetasRosa, label: 'CONFIG', path: '/configuracoes' },
 ];
 
 const topBarColors = ['#2d4a2e', '#e8527a', '#f0a500', '#3ab5a0', '#7b61ff'];
 const iconBgs = ['bg-primary/10 text-primary', 'bg-accent/10 text-accent', 'bg-[#f0a500]/10 text-[#f0a500]', 'bg-[#3ab5a0]/10 text-[#3ab5a0]', 'bg-[#7b61ff]/10 text-[#7b61ff]'];
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [, setTick] = useState(0);
   const reload = () => setTick(t => t + 1);
 
@@ -142,19 +145,31 @@ export default function Dashboard() {
 
       {/* PHOTO STRIP — extra spacing below */}
       <section className="grid grid-cols-5 gap-1 h-[160px] rounded-2xl overflow-hidden">
-        {photoStrip.map((photo) => (
-          <div key={photo.label} className="relative overflow-hidden group cursor-pointer">
-            <img
-              src={photo.src}
-              alt={photo.label}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-            <span className="absolute bottom-3 left-3 font-display text-white text-sm tracking-[0.1em]" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
-              {photo.label}
-            </span>
-          </div>
-        ))}
+        {photoStrip.map((photo, i) => {
+          const isActive = location.pathname === photo.path;
+          return (
+            <div
+              key={photo.label}
+              className="relative overflow-hidden group cursor-pointer"
+              onClick={() => navigate(photo.path)}
+              role="link"
+            >
+              <img
+                src={photo.src}
+                alt={photo.label}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className={`absolute inset-0 transition-colors duration-300 ${isActive ? 'bg-gradient-to-t from-black/30 to-transparent' : 'bg-gradient-to-t from-black/60 to-black/10'}`} />
+              <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ backgroundColor: topBarColors[i] }} />
+              <span
+                className={`absolute bottom-4 left-3 font-display text-sm tracking-[0.1em] transition-colors duration-300 ${isActive ? 'text-accent' : 'text-white'}`}
+                style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}
+              >
+                {photo.label}
+              </span>
+            </div>
+          );
+        })}
       </section>
 
       {/* METRIC CARDS */}
