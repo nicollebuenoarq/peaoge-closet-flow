@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DollarSign, TrendingUp, Users, Package, Wallet, CheckCircle } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DollarSign, TrendingUp, Users, Package, Wallet, CheckCircle, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 
 import logo from '@/assets/logo_peaoge_sem_fundo.png';
@@ -105,10 +106,9 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-10 animate-fade-up">
-      {/* HERO BANNER — oversized */}
-      <section className="relative overflow-hidden py-14 md:py-20">
-        {/* Ghost text — pinned right, bleeding off-screen */}
+    <div className="space-y-8 animate-fade-up">
+      {/* HERO BANNER — compact */}
+      <section className="relative overflow-hidden py-8 md:py-12">
         <span
           className="absolute top-1/2 -translate-y-1/2 right-[-20px] pointer-events-none select-none font-display text-[140px] md:text-[200px] lg:text-[260px] text-primary/[0.06] leading-none tracking-[0.08em] whitespace-nowrap z-0"
           aria-hidden="true"
@@ -122,28 +122,14 @@ export default function Dashboard() {
               GESTÃO DE<br />
               <span className="font-serif-italic text-accent">Estilo</span>
             </h1>
-            <p className="font-mono text-xs text-muted-foreground mt-3 tracking-wide">
+            <p className="font-body text-sm text-muted-foreground mt-3 tracking-wide">
               Olá, {userName} 👋 — seu painel de controle
             </p>
-          </div>
-
-          {/* Drop filter */}
-          <div className="flex items-center gap-3">
-            <span className="label-upper">Drop:</span>
-            <Select value={dropFilter} onValueChange={setDropFilter}>
-              <SelectTrigger className="w-40 rounded-full bg-card border border-border font-mono text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os Drops</SelectItem>
-                {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d}</SelectItem>)}
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </section>
 
-      {/* PHOTO STRIP — extra spacing below */}
+      {/* PHOTO STRIP */}
       <section className="grid grid-cols-5 gap-1 h-[160px] rounded-2xl overflow-hidden">
         {photoStrip.map((photo, i) => {
           const isActive = location.pathname === photo.path;
@@ -172,8 +158,23 @@ export default function Dashboard() {
         })}
       </section>
 
+      {/* DROP FILTER BAR */}
+      <div className="flex items-center gap-3 bg-card border border-border rounded-2xl px-5 py-3">
+        <Filter className="h-4 w-4 text-muted-foreground" />
+        <span className="label-upper">Filtrar por Drop:</span>
+        <Select value={dropFilter} onValueChange={setDropFilter}>
+          <SelectTrigger className="w-44 rounded-full bg-background border border-border font-body text-sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os Drops</SelectItem>
+            {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* METRIC CARDS */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 animate-stagger mt-10">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 animate-stagger">
         {indicators.map((ind, i) => (
           <div
             key={ind.label}
@@ -192,7 +193,7 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* FORECAST CARD — dark green */}
+      {/* FORECAST CARD */}
       <div className="bg-primary text-primary-foreground rounded-2xl p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <h2 className="font-display text-2xl tracking-wide flex items-center gap-3">
@@ -219,154 +220,167 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* TWO COLUMN LAYOUT: Tables + Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-        {/* Main column */}
-        <div className="space-y-6">
-          {/* Repasses table */}
-          {repasses.length > 0 && (
-            <div className="card-editorial overflow-hidden">
-              <div className="p-5 border-b border-border">
-                <h3 className="font-display text-xl text-primary tracking-wide">REPASSES POR FORNECEDORA</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm table-editorial">
-                  <thead>
-                    <tr>
-                      <th className="text-left">NOME</th>
-                      <th className="text-left">COMISSÃO</th>
-                      <th className="text-left">P. BRECHÓ</th>
-                      <th className="text-left">TOTAL</th>
-                      <th className="text-left">PROGRESSO</th>
-                      <th className="text-left">STATUS</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {repasses.map(r => {
-                      const progress = r.comissaoDevida > 0 ? (r.pago / r.comissaoDevida) * 100 : 100;
-                      return (
-                        <tr key={r.id} className="border-b last:border-0">
-                          <td className="font-medium">
-                            <div className="flex items-center gap-3">
-                              <div
-                                className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
-                                style={{ backgroundColor: `hsl(${r.nome.charCodeAt(0) * 7 % 360}, 45%, 45%)` }}
-                              >
-                                {r.nome.charAt(0).toUpperCase()}
-                              </div>
-                              <span className="font-mono text-xs">{r.nome}</span>
-                              {r.ehSocia && <span className="pill-badge bg-accent/15 text-accent text-[10px]">⭐ Sócia</span>}
-                            </div>
-                          </td>
-                          <td className="font-mono-price text-xs">{fmt(r.comissaoDevida)}</td>
-                          <td className="font-mono-price text-xs">{r.ehSocia ? fmt(r.parteBrechoSocia) : '—'}</td>
-                          <td className="font-mono-price text-xs font-bold text-primary">{fmt(r.totalReceber)}</td>
-                          <td className="min-w-[100px]">
-                            <Progress value={progress} className="h-1.5 rounded-full" />
-                            <p className="text-[10px] text-muted-foreground mt-1 font-mono">{Math.round(progress)}%</p>
-                          </td>
-                          <td>
-                            {r.pendente <= 0 ? (
-                              <span className="pill-badge bg-status-available/15 text-status-available text-[10px]">✓ Pago</span>
-                            ) : (
-                              <span className="pill-badge bg-status-reserved/15 text-status-reserved text-[10px]">Pendente ({r.vendasPendentes})</span>
-                            )}
-                          </td>
-                          <td>
-                            {r.vendasPendentes > 0 && (
-                              <Button size="sm" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-[10px] h-7 px-3" onClick={() => handlePagarTudo(r.id)}>
-                                Pagar
-                              </Button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* Previsão por fornecedora */}
-          {previsaoForn.length > 0 && (
-            <div className="card-editorial overflow-hidden">
-              <div className="p-5 border-b border-border">
-                <h3 className="font-display text-xl text-primary tracking-wide">PREVISÃO POR FORNECEDORA</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm table-editorial">
-                  <thead>
-                    <tr>
-                      <th className="text-left">NOME</th>
-                      <th className="text-left">QTD</th>
-                      <th className="text-left">PREV. COMISSÃO</th>
-                      <th className="text-left">PREV. BRECHÓ</th>
-                      <th className="text-left">TOTAL PREV.</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {previsaoForn.map(r => (
-                      <tr key={r.id} className="border-b last:border-0">
-                        <td className="font-medium">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
-                              style={{ backgroundColor: `hsl(${r.nome.charCodeAt(0) * 7 % 360}, 45%, 45%)` }}
-                            >
-                              {r.nome.charAt(0).toUpperCase()}
-                            </div>
-                            <span className="font-mono text-xs">{r.nome}</span>
-                          </div>
-                        </td>
-                        <td><span className="pill-badge bg-muted text-foreground text-[10px]">{r.qtd}</span></td>
-                        <td className="font-mono-price text-xs">{fmt(r.prevComissao)}</td>
-                        <td className="font-mono-price text-xs">{fmt(r.prevBrecho)}</td>
-                        <td className="font-mono-price text-xs font-bold text-primary">{fmt(r.prevTotal)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-4">
-          {/* Pink CTA card */}
-          <div className="bg-accent rounded-2xl p-6 text-white">
+      {/* DECORATIVE CARDS — inline */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-accent rounded-2xl p-6 text-white flex flex-col justify-between min-h-[180px]">
+          <div>
             <h3 className="font-display text-3xl leading-none tracking-wide">
               MODA<br />
               <span className="font-serif-italic text-accent-light">Circular</span>
             </h3>
-            <p className="font-mono text-[10px] mt-3 opacity-80 leading-relaxed">
+            <p className="font-body text-xs mt-3 opacity-80 leading-relaxed">
               Cada peça conta uma história. Dê uma nova vida ao seu guarda-roupa com estilo.
             </p>
-            <Button
-              variant="outline"
-              className="mt-4 rounded-full bg-white text-accent hover:bg-white/90 border-0 font-mono text-xs font-bold"
-            >
-              VER CATÁLOGO
-            </Button>
           </div>
+          <Button
+            variant="outline"
+            className="mt-4 rounded-full bg-white text-accent hover:bg-white/90 border-0 font-body text-xs font-bold w-fit"
+            onClick={() => navigate('/catalogo')}
+          >
+            VER CATÁLOGO
+          </Button>
+        </div>
 
-          {/* Lookbook photo card */}
-          <div className="relative h-[280px] rounded-2xl overflow-hidden group cursor-pointer">
-            <img
-              src={flatlayEdit}
-              alt="Flat Lay"
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-            <div className="absolute bottom-4 left-4">
-              <p className="font-display text-3xl text-white leading-none tracking-wide">FLAT LAY</p>
-              <p className="font-mono text-[10px] text-white/70 mt-1 tracking-widest uppercase">Novidades do Drop</p>
-            </div>
+        <div className="relative h-[180px] rounded-2xl overflow-hidden group cursor-pointer">
+          <img
+            src={flatlayEdit}
+            alt="Flat Lay"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+          <div className="absolute bottom-4 left-4">
+            <p className="font-display text-3xl text-white leading-none tracking-wide">FLAT LAY</p>
+            <p className="font-mono text-[10px] text-white/70 mt-1 tracking-widest uppercase">Novidades do Drop</p>
           </div>
         </div>
       </div>
+
+      {/* TABLES — full width with tabs */}
+      {(repasses.length > 0 || previsaoForn.length > 0) && (
+        <div className="card-editorial overflow-hidden">
+          <Tabs defaultValue="repasses">
+            <div className="p-5 border-b border-border flex items-center justify-between">
+              <TabsList className="bg-muted rounded-full">
+                <TabsTrigger value="repasses" className="rounded-full font-display text-sm tracking-wide px-5">
+                  REPASSES
+                </TabsTrigger>
+                <TabsTrigger value="previsao" className="rounded-full font-display text-sm tracking-wide px-5">
+                  PREVISÃO
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="repasses" className="mt-0">
+              {repasses.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm table-editorial">
+                    <thead>
+                      <tr>
+                        <th className="text-left">NOME</th>
+                        <th className="text-left">COMISSÃO</th>
+                        <th className="text-left">P. BRECHÓ</th>
+                        <th className="text-left">TOTAL</th>
+                        <th className="text-left">PROGRESSO</th>
+                        <th className="text-left">STATUS</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {repasses.map(r => {
+                        const progress = r.comissaoDevida > 0 ? (r.pago / r.comissaoDevida) * 100 : 100;
+                        return (
+                          <tr key={r.id} className="border-b last:border-0">
+                            <td className="font-medium">
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                                  style={{ backgroundColor: `hsl(${r.nome.charCodeAt(0) * 7 % 360}, 45%, 45%)` }}
+                                >
+                                  {r.nome.charAt(0).toUpperCase()}
+                                </div>
+                                <span className="font-body text-sm">{r.nome}</span>
+                                {r.ehSocia && <span className="pill-badge bg-accent/15 text-accent text-[10px]">⭐ Sócia</span>}
+                              </div>
+                            </td>
+                            <td className="font-mono-price text-xs">{fmt(r.comissaoDevida)}</td>
+                            <td className="font-mono-price text-xs">{r.ehSocia ? fmt(r.parteBrechoSocia) : '—'}</td>
+                            <td className="font-mono-price text-xs font-bold text-primary">{fmt(r.totalReceber)}</td>
+                            <td className="min-w-[100px]">
+                              <Progress value={progress} className="h-1.5 rounded-full" />
+                              <p className="text-[10px] text-muted-foreground mt-1 font-mono">{Math.round(progress)}%</p>
+                            </td>
+                            <td>
+                              {r.pendente <= 0 ? (
+                                <span className="pill-badge bg-status-available/15 text-status-available text-[10px]">✓ Pago</span>
+                              ) : (
+                                <span className="pill-badge bg-status-reserved/15 text-status-reserved text-[10px]">Pendente ({r.vendasPendentes})</span>
+                              )}
+                            </td>
+                            <td>
+                              {r.vendasPendentes > 0 && (
+                                <Button size="sm" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs h-8 px-4" onClick={() => handlePagarTudo(r.id)}>
+                                  Pagar
+                                </Button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="empty-state py-12">
+                  <p className="font-body text-sm">Nenhum repasse registrado</p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="previsao" className="mt-0">
+              {previsaoForn.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm table-editorial">
+                    <thead>
+                      <tr>
+                        <th className="text-left">NOME</th>
+                        <th className="text-left">QTD</th>
+                        <th className="text-left">PREV. COMISSÃO</th>
+                        <th className="text-left">PREV. BRECHÓ</th>
+                        <th className="text-left">TOTAL PREV.</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {previsaoForn.map(r => (
+                        <tr key={r.id} className="border-b last:border-0">
+                          <td className="font-medium">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                                style={{ backgroundColor: `hsl(${r.nome.charCodeAt(0) * 7 % 360}, 45%, 45%)` }}
+                              >
+                                {r.nome.charAt(0).toUpperCase()}
+                              </div>
+                              <span className="font-body text-sm">{r.nome}</span>
+                            </div>
+                          </td>
+                          <td><span className="pill-badge bg-muted text-foreground text-[10px]">{r.qtd}</span></td>
+                          <td className="font-mono-price text-xs">{fmt(r.prevComissao)}</td>
+                          <td className="font-mono-price text-xs">{fmt(r.prevBrecho)}</td>
+                          <td className="font-mono-price text-xs font-bold text-primary">{fmt(r.prevTotal)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="empty-state py-12">
+                  <p className="font-body text-sm">Nenhuma peça disponível para previsão</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
+      )}
 
       {/* Logo watermark */}
       <div className="fixed bottom-4 right-4 pointer-events-none z-30">
