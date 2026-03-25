@@ -32,7 +32,7 @@ export default function Catalogo() {
 
   const [dropFilter, setDropFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [catFilter, setCatFilter] = useState<string>('');
+  const [catFilter, setCatFilter] = useState<string>('all');
   const [fornFilter, setFornFilter] = useState<string>('all');
   const [busca, setBusca] = useState('');
 
