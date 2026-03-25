@@ -188,7 +188,7 @@ export default function Catalogo() {
             <Select value={catFilter} onValueChange={setCatFilter}>
               <SelectTrigger className="w-32 bg-card"><SelectValue placeholder="Todas" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas</SelectItem>
+                <SelectItem value="all">Todas</SelectItem>
                 {categorias.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
               </SelectContent>
             </Select>
