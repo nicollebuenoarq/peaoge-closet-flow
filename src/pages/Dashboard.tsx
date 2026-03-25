@@ -1,21 +1,31 @@
 import { useMemo, useState } from 'react';
 import { store } from '@/lib/store';
 import { fmt } from '@/lib/fmt';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DollarSign, TrendingUp, Users, Package, Wallet, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
-const iconColors = [
-  'bg-primary/10 text-primary',
-  'bg-accent/10 text-accent',
-  'bg-primary/10 text-primary',
-  'bg-status-available/10 text-status-available',
-  'bg-destructive/10 text-destructive',
+import logo from '@/assets/logo_peaoge_sem_fundo.png';
+import saiaXadrez from '@/assets/photos/saia_xadrez_edit.png';
+import flatlay2 from '@/assets/photos/flatlay2_edit.png';
+import shortsJeans from '@/assets/photos/shorts_jeans_edit.png';
+import looksCabide from '@/assets/photos/looks_cabide_edit.png';
+import camisetasRosa from '@/assets/photos/camisetas_rosa_edit.png';
+import flatlayEdit from '@/assets/photos/flatlay_edit.png';
+
+const photoStrip = [
+  { src: saiaXadrez, label: 'SAIA' },
+  { src: flatlay2, label: 'CASUAL' },
+  { src: shortsJeans, label: 'JEANS' },
+  { src: looksCabide, label: 'LOOKS' },
+  { src: camisetasRosa, label: 'CAMISETAS' },
 ];
+
+const borderColors = ['border-t-[#2d4a2e]', 'border-t-[#e8527a]', 'border-t-[#4a7a4b]', 'border-t-[#2d4a2e]', 'border-t-[#e8527a]'];
+const iconBgs = ['bg-primary/10 text-primary', 'bg-accent/10 text-accent', 'bg-primary-medium/10 text-primary-medium', 'bg-primary/10 text-primary', 'bg-accent/10 text-accent'];
 
 export default function Dashboard() {
   const [, setTick] = useState(0);
@@ -26,6 +36,8 @@ export default function Dashboard() {
   const fornecedoras = store.getFornecedoras();
   const pecas = store.getPecas();
   const vendas = store.getVendas();
+
+  const userName = localStorage.getItem('brecho_user_name') || 'Peaogê';
 
   const drops = useMemo(() => {
     const s = new Set<number>();
@@ -82,181 +94,272 @@ export default function Dashboard() {
   };
 
   const indicators = [
-    { label: 'Faturamento Bruto', value: fmt(faturamento), icon: DollarSign, colorIdx: 0 },
-    { label: 'Comissão Fornecedoras', value: fmt(comissaoTotal), icon: Users, colorIdx: 1 },
-    { label: 'Parcela Brechó', value: fmt(parcelaBrecho), icon: TrendingUp, colorIdx: 2 },
-    { label: 'Total Pago', value: fmt(totalPago), icon: CheckCircle, colorIdx: 3 },
-    { label: 'Saldo a Pagar', value: fmt(saldoPagar), icon: Wallet, colorIdx: 4 },
+    { label: 'FATURAMENTO BRUTO', value: fmt(faturamento), icon: DollarSign, colorIdx: 0 },
+    { label: 'COMISSÃO FORNECEDORAS', value: fmt(comissaoTotal), icon: Users, colorIdx: 1 },
+    { label: 'PARCELA BRECHÓ', value: fmt(parcelaBrecho), icon: TrendingUp, colorIdx: 2 },
+    { label: 'TOTAL PAGO', value: fmt(totalPago), icon: CheckCircle, colorIdx: 3 },
+    { label: 'SALDO A PAGAR', value: fmt(saldoPagar), icon: Wallet, colorIdx: 4 },
   ];
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Drop filter */}
-      <div className="filter-bar flex items-center gap-4">
-        <label className="label-upper">Drop:</label>
-        <Select value={dropFilter} onValueChange={setDropFilter}>
-          <SelectTrigger className="w-44 rounded-full bg-muted/50 border-0"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os Drops</SelectItem>
-            {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d}</SelectItem>)}
-          </SelectContent>
-        </Select>
-      </div>
+    <div className="space-y-8 animate-fade-up">
+      {/* HERO BANNER */}
+      <section className="relative overflow-hidden py-8 md:py-12">
+        {/* Ghost text */}
+        <div
+          className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+          aria-hidden
+        >
+          <span className="font-display text-[120px] md:text-[180px] lg:text-[220px] text-primary/[0.06] leading-none tracking-[0.08em]">
+            PEAOGÊ
+          </span>
+        </div>
 
-      {/* Indicator cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 animate-stagger">
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+          <div>
+            <h1 className="font-display text-5xl md:text-7xl text-primary leading-[0.9] tracking-[0.04em]">
+              GESTÃO DE<br />
+              <span className="font-serif-italic text-accent">Estilo</span>
+            </h1>
+            <p className="font-mono text-xs text-muted-foreground mt-3 tracking-wide">
+              Olá, {userName} 👋 — seu painel de controle
+            </p>
+          </div>
+
+          {/* Drop filter */}
+          <div className="flex items-center gap-3">
+            <span className="label-upper">Drop:</span>
+            <Select value={dropFilter} onValueChange={setDropFilter}>
+              <SelectTrigger className="w-40 rounded-full bg-card border border-border font-mono text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os Drops</SelectItem>
+                {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </section>
+
+      {/* PHOTO STRIP */}
+      <section className="grid grid-cols-5 gap-1 h-[160px] rounded-2xl overflow-hidden">
+        {photoStrip.map((photo) => (
+          <div key={photo.label} className="relative overflow-hidden group cursor-pointer">
+            <img
+              src={photo.src}
+              alt={photo.label}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            <span className="absolute bottom-3 left-3 font-display text-white text-sm tracking-[0.1em]" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+              {photo.label}
+            </span>
+          </div>
+        ))}
+      </section>
+
+      {/* METRIC CARDS */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 animate-stagger">
         {indicators.map((ind, i) => (
-          <Card key={ind.label} className="card-modern border-0 bg-card overflow-hidden">
-            <CardContent className="p-6">
-              <div className={`icon-circle h-12 w-12 mb-4 ${iconColors[i]}`}>
-                <ind.icon className="h-6 w-6" />
-              </div>
-              <p className="text-3xl font-bold font-heading tracking-tight">{ind.value}</p>
-              <p className="label-upper mt-2">{ind.label}</p>
-            </CardContent>
-          </Card>
+          <div
+            key={ind.label}
+            className={`card-editorial p-5 border-t-[3px] ${borderColors[i]}`}
+          >
+            <div className={`icon-circle h-10 w-10 mb-3 rounded-full ${iconBgs[i]}`}>
+              <ind.icon className="h-5 w-5" />
+            </div>
+            <p className="font-display text-[34px] leading-none text-foreground">{ind.value}</p>
+            <p className="label-upper mt-2">{ind.label}</p>
+          </div>
         ))}
       </div>
 
-      {/* Forecast card */}
-      <Card className="card-modern border-2 border-dashed border-accent/30 bg-accent/5">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-heading flex items-center gap-3">
-            <div className="icon-circle h-10 w-10 bg-accent/15 text-accent">
-              <Package className="h-5 w-5" />
-            </div>
-            Previsão de Faturamento
-            <Badge className="ml-2 pill-badge bg-accent/15 text-accent border-0">
-              {disponíveis.length} peças disponíveis
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-            <div>
-              <p className="label-upper">Fat. Previsto</p>
-              <p className="text-2xl font-bold font-heading mt-1">{fmt(prevFaturamento)}</p>
-            </div>
-            <div>
-              <p className="label-upper">Comissão Prevista</p>
-              <p className="text-2xl font-bold font-heading mt-1">{fmt(prevComissao)}</p>
-            </div>
-            <div>
-              <p className="label-upper">Parcela Brechó Prev.</p>
-              <p className="text-2xl font-bold font-heading mt-1">{fmt(prevParcelaBrecho)}</p>
-            </div>
+      {/* FORECAST CARD — dark green */}
+      <div className="bg-primary text-primary-foreground rounded-2xl p-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+          <h2 className="font-display text-2xl tracking-wide flex items-center gap-3">
+            <Package className="h-6 w-6" />
+            PREVISÃO DE FATURAMENTO
+          </h2>
+          <span className="pill-badge bg-accent text-accent-foreground">
+            {disponíveis.length} peças disponíveis
+          </span>
+        </div>
+        <div className="grid grid-cols-3 gap-6">
+          <div>
+            <p className="label-upper text-primary-foreground/60">Fat. Previsto</p>
+            <p className="font-display text-3xl mt-1">{fmt(prevFaturamento)}</p>
           </div>
-        </CardContent>
-      </Card>
+          <div>
+            <p className="label-upper text-primary-foreground/60">Comissão Prev.</p>
+            <p className="font-display text-3xl mt-1">{fmt(prevComissao)}</p>
+          </div>
+          <div>
+            <p className="label-upper text-primary-foreground/60">Parcela Brechó</p>
+            <p className="font-display text-3xl mt-1">{fmt(prevParcelaBrecho)}</p>
+          </div>
+        </div>
+      </div>
 
-      {/* Repasses table */}
-      {repasses.length > 0 && (
-        <Card className="card-modern overflow-hidden border-0">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-heading">Repasses por Fornecedora</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm table-premium">
-                <thead>
-                  <tr>
-                    <th className="text-left">Nome</th>
-                    <th className="text-left">Comissão Devida</th>
-                    <th className="text-left">Parte Brechó</th>
-                    <th className="text-left">Total a Receber</th>
-                    <th className="text-left">Progresso</th>
-                    <th className="text-left">Status</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {repasses.map(r => {
-                    const progress = r.comissaoDevida > 0 ? (r.pago / r.comissaoDevida) * 100 : 100;
-                    return (
+      {/* TWO COLUMN LAYOUT: Tables + Sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+        {/* Main column */}
+        <div className="space-y-6">
+          {/* Repasses table */}
+          {repasses.length > 0 && (
+            <div className="card-editorial overflow-hidden">
+              <div className="p-5 border-b border-border">
+                <h3 className="font-display text-xl text-primary tracking-wide">REPASSES POR FORNECEDORA</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm table-editorial">
+                  <thead>
+                    <tr>
+                      <th className="text-left">NOME</th>
+                      <th className="text-left">COMISSÃO</th>
+                      <th className="text-left">P. BRECHÓ</th>
+                      <th className="text-left">TOTAL</th>
+                      <th className="text-left">PROGRESSO</th>
+                      <th className="text-left">STATUS</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {repasses.map(r => {
+                      const progress = r.comissaoDevida > 0 ? (r.pago / r.comissaoDevida) * 100 : 100;
+                      return (
+                        <tr key={r.id} className="border-b last:border-0">
+                          <td className="font-medium">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                                style={{ backgroundColor: `hsl(${r.nome.charCodeAt(0) * 7 % 360}, 45%, 45%)` }}
+                              >
+                                {r.nome.charAt(0).toUpperCase()}
+                              </div>
+                              <span className="font-mono text-xs">{r.nome}</span>
+                              {r.ehSocia && <span className="pill-badge bg-accent/15 text-accent text-[10px]">⭐ Sócia</span>}
+                            </div>
+                          </td>
+                          <td className="font-mono-price text-xs">{fmt(r.comissaoDevida)}</td>
+                          <td className="font-mono-price text-xs">{r.ehSocia ? fmt(r.parteBrechoSocia) : '—'}</td>
+                          <td className="font-mono-price text-xs font-bold text-primary">{fmt(r.totalReceber)}</td>
+                          <td className="min-w-[100px]">
+                            <Progress value={progress} className="h-1.5 rounded-full" />
+                            <p className="text-[10px] text-muted-foreground mt-1 font-mono">{Math.round(progress)}%</p>
+                          </td>
+                          <td>
+                            {r.pendente <= 0 ? (
+                              <span className="pill-badge bg-status-available/15 text-status-available text-[10px]">✓ Pago</span>
+                            ) : (
+                              <span className="pill-badge bg-status-reserved/15 text-status-reserved text-[10px]">Pendente ({r.vendasPendentes})</span>
+                            )}
+                          </td>
+                          <td>
+                            {r.vendasPendentes > 0 && (
+                              <Button size="sm" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-[10px] h-7 px-3" onClick={() => handlePagarTudo(r.id)}>
+                                Pagar
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Previsão por fornecedora */}
+          {previsaoForn.length > 0 && (
+            <div className="card-editorial overflow-hidden">
+              <div className="p-5 border-b border-border">
+                <h3 className="font-display text-xl text-primary tracking-wide">PREVISÃO POR FORNECEDORA</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm table-editorial">
+                  <thead>
+                    <tr>
+                      <th className="text-left">NOME</th>
+                      <th className="text-left">QTD</th>
+                      <th className="text-left">PREV. COMISSÃO</th>
+                      <th className="text-left">PREV. BRECHÓ</th>
+                      <th className="text-left">TOTAL PREV.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {previsaoForn.map(r => (
                       <tr key={r.id} className="border-b last:border-0">
                         <td className="font-medium">
                           <div className="flex items-center gap-3">
-                            <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center text-xs font-bold text-primary">
+                            <div
+                              className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                              style={{ backgroundColor: `hsl(${r.nome.charCodeAt(0) * 7 % 360}, 45%, 45%)` }}
+                            >
                               {r.nome.charAt(0).toUpperCase()}
                             </div>
-                            <span>{r.nome}</span>
-                            {r.ehSocia && <Badge className="pill-badge bg-accent/15 text-accent border-0">⭐ Sócia</Badge>}
+                            <span className="font-mono text-xs">{r.nome}</span>
                           </div>
                         </td>
-                        <td className="font-mono-price">{fmt(r.comissaoDevida)}</td>
-                        <td className="font-mono-price">{r.ehSocia ? fmt(r.parteBrechoSocia) : '—'}</td>
-                        <td className="font-mono-price font-bold text-primary">{fmt(r.totalReceber)}</td>
-                        <td className="min-w-[120px]">
-                          <Progress value={progress} className="h-2.5 rounded-full" />
-                          <p className="text-xs text-muted-foreground mt-1">{Math.round(progress)}% pago</p>
-                        </td>
-                        <td>
-                          {r.pendente <= 0 ? (
-                            <span className="pill-badge bg-status-available/15 text-status-available">✓ Pago</span>
-                          ) : (
-                            <span className="pill-badge bg-destructive/10 text-destructive">Pendente ({r.vendasPendentes})</span>
-                          )}
-                        </td>
-                        <td>
-                          {r.vendasPendentes > 0 && (
-                            <Button size="sm" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-sm" onClick={() => handlePagarTudo(r.id)}>
-                              Pagar Tudo
-                            </Button>
-                          )}
-                        </td>
+                        <td><span className="pill-badge bg-muted text-foreground text-[10px]">{r.qtd}</span></td>
+                        <td className="font-mono-price text-xs">{fmt(r.prevComissao)}</td>
+                        <td className="font-mono-price text-xs">{fmt(r.prevBrecho)}</td>
+                        <td className="font-mono-price text-xs font-bold text-primary">{fmt(r.prevTotal)}</td>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </div>
 
-      {/* Previsão por fornecedora */}
-      {previsaoForn.length > 0 && (
-        <Card className="card-modern overflow-hidden border-0">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-heading">Previsão por Fornecedora</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm table-premium">
-                <thead>
-                  <tr>
-                    <th className="text-left">Nome</th>
-                    <th className="text-left">Qtd Peças</th>
-                    <th className="text-left">Prev. Comissão</th>
-                    <th className="text-left">Prev. Parcela Brechó</th>
-                    <th className="text-left">Total Previsto</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {previsaoForn.map(r => (
-                    <tr key={r.id} className="border-b last:border-0">
-                      <td className="font-medium">
-                        <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-full bg-accent/15 flex items-center justify-center text-xs font-bold text-accent">
-                            {r.nome.charAt(0).toUpperCase()}
-                          </div>
-                          {r.nome}
-                        </div>
-                      </td>
-                      <td>
-                        <span className="pill-badge bg-muted text-foreground">{r.qtd}</span>
-                      </td>
-                      <td className="font-mono-price">{fmt(r.prevComissao)}</td>
-                      <td className="font-mono-price">{fmt(r.prevBrecho)}</td>
-                      <td className="font-mono-price font-bold text-primary">{fmt(r.prevTotal)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Sidebar */}
+        <div className="space-y-4">
+          {/* Pink CTA card */}
+          <div className="bg-accent rounded-2xl p-6 text-white">
+            <h3 className="font-display text-3xl leading-none tracking-wide">
+              MODA<br />
+              <span className="font-serif-italic text-accent-light">Circular</span>
+            </h3>
+            <p className="font-mono text-[10px] mt-3 opacity-80 leading-relaxed">
+              Cada peça conta uma história. Dê uma nova vida ao seu guarda-roupa com estilo.
+            </p>
+            <Button
+              variant="outline"
+              className="mt-4 rounded-full bg-white text-accent hover:bg-white/90 border-0 font-mono text-xs font-bold"
+            >
+              VER CATÁLOGO
+            </Button>
+          </div>
+
+          {/* Lookbook photo card */}
+          <div className="relative h-[280px] rounded-2xl overflow-hidden group cursor-pointer">
+            <img
+              src={flatlayEdit}
+              alt="Flat Lay"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <div className="absolute bottom-4 left-4">
+              <p className="font-display text-3xl text-white leading-none tracking-wide">FLAT LAY</p>
+              <p className="font-mono text-[10px] text-white/70 mt-1 tracking-widest uppercase">Novidades do Drop</p>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </div>
+      </div>
+
+      {/* Logo watermark */}
+      <div className="fixed bottom-4 right-4 pointer-events-none z-30">
+        <img
+          src={logo}
+          alt=""
+          className="w-[80px] h-auto"
+          style={{ transform: 'rotate(8deg)', opacity: 0.15 }}
+        />
+      </div>
     </div>
   );
 }
