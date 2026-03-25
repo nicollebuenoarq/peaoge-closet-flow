@@ -126,7 +126,7 @@ export default function Dashboard() {
               <div className={`absolute inset-0 transition-colors duration-300 ${isActive ? 'bg-gradient-to-t from-black/30 to-transparent' : 'bg-gradient-to-t from-black/60 to-black/10'}`} />
               <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ backgroundColor: topBarColors[i] }} />
               <span
-                className={`absolute bottom-4 left-3 font-display text-sm tracking-[0.1em] transition-colors duration-300 ${isActive ? 'text-accent' : 'text-white'}`}
+                className={`absolute bottom-4 left-3 font-display text-sm tracking-[0.1em] transition-colors duration-300 text-secondary-foreground ${isActive ? 'brightness-125' : ''}`}
                 style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}
               >
                 {photo.label}
