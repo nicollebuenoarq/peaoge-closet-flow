@@ -16,7 +16,6 @@ import flatlay2 from '@/assets/photos/flatlay2_edit.png';
 import shortsJeans from '@/assets/photos/shorts_jeans_edit.png';
 import looksCabide from '@/assets/photos/looks_cabide_edit.png';
 import camisetasRosa from '@/assets/photos/camisetas_rosa_edit.png';
-import flatlayEdit from '@/assets/photos/flatlay_edit.png';
 
 const photoStrip = [
   { src: saiaXadrez, label: 'DASHBOARD', path: '/' },
@@ -138,7 +137,7 @@ export default function Dashboard() {
       </section>
 
       {/* GREETING */}
-      <p className="font-body text-sm text-muted-foreground tracking-wide">
+      <p className="text-sm text-muted-foreground tracking-wide">
         Olá, {userName} 👋 — seu painel de controle
       </p>
 
@@ -147,7 +146,7 @@ export default function Dashboard() {
         <Filter className="h-4 w-4 text-muted-foreground" />
         <span className="label-upper">Filtrar por Drop:</span>
         <Select value={dropFilter} onValueChange={setDropFilter}>
-          <SelectTrigger className="w-44 rounded-full bg-background border border-border font-body text-sm">
+          <SelectTrigger className="w-44 rounded-full bg-background border border-border text-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -178,9 +177,9 @@ export default function Dashboard() {
       </div>
 
       {/* FORECAST CARD */}
-      <div className="bg-primary text-primary-foreground rounded-2xl p-6">
+      <div className="bg-primary rounded-2xl p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-          <h2 className="font-display text-2xl tracking-wide flex items-center gap-3">
+          <h2 className="font-display text-2xl tracking-wide flex items-center gap-3 text-white">
             <Package className="h-6 w-6" />
             PREVISÃO DE FATURAMENTO
           </h2>
@@ -190,51 +189,16 @@ export default function Dashboard() {
         </div>
         <div className="grid grid-cols-3 gap-6">
           <div>
-            <p className="label-upper text-primary-foreground/60">Fat. Previsto</p>
-            <p className="font-display text-3xl mt-1">{fmt(prevFaturamento)}</p>
+            <p className="label-upper text-white/50">Fat. Previsto</p>
+            <p className="font-display text-3xl mt-1 text-white">{fmt(prevFaturamento)}</p>
           </div>
           <div>
-            <p className="label-upper text-primary-foreground/60">Comissão Prev.</p>
-            <p className="font-display text-3xl mt-1">{fmt(prevComissao)}</p>
+            <p className="label-upper text-white/50">Comissão Prev.</p>
+            <p className="font-display text-3xl mt-1 text-white">{fmt(prevComissao)}</p>
           </div>
           <div>
-            <p className="label-upper text-primary-foreground/60">Parcela Brechó</p>
-            <p className="font-display text-3xl mt-1">{fmt(prevParcelaBrecho)}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* DECORATIVE CARDS — inline */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-accent rounded-2xl p-6 text-white flex flex-col justify-between min-h-[180px]">
-          <div>
-            <h3 className="font-display text-3xl leading-none tracking-wide">
-              MODA<br />
-              <span className="font-serif-italic text-accent-light">Circular</span>
-            </h3>
-            <p className="font-body text-xs mt-3 opacity-80 leading-relaxed">
-              Cada peça conta uma história. Dê uma nova vida ao seu guarda-roupa com estilo.
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            className="mt-4 rounded-full bg-white text-accent hover:bg-white/90 border-0 font-body text-xs font-bold w-fit"
-            onClick={() => navigate('/catalogo')}
-          >
-            VER CATÁLOGO
-          </Button>
-        </div>
-
-        <div className="relative h-[180px] rounded-2xl overflow-hidden group cursor-pointer">
-          <img
-            src={flatlayEdit}
-            alt="Flat Lay"
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-          <div className="absolute bottom-4 left-4">
-            <p className="font-display text-3xl text-white leading-none tracking-wide">FLAT LAY</p>
-            <p className="font-mono text-[10px] text-white/70 mt-1 tracking-widest uppercase">Novidades do Drop</p>
+            <p className="label-upper text-white/50">Parcela Brechó</p>
+            <p className="font-display text-3xl mt-1 text-white">{fmt(prevParcelaBrecho)}</p>
           </div>
         </div>
       </div>
@@ -282,7 +246,7 @@ export default function Dashboard() {
                                 >
                                   {r.nome.charAt(0).toUpperCase()}
                                 </div>
-                                <span className="font-body text-sm">{r.nome}</span>
+                                <span className="text-sm">{r.nome}</span>
                                 {r.ehSocia && <span className="pill-badge bg-accent/15 text-accent text-[10px]">⭐ Sócia</span>}
                               </div>
                             </td>
@@ -291,7 +255,7 @@ export default function Dashboard() {
                             <td className="font-mono-price text-xs font-bold text-primary">{fmt(r.totalReceber)}</td>
                             <td className="min-w-[100px]">
                               <Progress value={progress} className="h-1.5 rounded-full" />
-                              <p className="text-[10px] text-muted-foreground mt-1 font-mono">{Math.round(progress)}%</p>
+                              <p className="text-[10px] text-muted-foreground mt-1">{Math.round(progress)}%</p>
                             </td>
                             <td>
                               {r.pendente <= 0 ? (
@@ -315,7 +279,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="empty-state py-12">
-                  <p className="font-body text-sm">Nenhum repasse registrado</p>
+                  <p className="text-sm">Nenhum repasse registrado</p>
                 </div>
               )}
             </TabsContent>
@@ -344,7 +308,7 @@ export default function Dashboard() {
                               >
                                 {r.nome.charAt(0).toUpperCase()}
                               </div>
-                              <span className="font-body text-sm">{r.nome}</span>
+                              <span className="text-sm">{r.nome}</span>
                             </div>
                           </td>
                           <td><span className="pill-badge bg-muted text-foreground text-[10px]">{r.qtd}</span></td>
@@ -358,7 +322,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="empty-state py-12">
-                  <p className="font-body text-sm">Nenhuma peça disponível para previsão</p>
+                  <p className="text-sm">Nenhuma peça disponível para previsão</p>
                 </div>
               )}
             </TabsContent>

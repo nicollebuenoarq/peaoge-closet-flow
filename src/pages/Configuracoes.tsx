@@ -75,27 +75,32 @@ export default function Configuracoes() {
 
   return (
     <div className="space-y-8 max-w-2xl animate-fade-up">
-      <h1 className="font-display text-4xl md:text-5xl text-primary tracking-wide">CONFIGURAÇÕES</h1>
+      <div className="flex items-center gap-4">
+        <div className="icon-circle h-12 w-12 bg-primary/10 text-primary rounded-full">
+          <Settings2 className="h-6 w-6" />
+        </div>
+        <h1 className="font-display text-4xl md:text-5xl text-primary tracking-wide">CONFIGURAÇÕES</h1>
+      </div>
 
       <div className="card-editorial overflow-hidden">
         <div className="bg-primary px-6 py-4">
-          <h3 className="font-display text-lg text-primary-foreground tracking-wide flex items-center gap-3">
-            <div className="icon-circle h-10 w-10 bg-primary-foreground/15 rounded-full">
-              <Settings2 className="h-5 w-5 text-primary-foreground" />
+          <h3 className="font-display text-lg text-white tracking-wide flex items-center gap-3">
+            <div className="icon-circle h-10 w-10 bg-white/15 rounded-full">
+              <Settings2 className="h-5 w-5 text-white" />
             </div>
             PERCENTUAIS E TAXAS
           </h3>
         </div>
         <div className="p-6 space-y-5">
           <div className="grid grid-cols-2 gap-4">
-            <div><Label className="label-upper">% Fornecedora</Label><Input type="number" step="1" value={percForn} onChange={e => setPercForn(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
-            <div><Label className="label-upper">% Brechó</Label><Input type="number" step="1" value={percBrecho} onChange={e => setPercBrecho(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+            <div><Label className="label-upper">% Fornecedora</Label><Input type="number" step="1" value={percForn} onChange={e => setPercForn(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
+            <div><Label className="label-upper">% Brechó</Label><Input type="number" step="1" value={percBrecho} onChange={e => setPercBrecho(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label className="label-upper">Taxa Cartão Crédito (%)</Label><Input type="number" step="0.1" value={taxaCartao} onChange={e => setTaxaCartao(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
-            <div><Label className="label-upper">Drop Atual</Label><Input type="number" value={dropAtual} onChange={e => setDropAtual(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+            <div><Label className="label-upper">Taxa Cartão Crédito (%)</Label><Input type="number" step="0.1" value={taxaCartao} onChange={e => setTaxaCartao(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
+            <div><Label className="label-upper">Drop Atual</Label><Input type="number" value={dropAtual} onChange={e => setDropAtual(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
           </div>
-          <Button onClick={savePercentuais} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono text-xs">
+          <Button onClick={savePercentuais} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">
             <Save className="h-4 w-4 mr-1" /> SALVAR
           </Button>
         </div>
@@ -113,14 +118,14 @@ export default function Configuracoes() {
         <div className="p-6">
           <div className="flex flex-wrap gap-2 mb-4">
             {config.statusValidos.map(s => (
-              <Badge key={s} variant="outline" className="gap-1.5 rounded-full px-4 py-1.5 text-xs font-mono">
+              <Badge key={s} variant="outline" className="gap-1.5 rounded-full px-4 py-1.5 text-xs">
                 {s}
                 <button onClick={() => removeStatus(s)} className="hover:text-destructive transition-colors"><X className="h-3.5 w-3.5" /></button>
               </Badge>
             ))}
           </div>
           <div className="flex gap-2">
-            <Input value={novoStatus} onChange={e => setNovoStatus(e.target.value)} placeholder="Novo status..." className="flex-1 rounded-xl font-mono text-xs" />
+            <Input value={novoStatus} onChange={e => setNovoStatus(e.target.value)} placeholder="Novo status..." className="flex-1 rounded-xl text-sm" />
             <Button size="sm" onClick={addStatus} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90"><Plus className="h-4 w-4" /></Button>
           </div>
         </div>
@@ -138,14 +143,14 @@ export default function Configuracoes() {
         <div className="p-6">
           <div className="flex flex-wrap gap-2 mb-4">
             {config.meiosPagamento.map(s => (
-              <Badge key={s} variant="outline" className="gap-1.5 rounded-full px-4 py-1.5 text-xs font-mono">
+              <Badge key={s} variant="outline" className="gap-1.5 rounded-full px-4 py-1.5 text-xs">
                 {s}
                 <button onClick={() => removePgto(s)} className="hover:text-destructive transition-colors"><X className="h-3.5 w-3.5" /></button>
               </Badge>
             ))}
           </div>
           <div className="flex gap-2">
-            <Input value={novoPgto} onChange={e => setNovoPgto(e.target.value)} placeholder="Novo meio..." className="flex-1 rounded-xl font-mono text-xs" />
+            <Input value={novoPgto} onChange={e => setNovoPgto(e.target.value)} placeholder="Novo meio..." className="flex-1 rounded-xl text-sm" />
             <Button size="sm" onClick={addPgto} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90"><Plus className="h-4 w-4" /></Button>
           </div>
         </div>
@@ -161,8 +166,8 @@ export default function Configuracoes() {
           </h3>
         </div>
         <div className="p-6">
-          <p className="text-xs text-muted-foreground mb-4 font-mono">Limpa todos os dados e reimporta os dados iniciais da planilha original.</p>
-          <Button variant="destructive" className="rounded-full font-mono text-xs" onClick={() => {
+          <p className="text-sm text-muted-foreground mb-4">Limpa todos os dados e reimporta os dados iniciais da planilha original.</p>
+          <Button variant="destructive" className="rounded-full text-xs" onClick={() => {
             if (confirm('Tem certeza? Todos os dados atuais serão perdidos!')) {
               resetAndReimport();
               window.location.reload();
