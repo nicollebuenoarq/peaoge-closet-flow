@@ -1,35 +1,43 @@
 
 
-## Plano: Multi-responsável nos lembretes + corrigir filtro
+## Revisão: Ajustes para uso real do Planejamento
 
-### Problema
-1. O filtro de responsável tem "Todas as sócias" E "Todas" — duplicado
-2. Não é possível marcar 2 responsáveis num lembrete (ex: Nicolle + Larissa)
+### Problemas encontrados
 
-### Mudanças
+**1. Senhas hardcoded no código (Login.tsx)**
+As senhas estão escritas diretamente no código (`nicolle123`, `larissa123`, `joice123`). Qualquer pessoa que inspecionar o site consegue ver. Para uso real, isso precisa ser movido para algo mais seguro — ou pelo menos permitir que vocês troquem as senhas nas Configurações.
 
-**1. Tipo (`src/types/index.ts`)**
-- Mudar `responsavel: Responsavel` para `responsavel: Responsavel[]` no `Lembrete`
+**2. Dados apenas no localStorage**
+Tudo (lembretes, drops, peças, vendas) fica salvo apenas no navegador de quem está usando. Se a Nicolle criar um lembrete no celular dela, a Larissa não vai ver no celular dela. Cada aparelho tem seus próprios dados isolados. Para funcionar entre as 3 sócias, precisaria de um banco de dados online (Supabase).
 
-**2. Formulário de lembrete (`src/pages/Planejamento.tsx`)**
-- Trocar o Select de responsável por **checkboxes** (Nicolle, Larissa, Joice, Todas). Ao marcar "Todas", desmarca as individuais e vice-versa
-- Estado `lResponsavel` passa de string para `Responsavel[]`
-- No filtro do toolbar: remover "Todas as sócias", deixar apenas as 4 opções (Nicolle, Larissa, Joice, Todas) + um item "Todos" como valor de reset do filtro
-- Atualizar `saveLembrete` para salvar array
-- Atualizar `LembreteCard` para mostrar múltiplos badges
-- Atualizar `filteredLembretes` para filtrar por `l.responsavel.includes(filtroResp)`
+**3. Lembrete sem ordenação por urgência**
+Os lembretes pendentes aparecem na ordem em que foram criados. Os mais urgentes (com data limite próxima ou atrasados) deveriam aparecer primeiro.
 
-**3. Pop-up (`src/components/LembretesPopup.tsx`)**
-- Ajustar filtro: `l.responsavel.includes(userName) || l.responsavel.includes('Todas')`
+**4. Data limite com bug de fuso horário**
+Ao criar um lembrete com data limite, o cálculo de "Atrasado!" pode marcar errado por causa do fuso (compara `new Date(dataLimite)` que assume meia-noite UTC com `new Date()` local).
 
-**4. Migração de dados**
-- No store getter, converter dados antigos (string) para array automaticamente para não quebrar dados existentes
+**5. Não dá pra voltar ao Dashboard facilmente no mobile**
+No Dashboard não aparece o menu de navegação (é by design), mas no celular não tem botão óbvio pra voltar.
 
-### Arquivos
-| Arquivo | Mudança |
-|---|---|
-| `src/types/index.ts` | `responsavel: Responsavel[]` |
-| `src/pages/Planejamento.tsx` | Checkboxes multi-select, corrigir filtro, badges múltiplos |
-| `src/components/LembretesPopup.tsx` | Filtro com array |
-| `src/lib/store.ts` | Migração string→array no getter |
+---
+
+### O que sugiro fazer agora (sem banco de dados)
+
+| # | Ajuste | Arquivo |
+|---|---|---|
+| 1 | Ordenar lembretes: atrasados primeiro, depois por data limite mais próxima | `Planejamento.tsx` |
+| 2 | Corrigir fuso horário na comparação de datas | `Planejamento.tsx` |
+| 3 | Permitir trocar senha nas Configurações (salvar hash no localStorage) | `Configuracoes.tsx`, `Login.tsx` |
+
+### O que precisaria para funcionar entre as 3 sócias
+
+Para que um lembrete criado pela Nicolle apareça para a Larissa, vocês precisam de um **banco de dados compartilhado** (Supabase). Isso envolveria:
+- Criar tabelas online para lembretes, drops, peças, vendas, fornecedoras
+- Migrar os dados do localStorage para o banco
+- Login real com autenticação
+
+Isso é uma mudança maior. Posso fazer em etapas se quiserem.
+
+### Recomendação
+Começar pelos ajustes rápidos (ordenação + datas) e depois decidir se querem migrar para banco de dados compartilhado.
 
