@@ -1,35 +1,40 @@
 
 
-## Plano: Login Funcional + Saudação Personalizada + Cleanup Navbar
+## Plano: Remover scrollbar horizontal das tabelas
 
-### 1. Login com as 3 sócias (`src/pages/Login.tsx`)
+### Problema
+As tabelas de Catálogo, Vendas e Dashboard têm `overflow-x-auto`, o que cria uma barra de rolagem horizontal ruim para usabilidade.
 
-- Três avatares clicáveis: **Nicolle**, **Larissa**, **Joice**
-- Cada uma com senha própria (hardcoded — controle interno)
-- Ao logar, salvar o nome no `localStorage` como `brecho_user_name`
-- Toast de erro se senha incorreta
-- Cores: Nicolle (#e8527a), Larissa (#4a7a4b), Joice (#2d4a2e)
+### Solução
+Remover o scroll horizontal e fazer as tabelas caberem na tela com ajustes de layout:
 
-### 2. Saudação personalizada (`src/pages/Dashboard.tsx`)
+### Mudanças
 
-- Já lê `localStorage.getItem('brecho_user_name')` — basta garantir que o login salva o nome correto
-- Greeting muda de "Olá, Peaogê" para "Olá, Nicolle 👋", "Olá, Larissa 👋", etc.
+**1. Catálogo (`src/pages/Catalogo.tsx`)**
+- Remover `overflow-x-auto` do wrapper
+- Usar `table-fixed` e definir larguras proporcionais nas colunas
+- Truncar texto longo (descrição) com `truncate max-w-[...]`
+- Reduzir padding das células
 
-### 3. Remover user chip duplicado (`src/components/Layout.tsx`)
+**2. Vendas (`src/pages/Vendas.tsx`)**
+- Mesma abordagem: remover scroll, `table-fixed`, truncar texto
+- Vendas tem 12 colunas — condensar: combinar colunas similares (ex: COM./BRECHÓ), usar abreviações menores
 
-- Remover o bloco com bolinha rosa + nome (linhas 66-74)
-- Adicionar botão de logout discreto no lugar (ícone LogOut)
+**3. Dashboard (`src/pages/Dashboard.tsx`)**
+- Remover `overflow-x-auto` das tabelas de repasses e previsão
 
-### 4. Auth guard (`src/App.tsx`)
+**4. Table UI component (`src/components/ui/table.tsx`)**
+- Trocar `overflow-auto` por `overflow-hidden` no wrapper padrão
 
-- Se `brecho_user_name` não existe no localStorage, redirecionar para `/login`
+**5. CSS global (`src/index.css`)**
+- Adicionar ao `.table-editorial`: `table-layout: fixed` e cells com `overflow: hidden; text-overflow: ellipsis; white-space: nowrap`
 
 ### Arquivos
-
 | Arquivo | Mudança |
 |---|---|
-| `src/pages/Login.tsx` | 3 sócias com senha, salvar nome no localStorage |
-| `src/pages/Dashboard.tsx` | Saudação já funciona (nenhuma mudança necessária) |
-| `src/components/Layout.tsx` | Remover user chip, adicionar logout |
-| `src/App.tsx` | Auth guard simples |
+| `src/index.css` | table-editorial com table-fixed + truncate |
+| `src/components/ui/table.tsx` | overflow-hidden |
+| `src/pages/Catalogo.tsx` | Remover overflow-x-auto, ajustar larguras |
+| `src/pages/Vendas.tsx` | Remover overflow-x-auto, ajustar larguras |
+| `src/pages/Dashboard.tsx` | Remover overflow-x-auto |
 
