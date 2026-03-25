@@ -9,7 +9,7 @@ const navItems = [
   { label: 'CATÁLOGO', path: '/catalogo', icon: ShoppingBag },
   { label: 'VENDAS', path: '/vendas', icon: Receipt },
   { label: 'FORNECEDORAS', path: '/fornecedoras', icon: Users },
-  { label: 'CONFIG', path: '/configuracoes', icon: Settings },
+  { label: 'CONFIGURAÇÕES', path: '/configuracoes', icon: Settings },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
