@@ -415,8 +415,7 @@ export default function Catalogo() {
                 </tr>
               </tfoot>
             )}
-          </table>
-        </div>
+           </table>
       </div>
 
       {/* Nova/Editar Peça Dialog */}

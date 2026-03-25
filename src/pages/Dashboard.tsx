@@ -284,8 +284,7 @@ export default function Dashboard() {
 
             <TabsContent value="previsao" className="mt-0">
               {previsaoForn.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm table-editorial">
+                   <table className="w-full text-sm table-editorial">
                     <thead>
                       <tr>
                         <th className="text-left">NOME</th>

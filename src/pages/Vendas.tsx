@@ -367,7 +367,6 @@ export default function Vendas() {
               </tfoot>
             )}
           </table>
-        </div>
       </div>
 
       {/* Nova Venda Dialog */}
