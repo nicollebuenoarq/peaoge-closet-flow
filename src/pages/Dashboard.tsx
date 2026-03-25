@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { DollarSign, TrendingUp, Users, Package, Wallet, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -73,98 +74,133 @@ export default function Dashboard() {
   };
 
   const indicators = [
-    { label: 'Faturamento Bruto', value: fmt(faturamento), icon: DollarSign, color: 'text-primary' },
-    { label: 'Comissão Fornecedoras', value: fmt(comissaoTotal), icon: Users, color: 'text-secondary' },
-    { label: 'Parcela Brechó', value: fmt(parcelaBrecho), icon: TrendingUp, color: 'text-accent-foreground' },
-    { label: 'Total Pago', value: fmt(totalPago), icon: CheckCircle, color: 'text-secondary' },
-    { label: 'Saldo a Pagar', value: fmt(saldoPagar), icon: Wallet, color: 'text-destructive' },
+    { label: 'Faturamento Bruto', value: fmt(faturamento), icon: DollarSign, gradient: 'indicator-gradient-green' },
+    { label: 'Comissão Fornecedoras', value: fmt(comissaoTotal), icon: Users, gradient: 'indicator-gradient-gold' },
+    { label: 'Parcela Brechó', value: fmt(parcelaBrecho), icon: TrendingUp, gradient: 'indicator-gradient-green' },
+    { label: 'Total Pago', value: fmt(totalPago), icon: CheckCircle, gradient: 'indicator-gradient-teal' },
+    { label: 'Saldo a Pagar', value: fmt(saldoPagar), icon: Wallet, gradient: 'indicator-gradient-red' },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <label className="font-heading font-semibold text-sm">DROP:</label>
+    <div className="space-y-8 animate-fade-in">
+      {/* Drop filter */}
+      <div className="glass rounded-xl p-4 flex items-center gap-3">
+        <label className="font-heading font-semibold text-sm text-muted-foreground uppercase tracking-wider">Drop:</label>
         <Select value={dropFilter} onValueChange={setDropFilter}>
-          <SelectTrigger className="w-40 bg-card"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-40 bg-card border-border/50"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="all">Todos os Drops</SelectItem>
             {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      {/* Indicator cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 animate-stagger">
         {indicators.map(ind => (
-          <Card key={ind.label}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <ind.icon className={`h-4 w-4 ${ind.color}`} />
-                <span className="text-xs text-muted-foreground">{ind.label}</span>
+          <Card key={ind.label} className={`card-elevated ${ind.gradient} border-0 overflow-hidden`}>
+            <CardContent className="p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-10 w-10 rounded-xl bg-card/80 flex items-center justify-center shadow-sm">
+                  <ind.icon className="h-5 w-5 text-foreground" />
+                </div>
               </div>
-              <p className="text-lg font-bold font-heading">{ind.value}</p>
+              <p className="text-2xl font-bold font-heading tracking-tight">{ind.value}</p>
+              <p className="text-xs text-muted-foreground mt-1">{ind.label}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <Card>
+      {/* Forecast card */}
+      <Card className="card-elevated border-dashed border-2 border-accent/30 bg-accent/5">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-heading flex items-center gap-2">
-            <Package className="h-4 w-4" /> Previsão de Faturamento ({disponíveis.length} peças disponíveis)
+            <div className="h-8 w-8 rounded-lg bg-accent/20 flex items-center justify-center">
+              <Package className="h-4 w-4 text-accent-foreground" />
+            </div>
+            Previsão de Faturamento
+            <Badge variant="outline" className="ml-2 text-xs border-accent/30 text-accent-foreground font-normal">
+              {disponíveis.length} peças disponíveis
+            </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div><p className="text-xs text-muted-foreground">Fat. Previsto</p><p className="font-bold">{fmt(prevFaturamento)}</p></div>
-            <div><p className="text-xs text-muted-foreground">Comissão Prevista</p><p className="font-bold">{fmt(prevComissao)}</p></div>
-            <div><p className="text-xs text-muted-foreground">Parcela Brechó Prev.</p><p className="font-bold">{fmt(prevParcelaBrecho)}</p></div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Fat. Previsto</p>
+              <p className="text-xl font-bold font-heading mt-1">{fmt(prevFaturamento)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Comissão Prevista</p>
+              <p className="text-xl font-bold font-heading mt-1">{fmt(prevComissao)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Parcela Brechó Prev.</p>
+              <p className="text-xl font-bold font-heading mt-1">{fmt(prevParcelaBrecho)}</p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
+      {/* Repasses table */}
       {repasses.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
+        <Card className="card-elevated overflow-hidden">
+          <CardHeader className="pb-3 bg-muted/20">
             <CardTitle className="text-base font-heading">Repasses por Fornecedora</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm table-modern table-zebra">
                 <thead>
-                  <tr className="border-b text-left text-muted-foreground">
-                    <th className="pb-2">Nome</th>
-                    <th className="pb-2">Comissão Devida</th>
-                    <th className="pb-2">Parte Brechó</th>
-                    <th className="pb-2">Total a Receber</th>
-                    <th className="pb-2">Status</th>
-                    <th className="pb-2"></th>
+                  <tr className="border-b">
+                    <th className="p-3 text-left">Nome</th>
+                    <th className="p-3 text-left">Comissão Devida</th>
+                    <th className="p-3 text-left">Parte Brechó</th>
+                    <th className="p-3 text-left">Total a Receber</th>
+                    <th className="p-3 text-left">Progresso</th>
+                    <th className="p-3 text-left">Status</th>
+                    <th className="p-3"></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {repasses.map(r => (
-                    <tr key={r.id} className="border-b last:border-0">
-                      <td className="py-2 font-medium">
-                        {r.nome} {r.ehSocia && <Badge variant="outline" className="ml-1 text-xs border-accent text-accent-foreground">⭐ Sócia</Badge>}
-                      </td>
-                      <td className="py-2">{fmt(r.comissaoDevida)}</td>
-                      <td className="py-2">{r.ehSocia ? fmt(r.parteBrechoSocia) : '—'}</td>
-                      <td className="py-2 font-semibold">{fmt(r.totalReceber)}</td>
-                      <td className="py-2">
-                        {r.pendente <= 0 ? (
-                          <Badge className="bg-secondary/20 text-secondary border-0">Pago</Badge>
-                        ) : (
-                          <Badge variant="outline" className="border-destructive/30 text-destructive">Pendente ({r.vendasPendentes})</Badge>
-                        )}
-                      </td>
-                      <td className="py-2">
-                        {r.vendasPendentes > 0 && (
-                          <Button size="sm" variant="outline" onClick={() => handlePagarTudo(r.id)}>
-                            Pagar Tudo
-                          </Button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  {repasses.map(r => {
+                    const progress = r.comissaoDevida > 0 ? (r.pago / r.comissaoDevida) * 100 : 100;
+                    return (
+                      <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                        <td className="p-3 font-medium">
+                          <div className="flex items-center gap-2">
+                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                              {r.nome.charAt(0).toUpperCase()}
+                            </div>
+                            <span>{r.nome}</span>
+                            {r.ehSocia && <Badge variant="outline" className="text-xs border-accent text-accent-foreground">⭐ Sócia</Badge>}
+                          </div>
+                        </td>
+                        <td className="p-3 font-mono-price">{fmt(r.comissaoDevida)}</td>
+                        <td className="p-3 font-mono-price">{r.ehSocia ? fmt(r.parteBrechoSocia) : '—'}</td>
+                        <td className="p-3 font-mono-price font-bold">{fmt(r.totalReceber)}</td>
+                        <td className="p-3 min-w-[120px]">
+                          <Progress value={progress} className="h-2" />
+                          <p className="text-xs text-muted-foreground mt-1">{Math.round(progress)}% pago</p>
+                        </td>
+                        <td className="p-3">
+                          {r.pendente <= 0 ? (
+                            <Badge className="bg-status-available/15 text-status-available border-status-available/30 border">✓ Pago</Badge>
+                          ) : (
+                            <Badge variant="outline" className="border-destructive/30 text-destructive">Pendente ({r.vendasPendentes})</Badge>
+                          )}
+                        </td>
+                        <td className="p-3">
+                          {r.vendasPendentes > 0 && (
+                            <Button size="sm" variant="outline" className="hover:bg-primary hover:text-primary-foreground transition-colors" onClick={() => handlePagarTudo(r.id)}>
+                              Pagar Tudo
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -172,31 +208,41 @@ export default function Dashboard() {
         </Card>
       )}
 
+      {/* Previsão por fornecedora */}
       {previsaoForn.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
+        <Card className="card-elevated overflow-hidden">
+          <CardHeader className="pb-3 bg-muted/20">
             <CardTitle className="text-base font-heading">Previsão por Fornecedora</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm table-modern table-zebra">
                 <thead>
-                  <tr className="border-b text-left text-muted-foreground">
-                    <th className="pb-2">Nome</th>
-                    <th className="pb-2">Qtd Peças</th>
-                    <th className="pb-2">Prev. Comissão</th>
-                    <th className="pb-2">Prev. Parcela Brechó</th>
-                    <th className="pb-2">Total Previsto</th>
+                  <tr className="border-b">
+                    <th className="p-3 text-left">Nome</th>
+                    <th className="p-3 text-left">Qtd Peças</th>
+                    <th className="p-3 text-left">Prev. Comissão</th>
+                    <th className="p-3 text-left">Prev. Parcela Brechó</th>
+                    <th className="p-3 text-left">Total Previsto</th>
                   </tr>
                 </thead>
                 <tbody>
                   {previsaoForn.map(r => (
-                    <tr key={r.id} className="border-b last:border-0">
-                      <td className="py-2 font-medium">{r.nome}</td>
-                      <td className="py-2">{r.qtd}</td>
-                      <td className="py-2">{fmt(r.prevComissao)}</td>
-                      <td className="py-2">{fmt(r.prevBrecho)}</td>
-                      <td className="py-2 font-semibold">{fmt(r.prevTotal)}</td>
+                    <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                      <td className="p-3 font-medium">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full bg-accent/15 flex items-center justify-center text-xs font-bold text-accent-foreground">
+                            {r.nome.charAt(0).toUpperCase()}
+                          </div>
+                          {r.nome}
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <Badge variant="outline" className="font-mono">{r.qtd}</Badge>
+                      </td>
+                      <td className="p-3 font-mono-price">{fmt(r.prevComissao)}</td>
+                      <td className="p-3 font-mono-price">{fmt(r.prevBrecho)}</td>
+                      <td className="p-3 font-mono-price font-bold">{fmt(r.prevTotal)}</td>
                     </tr>
                   ))}
                 </tbody>
