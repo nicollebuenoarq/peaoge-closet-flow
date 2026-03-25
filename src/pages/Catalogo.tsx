@@ -32,7 +32,7 @@ export default function Catalogo() {
 
   const [dropFilter, setDropFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [catFilter, setCatFilter] = useState<string>('');
+  const [catFilter, setCatFilter] = useState<string>('all');
   const [fornFilter, setFornFilter] = useState<string>('all');
   const [busca, setBusca] = useState('');
 
@@ -67,7 +67,7 @@ export default function Catalogo() {
     if (dropFilter !== 'all' && p.drop !== Number(dropFilter)) return false;
     if (statusFilter !== 'all' && p.status !== statusFilter) return false;
     if (fornFilter !== 'all' && p.fornecedoraId !== fornFilter) return false;
-    if (catFilter && p.categoria !== catFilter) return false;
+    if (catFilter !== 'all' && p.categoria !== catFilter) return false;
     if (busca) {
       const q = busca.toLowerCase();
       if (!p.descricao.toLowerCase().includes(q) && !String(p.sku).includes(q)) return false;
@@ -188,7 +188,7 @@ export default function Catalogo() {
             <Select value={catFilter} onValueChange={setCatFilter}>
               <SelectTrigger className="w-32 bg-card"><SelectValue placeholder="Todas" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas</SelectItem>
+                <SelectItem value="all">Todas</SelectItem>
                 {categorias.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
               </SelectContent>
             </Select>
