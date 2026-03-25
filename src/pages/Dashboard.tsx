@@ -103,7 +103,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 animate-fade-up">
-      {/* HERO BANNER */}
+      {/* HERO BANNER — oversized */}
       <section className="relative overflow-hidden py-8 md:py-12">
         {/* Ghost text */}
         <div
