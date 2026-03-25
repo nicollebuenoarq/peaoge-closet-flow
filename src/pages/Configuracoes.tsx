@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { store } from '@/lib/store';
 import { resetAndReimport } from '@/lib/initialData';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -75,100 +74,104 @@ export default function Configuracoes() {
   };
 
   return (
-    <div className="space-y-8 max-w-2xl animate-fade-in">
-      <Card className="card-modern overflow-hidden border-0">
-        <CardHeader className="bg-primary -mx-px -mt-px px-6 pt-6 pb-4">
-          <CardTitle className="font-heading text-base flex items-center gap-3 text-primary-foreground">
-            <div className="icon-circle h-10 w-10 bg-primary-foreground/15">
-              <Settings2 className="h-5 w-5" />
-            </div>
-            Percentuais e Taxas
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-5 pt-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div><Label className="label-upper">% Fornecedora</Label><Input type="number" step="1" value={percForn} onChange={e => setPercForn(e.target.value)} className="mt-1.5 rounded-xl" /></div>
-            <div><Label className="label-upper">% Brechó</Label><Input type="number" step="1" value={percBrecho} onChange={e => setPercBrecho(e.target.value)} className="mt-1.5 rounded-xl" /></div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div><Label className="label-upper">Taxa Cartão Crédito (%)</Label><Input type="number" step="0.1" value={taxaCartao} onChange={e => setTaxaCartao(e.target.value)} className="mt-1.5 rounded-xl" /></div>
-            <div><Label className="label-upper">Drop Atual</Label><Input type="number" value={dropAtual} onChange={e => setDropAtual(e.target.value)} className="mt-1.5 rounded-xl" /></div>
-          </div>
-          <Button onClick={savePercentuais} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-md"><Save className="h-4 w-4 mr-1" /> Salvar</Button>
-        </CardContent>
-      </Card>
+    <div className="space-y-8 max-w-2xl animate-fade-up">
+      <h1 className="font-display text-4xl md:text-5xl text-primary tracking-wide">CONFIGURAÇÕES</h1>
 
-      <Card className="card-modern overflow-hidden border-0">
-        <CardHeader className="bg-accent/10 pb-4">
-          <CardTitle className="font-heading text-base flex items-center gap-3">
-            <div className="icon-circle h-10 w-10 bg-accent/15 text-accent">
+      <div className="card-editorial overflow-hidden">
+        <div className="bg-primary px-6 py-4">
+          <h3 className="font-display text-lg text-primary-foreground tracking-wide flex items-center gap-3">
+            <div className="icon-circle h-10 w-10 bg-primary-foreground/15 rounded-full">
+              <Settings2 className="h-5 w-5 text-primary-foreground" />
+            </div>
+            PERCENTUAIS E TAXAS
+          </h3>
+        </div>
+        <div className="p-6 space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <div><Label className="label-upper">% Fornecedora</Label><Input type="number" step="1" value={percForn} onChange={e => setPercForn(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+            <div><Label className="label-upper">% Brechó</Label><Input type="number" step="1" value={percBrecho} onChange={e => setPercBrecho(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div><Label className="label-upper">Taxa Cartão Crédito (%)</Label><Input type="number" step="0.1" value={taxaCartao} onChange={e => setTaxaCartao(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+            <div><Label className="label-upper">Drop Atual</Label><Input type="number" value={dropAtual} onChange={e => setDropAtual(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+          </div>
+          <Button onClick={savePercentuais} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono text-xs">
+            <Save className="h-4 w-4 mr-1" /> SALVAR
+          </Button>
+        </div>
+      </div>
+
+      <div className="card-editorial overflow-hidden">
+        <div className="bg-accent/10 px-6 py-4 border-b border-border">
+          <h3 className="font-display text-lg tracking-wide flex items-center gap-3">
+            <div className="icon-circle h-10 w-10 bg-accent/15 text-accent rounded-full">
               <Tags className="h-5 w-5" />
             </div>
-            Status Válidos
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-5">
+            STATUS VÁLIDOS
+          </h3>
+        </div>
+        <div className="p-6">
           <div className="flex flex-wrap gap-2 mb-4">
             {config.statusValidos.map(s => (
-              <Badge key={s} variant="outline" className="gap-1.5 rounded-full px-4 py-1.5 text-sm">
+              <Badge key={s} variant="outline" className="gap-1.5 rounded-full px-4 py-1.5 text-xs font-mono">
                 {s}
                 <button onClick={() => removeStatus(s)} className="hover:text-destructive transition-colors"><X className="h-3.5 w-3.5" /></button>
               </Badge>
             ))}
           </div>
           <div className="flex gap-2">
-            <Input value={novoStatus} onChange={e => setNovoStatus(e.target.value)} placeholder="Novo status..." className="flex-1 rounded-xl" />
-            <Button size="sm" onClick={addStatus} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-sm"><Plus className="h-4 w-4" /></Button>
+            <Input value={novoStatus} onChange={e => setNovoStatus(e.target.value)} placeholder="Novo status..." className="flex-1 rounded-xl font-mono text-xs" />
+            <Button size="sm" onClick={addStatus} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90"><Plus className="h-4 w-4" /></Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card className="card-modern overflow-hidden border-0">
-        <CardHeader className="bg-primary/5 pb-4">
-          <CardTitle className="font-heading text-base flex items-center gap-3">
-            <div className="icon-circle h-10 w-10 bg-primary/10 text-primary">
+      <div className="card-editorial overflow-hidden">
+        <div className="bg-primary/5 px-6 py-4 border-b border-border">
+          <h3 className="font-display text-lg tracking-wide flex items-center gap-3">
+            <div className="icon-circle h-10 w-10 bg-primary/10 text-primary rounded-full">
               <CreditCard className="h-5 w-5" />
             </div>
-            Meios de Pagamento
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-5">
+            MEIOS DE PAGAMENTO
+          </h3>
+        </div>
+        <div className="p-6">
           <div className="flex flex-wrap gap-2 mb-4">
             {config.meiosPagamento.map(s => (
-              <Badge key={s} variant="outline" className="gap-1.5 rounded-full px-4 py-1.5 text-sm">
+              <Badge key={s} variant="outline" className="gap-1.5 rounded-full px-4 py-1.5 text-xs font-mono">
                 {s}
                 <button onClick={() => removePgto(s)} className="hover:text-destructive transition-colors"><X className="h-3.5 w-3.5" /></button>
               </Badge>
             ))}
           </div>
           <div className="flex gap-2">
-            <Input value={novoPgto} onChange={e => setNovoPgto(e.target.value)} placeholder="Novo meio..." className="flex-1 rounded-xl" />
-            <Button size="sm" onClick={addPgto} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-sm"><Plus className="h-4 w-4" /></Button>
+            <Input value={novoPgto} onChange={e => setNovoPgto(e.target.value)} placeholder="Novo meio..." className="flex-1 rounded-xl font-mono text-xs" />
+            <Button size="sm" onClick={addPgto} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90"><Plus className="h-4 w-4" /></Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card className="card-modern overflow-hidden border-destructive/30 border-2">
-        <CardHeader className="bg-destructive/5 pb-4">
-          <CardTitle className="font-heading text-base flex items-center gap-3">
-            <div className="icon-circle h-10 w-10 bg-destructive/10 text-destructive">
+      <div className="card-editorial overflow-hidden border-destructive/30 border-2">
+        <div className="bg-destructive/5 px-6 py-4 border-b border-border">
+          <h3 className="font-display text-lg tracking-wide flex items-center gap-3">
+            <div className="icon-circle h-10 w-10 bg-destructive/10 text-destructive rounded-full">
               <Database className="h-5 w-5" />
             </div>
-            Dados
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-5">
-          <p className="text-sm text-muted-foreground mb-4">Limpa todos os dados e reimporta os dados iniciais da planilha original.</p>
-          <Button variant="destructive" className="rounded-full shadow-md" onClick={() => {
+            DADOS
+          </h3>
+        </div>
+        <div className="p-6">
+          <p className="text-xs text-muted-foreground mb-4 font-mono">Limpa todos os dados e reimporta os dados iniciais da planilha original.</p>
+          <Button variant="destructive" className="rounded-full font-mono text-xs" onClick={() => {
             if (confirm('Tem certeza? Todos os dados atuais serão perdidos!')) {
               resetAndReimport();
               window.location.reload();
             }
           }}>
-            <RotateCcw className="h-4 w-4 mr-1" /> Resetar e Reimportar
+            <RotateCcw className="h-4 w-4 mr-1" /> RESETAR E REIMPORTAR
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import Catalogo from "./pages/Catalogo";
 import Vendas from "./pages/Vendas";
 import Fornecedoras from "./pages/Fornecedoras";
 import Configuracoes from "./pages/Configuracoes";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { initializeData } from "@/lib/initialData";
 
@@ -22,16 +23,21 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/catalogo" element={<Catalogo />} />
-            <Route path="/vendas" element={<Vendas />} />
-            <Route path="/fornecedoras" element={<Fornecedoras />} />
-            <Route path="/configuracoes" element={<Configuracoes />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/catalogo" element={<Catalogo />} />
+                <Route path="/vendas" element={<Vendas />} />
+                <Route path="/fornecedoras" element={<Fornecedoras />} />
+                <Route path="/configuracoes" element={<Configuracoes />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Layout>
+          } />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

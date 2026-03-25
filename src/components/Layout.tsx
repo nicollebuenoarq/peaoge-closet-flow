@@ -1,27 +1,16 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Receipt, Users, Settings, Menu, X, CalendarDays } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Receipt, Users, Settings, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import logo from '@/assets/logo.webp';
+import logo from '@/assets/logo_peaoge_sem_fundo.png';
 
 const navItems = [
-  { label: 'Dashboard', path: '/', icon: LayoutDashboard },
-  { label: 'Catálogo', path: '/catalogo', icon: ShoppingBag },
-  { label: 'Vendas', path: '/vendas', icon: Receipt },
-  { label: 'Fornecedoras', path: '/fornecedoras', icon: Users },
-  { label: 'Configurações', path: '/configuracoes', icon: Settings },
+  { label: 'DASHBOARD', path: '/', icon: LayoutDashboard },
+  { label: 'CATÁLOGO', path: '/catalogo', icon: ShoppingBag },
+  { label: 'VENDAS', path: '/vendas', icon: Receipt },
+  { label: 'FORNECEDORAS', path: '/fornecedoras', icon: Users },
+  { label: 'CONFIG', path: '/configuracoes', icon: Settings },
 ];
-
-function getGreeting() {
-  const h = new Date().getHours();
-  if (h < 12) return 'Bom dia';
-  if (h < 18) return 'Boa tarde';
-  return 'Boa noite';
-}
-
-function formatDate() {
-  return new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
-}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -33,23 +22,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setMobileOpen(false);
   };
 
-  const currentPage = navItems.find(i => i.path === location.pathname);
+  // Get logged-in user from localStorage
+  const userName = localStorage.getItem('brecho_user_name') || 'P';
+  const userColor = localStorage.getItem('brecho_user_color') || '#e8527a';
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen relative">
       {/* Top Navigation */}
-      <header className="sticky top-0 z-40 bg-card border-b" style={{ boxShadow: 'var(--shadow-nav)' }}>
+      <header className="sticky top-0 z-40 bg-background border-b border-border">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-          {/* Top row: Logo + Nav */}
-          <div className="flex items-center h-20 gap-8">
-            {/* Logo */}
-            <div className="flex items-center gap-3 shrink-0">
-              <img
-                src={logo}
-                alt="Brechó Peaogê"
-                className="h-14 w-auto object-contain logo-blend"
-              />
-            </div>
+          <div className="flex items-center h-16 gap-6">
+            {/* Logo — rotated, no container */}
+            <img
+              src={logo}
+              alt="Brechó Peaogê"
+              className="h-[52px] w-auto object-contain cursor-pointer"
+              style={{ transform: 'rotate(-3deg)' }}
+              onClick={() => nav('/')}
+            />
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-1 flex-1">
@@ -60,23 +50,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     key={item.path}
                     onClick={() => nav(item.path)}
                     className={cn(
-                      'flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-300',
+                      'flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-[0.1em] transition-all duration-200',
+                      'font-mono',
                       active
-                        ? 'bg-accent text-accent-foreground shadow-md'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                        ? 'bg-accent text-accent-foreground'
+                        : 'text-primary hover:bg-muted'
                     )}
                   >
-                    <item.icon className="h-4 w-4" />
+                    <item.icon className="h-3.5 w-3.5" />
                     <span>{item.label}</span>
                   </button>
                 );
               })}
             </nav>
 
-            {/* Date pill */}
-            <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground bg-muted px-4 py-2 rounded-full shrink-0">
-              <CalendarDays className="h-3.5 w-3.5" />
-              <span className="capitalize">{formatDate()}</span>
+            {/* User chip */}
+            <div className="hidden md:flex items-center gap-2 shrink-0">
+              <div
+                className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                style={{ backgroundColor: userColor }}
+              >
+                {userName.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-xs font-mono font-bold text-primary">{userName}</span>
             </div>
 
             {/* Mobile hamburger */}
@@ -103,7 +99,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           'md:hidden overflow-hidden transition-all duration-300 border-t',
           mobileOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 border-transparent'
         )}>
-          <nav className="px-4 py-3 space-y-1 bg-card">
+          <nav className="px-4 py-3 space-y-1 bg-background">
             {navItems.map((item) => {
               const active = location.pathname === item.path;
               return (
@@ -111,13 +107,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   key={item.path}
                   onClick={() => nav(item.path)}
                   className={cn(
-                    'w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-200',
+                    'w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold font-mono tracking-[0.1em] transition-all duration-200',
                     active
                       ? 'bg-accent text-accent-foreground'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      : 'text-primary hover:bg-muted'
                   )}
                 >
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className="h-4 w-4" />
                   <span>{item.label}</span>
                 </button>
               );
@@ -126,30 +122,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Page header with greeting */}
-      <div className="max-w-[1400px] mx-auto w-full px-4 md:px-8 pt-8 pb-2">
-        <div className="flex items-end justify-between">
-          <div>
-            <h1 className="font-heading text-3xl md:text-4xl font-bold tracking-tight">
-              {currentPage?.label || 'Brechó Peaogê'}
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              {getGreeting()}, Peaogê 👋
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Main content */}
       <main className="flex-1 max-w-[1400px] mx-auto w-full px-4 md:px-8 py-6">
         {children}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t bg-card">
+      {/* Footer with watermark logo */}
+      <footer className="border-t border-border bg-background">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">Brechó Peaogê • v1.0</p>
-          <img src={logo} alt="" className="h-6 w-auto opacity-30 logo-blend" />
+          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Brechó Peaogê • v2.0</p>
+          <img
+            src={logo}
+            alt=""
+            className="w-[80px] h-auto"
+            style={{ transform: 'rotate(8deg)', opacity: 0.15 }}
+          />
         </div>
       </footer>
     </div>
