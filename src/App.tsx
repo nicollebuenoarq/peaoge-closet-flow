@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -12,45 +13,61 @@ import Configuracoes from "./pages/Configuracoes";
 import Planejamento from "./pages/Planejamento";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
-import { initializeData } from "@/lib/initialData";
-
-initializeData();
+import { supabase } from "@/integrations/supabase/client";
+import type { Session } from "@supabase/supabase-js";
 
 const queryClient = new QueryClient();
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
-  const isLoggedIn = localStorage.getItem('brecho_user_name');
-  if (!isLoggedIn) return <Navigate to="/login" replace />;
-  return <>{children}</>;
+    const [session, setSession] = useState<Session | null | undefined>(undefined);
+
+  useEffect(() => {
+        supabase.auth.getSession().then(({ data }) => {
+                setSession(data.session);
+        });
+
+                const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+                        setSession(newSession);
+                });
+
+                return () => subscription.unsubscribe();
+  }, []);
+
+  if (session === undefined) return null; // carregando
+  if (!session) return <Navigate to="/login" replace />;
+    return <>{children}</>>;
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="*" element={
-            <AuthGuard>
-              <Layout>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/catalogo" element={<Catalogo />} />
-                  <Route path="/vendas" element={<Vendas />} />
-                  <Route path="/fornecedoras" element={<Fornecedoras />} />
-                  <Route path="/planejamento" element={<Planejamento />} />
-                  <Route path="/configuracoes" element={<Configuracoes />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Layout>
-            </AuthGuard>
-          } />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
-
-export default App;
+    <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                      <Routes>
+                                <Route path="/login" element={<Login />} />
+                                <Route
+                                              path="*"
+                                              element={
+                                                              <AuthGuard>
+                                                                              <Layout>
+                                                                                                <Routes>
+                                                                                                                    <Route path="/" element={<Dashboard />} />
+                                                                                                                    <Route path="/catalogo" element={<Catalogo />} />
+                                                                                                                    <Route path="/vendas" element={<Vendas />} />
+                                                                                                                    <Route path="/fornecedoras" element={<Fornecedoras />} />
+                                                                                                                    <Route path="/planejamento" element={<Planejamento />} />
+                                                                                                                    <Route path="/configuracoes" element={<Configuracoes />} />
+                                                                                                                    <Route path="*" element={<NotFound />} />
+                                                                                                  </Routes>Routes>
+                                                                              </Layout>Layout>
+                                                              </AuthGuard>AuthGuard>
+                                  }
+                                          />
+                                </Route>Routes>
+                      </Routes>BrowserRouter>
+              </BrowserRouter>TooltipProvider>
+        </TooltipProvider>QueryClientProvider>
+    );
+    
+    export default App;</>
