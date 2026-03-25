@@ -108,13 +108,13 @@ export default function Dashboard() {
     <div className="space-y-8 animate-fade-up">
 
       {/* PHOTO STRIP */}
-      <section className="grid grid-cols-5 gap-1 h-[160px] rounded-2xl overflow-hidden">
+      <section className="flex md:grid md:grid-cols-5 gap-1 h-[120px] md:h-[160px] rounded-2xl overflow-x-auto md:overflow-hidden scrollbar-hide">
         {photoStrip.map((photo, i) => {
           const isActive = location.pathname === photo.path;
           return (
             <div
               key={photo.label}
-              className="relative overflow-hidden group cursor-pointer"
+              className="relative overflow-hidden group cursor-pointer min-w-[120px] md:min-w-0 flex-shrink-0"
               onClick={() => navigate(photo.path)}
               role="link"
             >
@@ -126,7 +126,7 @@ export default function Dashboard() {
               <div className={`absolute inset-0 transition-colors duration-300 ${isActive ? 'bg-gradient-to-t from-black/30 to-transparent' : 'bg-gradient-to-t from-black/60 to-black/10'}`} />
               <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ backgroundColor: topBarColors[i] }} />
               <span
-                className={`absolute bottom-4 left-3 font-display text-sm tracking-[0.1em] transition-colors duration-300 text-secondary-foreground ${isActive ? 'brightness-125' : ''}`}
+                className={`absolute bottom-3 left-2 md:bottom-4 md:left-3 font-display text-[10px] md:text-sm tracking-[0.1em] transition-colors duration-300 text-secondary-foreground ${isActive ? 'brightness-125' : ''}`}
                 style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}
               >
                 {photo.label}
@@ -187,18 +187,18 @@ export default function Dashboard() {
             {disponíveis.length} peças disponíveis
           </span>
         </div>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           <div>
             <p className="label-upper text-white/50">Fat. Previsto</p>
-            <p className="font-display text-3xl mt-1 text-white">{fmt(prevFaturamento)}</p>
+            <p className="font-display text-2xl sm:text-3xl mt-1 text-white">{fmt(prevFaturamento)}</p>
           </div>
           <div>
             <p className="label-upper text-white/50">Comissão Prev.</p>
-            <p className="font-display text-3xl mt-1 text-white">{fmt(prevComissao)}</p>
+            <p className="font-display text-2xl sm:text-3xl mt-1 text-white">{fmt(prevComissao)}</p>
           </div>
           <div>
             <p className="label-upper text-white/50">Parcela Brechó</p>
-            <p className="font-display text-3xl mt-1 text-white">{fmt(prevParcelaBrecho)}</p>
+            <p className="font-display text-2xl sm:text-3xl mt-1 text-white">{fmt(prevParcelaBrecho)}</p>
           </div>
         </div>
       </div>
@@ -220,7 +220,9 @@ export default function Dashboard() {
 
             <TabsContent value="repasses" className="mt-0">
               {repasses.length > 0 ? (
-                  <table className="w-full text-sm table-editorial">
+                <>
+                  {/* Desktop table */}
+                  <table className="hidden md:table w-full text-sm table-editorial">
                     <thead>
                       <tr>
                         <th className="text-left">NOME</th>
@@ -274,7 +276,49 @@ export default function Dashboard() {
                         );
                       })}
                     </tbody>
-                   </table>
+                  </table>
+                  {/* Mobile cards */}
+                  <div className="md:hidden divide-y divide-border">
+                    {repasses.map(r => {
+                      const progress = r.comissaoDevida > 0 ? (r.pago / r.comissaoDevida) * 100 : 100;
+                      return (
+                        <div key={r.id} className="p-4 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                                style={{ backgroundColor: `hsl(${r.nome.charCodeAt(0) * 7 % 360}, 45%, 45%)` }}
+                              >
+                                {r.nome.charAt(0).toUpperCase()}
+                              </div>
+                              <span className="text-sm font-medium">{r.nome}</span>
+                              {r.ehSocia && <span className="pill-badge bg-accent/15 text-accent text-[10px]">⭐</span>}
+                            </div>
+                            {r.pendente <= 0 ? (
+                              <span className="pill-badge bg-status-available/15 text-status-available text-[10px]">✓ Pago</span>
+                            ) : (
+                              <span className="pill-badge bg-status-reserved/15 text-status-reserved text-[10px]">Pendente</span>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 text-center">
+                            <div><p className="text-[9px] text-muted-foreground uppercase">Comissão</p><p className="font-mono-price text-xs">{fmt(r.comissaoDevida)}</p></div>
+                            <div><p className="text-[9px] text-muted-foreground uppercase">Brechó</p><p className="font-mono-price text-xs">{r.ehSocia ? fmt(r.parteBrechoSocia) : '—'}</p></div>
+                            <div><p className="text-[9px] text-muted-foreground uppercase">Total</p><p className="font-mono-price text-xs font-bold text-primary">{fmt(r.totalReceber)}</p></div>
+                          </div>
+                          <div>
+                            <Progress value={progress} className="h-1.5 rounded-full" />
+                            <p className="text-[10px] text-muted-foreground mt-1">{Math.round(progress)}%</p>
+                          </div>
+                          {r.vendasPendentes > 0 && (
+                            <Button size="sm" className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs h-8" onClick={() => handlePagarTudo(r.id)}>
+                              Pagar Tudo ({r.vendasPendentes})
+                            </Button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
               ) : (
                 <div className="empty-state py-12">
                   <p className="text-sm">Nenhum repasse registrado</p>
@@ -284,7 +328,9 @@ export default function Dashboard() {
 
             <TabsContent value="previsao" className="mt-0">
               {previsaoForn.length > 0 ? (
-                   <table className="w-full text-sm table-editorial">
+                <>
+                  {/* Desktop table */}
+                  <table className="hidden md:table w-full text-sm table-editorial">
                     <thead>
                       <tr>
                         <th className="text-left">NOME</th>
@@ -315,7 +361,30 @@ export default function Dashboard() {
                         </tr>
                       ))}
                     </tbody>
-                   </table>
+                  </table>
+                  {/* Mobile cards */}
+                  <div className="md:hidden divide-y divide-border">
+                    {previsaoForn.map(r => (
+                      <div key={r.id} className="p-4 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                            style={{ backgroundColor: `hsl(${r.nome.charCodeAt(0) * 7 % 360}, 45%, 45%)` }}
+                          >
+                            {r.nome.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="text-sm font-medium">{r.nome}</span>
+                          <span className="pill-badge bg-muted text-foreground text-[10px] ml-auto">{r.qtd} peças</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-center">
+                          <div><p className="text-[9px] text-muted-foreground uppercase">Comissão</p><p className="font-mono-price text-xs">{fmt(r.prevComissao)}</p></div>
+                          <div><p className="text-[9px] text-muted-foreground uppercase">Brechó</p><p className="font-mono-price text-xs">{fmt(r.prevBrecho)}</p></div>
+                          <div><p className="text-[9px] text-muted-foreground uppercase">Total</p><p className="font-mono-price text-xs font-bold text-primary">{fmt(r.prevTotal)}</p></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
               ) : (
                 <div className="empty-state py-12">
                   <p className="text-sm">Nenhuma peça disponível para previsão</p>

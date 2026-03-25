@@ -197,7 +197,7 @@ export default function Vendas() {
       <h1 className="font-display text-4xl md:text-5xl text-primary tracking-wide">VENDAS</h1>
 
       {/* Metric mini-cards */}
-      <div className="grid grid-cols-3 gap-4 animate-stagger">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 animate-stagger">
         {metricCards.map((card, i) => (
           <div
             key={card.label}
@@ -264,8 +264,8 @@ export default function Vendas() {
         </Button>
       </div>
 
-      {/* Table */}
-      <div className="card-editorial overflow-hidden">
+      {/* Desktop Table */}
+      <div className="card-editorial overflow-hidden hidden md:block">
           <table className="w-full text-sm table-editorial">
             <colgroup>
               <col className="w-[8%]" />
@@ -367,6 +367,61 @@ export default function Vendas() {
               </tfoot>
             )}
           </table>
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="md:hidden space-y-3">
+        {filtered.length === 0 && (
+          <div className="card-editorial empty-state py-12">
+            <Receipt className="h-16 w-16 mb-4 opacity-20" />
+            <p className="text-xl font-display">NENHUMA VENDA ENCONTRADA</p>
+            <p className="text-sm mt-1">Tente ajustar os filtros ou registre uma nova</p>
+          </div>
+        )}
+        {filtered.map(v => (
+          <div key={v.id} className="card-editorial p-4 space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-mono-price text-xs text-muted-foreground">#{v.skuPeca}</span>
+                  <span className="pill-badge bg-muted text-foreground text-[10px]">D{v.drop}</span>
+                  <span className="pill-badge bg-muted text-foreground text-[10px]">{v.pagamento}</span>
+                </div>
+                <p className="font-medium text-sm truncate">{v.descricaoPeca}</p>
+                <p className="text-xs text-muted-foreground">{v.dataVenda} • {getFornNome(v.fornecedoraId)}</p>
+              </div>
+              <p className="font-mono-price text-primary text-sm font-bold shrink-0">{fmt(v.precoFinal)}</p>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-center bg-muted/30 rounded-xl p-2">
+              <div><p className="text-[9px] text-muted-foreground uppercase">Comissão</p><p className="font-mono-price text-xs">{fmt(v.comissaoFornecedora)}</p></div>
+              <div><p className="text-[9px] text-muted-foreground uppercase">Brechó</p><p className="font-mono-price text-xs">{fmt(v.parcelaBrecho)}</p></div>
+              <div><p className="text-[9px] text-muted-foreground uppercase">Pago?</p>
+                <div className="flex justify-center mt-0.5"><Checkbox checked={v.pagoFornecedora} onCheckedChange={() => togglePago(v.id)} /></div>
+              </div>
+            </div>
+            {v.compradora && <p className="text-xs text-muted-foreground">Compradora: {v.compradora}</p>}
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" className="flex-1 rounded-full text-xs h-8" onClick={() => openEdit(v)}>
+                <Edit className="h-3 w-3 mr-1" /> Editar
+              </Button>
+              <Button size="sm" variant="outline" className="rounded-full text-xs h-8 text-destructive hover:bg-destructive/10" onClick={() => setShowDeleteConfirm(v)}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        ))}
+        {filtered.length > 0 && (
+          <div className="bg-primary rounded-2xl p-4 text-white">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-white/70">{filtered.length} vendas</span>
+              <span className="font-mono-price text-sm font-bold">{fmt(totalFaturamento)}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-center">
+              <div><p className="text-[9px] text-white/50 uppercase">Comissão</p><p className="font-mono-price text-xs">{fmt(totalComissao)}</p></div>
+              <div><p className="text-[9px] text-white/50 uppercase">Brechó</p><p className="font-mono-price text-xs">{fmt(totalBrecho)}</p></div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Nova Venda Dialog */}
