@@ -315,8 +315,7 @@ export default function Dashboard() {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
-                </div>
+                   </table>
               ) : (
                 <div className="empty-state py-12">
                   <p className="text-sm">Nenhuma peça disponível para previsão</p>
