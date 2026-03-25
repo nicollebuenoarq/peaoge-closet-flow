@@ -1,54 +1,35 @@
 
 
-## Plano: Lembretes + Planejamento de Drops
+## Plano: Multi-responsável nos lembretes + corrigir filtro
 
-### Resumo
-Nova página **PLANEJAMENTO** com sistema de lembretes por sócia (com pop-up no login) e planejamento de drops futuros. A foto enviada será usada no photo strip do Dashboard.
+### Problema
+1. O filtro de responsável tem "Todas as sócias" E "Todas" — duplicado
+2. Não é possível marcar 2 responsáveis num lembrete (ex: Nicolle + Larissa)
 
 ### Mudanças
 
-**1. Foto (`src/assets/photos/flatlay_edited.jpg`)**
-- Copiar a foto enviada para assets
+**1. Tipo (`src/types/index.ts`)**
+- Mudar `responsavel: Responsavel` para `responsavel: Responsavel[]` no `Lembrete`
 
-**2. Tipos (`src/types/index.ts`)**
-- Adicionar `Lembrete`: id, titulo, descricao, dataLimite?, responsavel (`'Nicolle'|'Larissa'|'Joice'|'Todas'`), concluido, criadoEm
-- Adicionar `DropPlan`: drop, dataPrevista, precoMaximo, metaPecas, observacoes
+**2. Formulário de lembrete (`src/pages/Planejamento.tsx`)**
+- Trocar o Select de responsável por **checkboxes** (Nicolle, Larissa, Joice, Todas). Ao marcar "Todas", desmarca as individuais e vice-versa
+- Estado `lResponsavel` passa de string para `Responsavel[]`
+- No filtro do toolbar: remover "Todas as sócias", deixar apenas as 4 opções (Nicolle, Larissa, Joice, Todas) + um item "Todos" como valor de reset do filtro
+- Atualizar `saveLembrete` para salvar array
+- Atualizar `LembreteCard` para mostrar múltiplos badges
+- Atualizar `filteredLembretes` para filtrar por `l.responsavel.includes(filtroResp)`
 
-**3. Store (`src/lib/store.ts`)**
-- get/set para `brecho_lembretes` e `brecho_drop_plans`
+**3. Pop-up (`src/components/LembretesPopup.tsx`)**
+- Ajustar filtro: `l.responsavel.includes(userName) || l.responsavel.includes('Todas')`
 
-**4. Página Planejamento (`src/pages/Planejamento.tsx`)**
-- Duas abas: **Lembretes** e **Drops**
-- Lembretes: criar, editar, concluir, excluir. Filtro por responsável. Cards com título, descrição, data limite, badge de responsável
-- Drops: criar/editar planos de drop com número, data prevista, preço máximo, meta de peças, observações. Card mostra progresso (peças cadastradas vs meta via catálogo)
-- Mobile-first com cards responsivos
-
-**5. Pop-up de Lembretes (`src/components/LembretesPopup.tsx`)**
-- Dialog que aparece ao montar o Layout
-- Filtra lembretes pendentes onde `responsavel === userName || responsavel === 'Todas'`
-- Mostra lista com botão "✓ Entendido" que marca como visto na sessão (sessionStorage)
-- Se não há lembretes pendentes, não aparece
-
-**6. Layout (`src/components/Layout.tsx`)**
-- Adicionar item "PLANEJAMENTO" no nav (ícone `ClipboardList`) entre Fornecedoras e Configurações
-- Importar e renderizar `<LembretesPopup />` dentro do layout
-
-**7. Dashboard (`src/pages/Dashboard.tsx`)**
-- Adicionar 6º item no photoStrip com a foto nova, label "PLANEJAMENTO", path `/planejamento`
-- Ajustar grid para `md:grid-cols-6`
-
-**8. Rota (`src/App.tsx`)**
-- Adicionar `<Route path="/planejamento" element={<Planejamento />} />`
+**4. Migração de dados**
+- No store getter, converter dados antigos (string) para array automaticamente para não quebrar dados existentes
 
 ### Arquivos
-| Arquivo | Ação |
+| Arquivo | Mudança |
 |---|---|
-| `src/assets/photos/flatlay_edited.jpg` | Copiar foto |
-| `src/types/index.ts` | Adicionar Lembrete + DropPlan |
-| `src/lib/store.ts` | get/set lembretes e dropPlans |
-| `src/pages/Planejamento.tsx` | Nova página |
-| `src/components/LembretesPopup.tsx` | Novo componente pop-up |
-| `src/components/Layout.tsx` | Nav item + popup |
-| `src/pages/Dashboard.tsx` | Photo strip 6 itens |
-| `src/App.tsx` | Nova rota |
+| `src/types/index.ts` | `responsavel: Responsavel[]` |
+| `src/pages/Planejamento.tsx` | Checkboxes multi-select, corrigir filtro, badges múltiplos |
+| `src/components/LembretesPopup.tsx` | Filtro com array |
+| `src/lib/store.ts` | Migração string→array no getter |
 
