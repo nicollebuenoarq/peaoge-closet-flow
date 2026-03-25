@@ -23,10 +23,11 @@ const photoStrip = [
   { src: flatlay2, label: 'CATÁLOGO', path: '/catalogo' },
   { src: shortsJeans, label: 'VENDAS', path: '/vendas' },
   { src: looksCabide, label: 'FORNECEDORAS', path: '/fornecedoras' },
+  { src: flatlayPlan, label: 'PLANEJAMENTO', path: '/planejamento' },
   { src: camisetasRosa, label: 'CONFIGURAÇÕES', path: '/configuracoes' },
 ];
 
-const topBarColors = ['#2d4a2e', '#e8527a', '#f0a500', '#3ab5a0', '#7b61ff'];
+const topBarColors = ['#2d4a2e', '#e8527a', '#f0a500', '#3ab5a0', '#9b59b6', '#7b61ff'];
 const iconBgs = ['bg-primary/10 text-primary', 'bg-accent/10 text-accent', 'bg-[#f0a500]/10 text-[#f0a500]', 'bg-[#3ab5a0]/10 text-[#3ab5a0]', 'bg-[#7b61ff]/10 text-[#7b61ff]'];
 
 export default function Dashboard() {
