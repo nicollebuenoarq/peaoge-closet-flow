@@ -6,6 +6,8 @@ const KEYS = {
   vendas: 'brecho_vendas',
   config: 'brecho_config',
   nextSku: 'brecho_next_sku',
+  lembretes: 'brecho_lembretes',
+  dropPlans: 'brecho_drop_plans',
 };
 
 function get<T>(key: string, fallback: T): T {
