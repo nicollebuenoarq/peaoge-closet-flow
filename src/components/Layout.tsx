@@ -121,6 +121,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </header>
       )}
 
+      {/* Lembretes popup */}
+      <LembretesPopup />
+
       {/* Main content */}
       <main className="flex-1 max-w-[1400px] mx-auto w-full px-2 sm:px-4 md:px-8 py-4 md:py-6">
         {children}
