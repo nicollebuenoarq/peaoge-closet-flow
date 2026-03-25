@@ -317,8 +317,8 @@ export default function Catalogo() {
         </Button>
       </div>
 
-      {/* Table */}
-      <div className="card-editorial overflow-hidden">
+      {/* Desktop Table */}
+      <div className="card-editorial overflow-hidden hidden md:block">
           <table className="w-full text-sm table-editorial">
             <colgroup>
               <col className="w-[6%]" />
@@ -416,6 +416,53 @@ export default function Catalogo() {
               </tfoot>
             )}
            </table>
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="md:hidden space-y-3">
+        {filtered.length === 0 && (
+          <div className="card-editorial empty-state py-12">
+            <Package className="h-16 w-16 mb-4 opacity-20" />
+            <p className="text-xl font-display">NENHUMA PEÇA ENCONTRADA</p>
+            <p className="text-sm mt-1">Tente ajustar os filtros ou cadastre uma nova</p>
+          </div>
+        )}
+        {filtered.map(p => (
+          <div
+            key={p.sku}
+            className="card-editorial p-4 cursor-pointer active:scale-[0.98] transition-transform"
+            onClick={() => setSelectedPeca(p)}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-mono-price text-xs text-muted-foreground">#{p.sku}</span>
+                  <span className={`pill-badge ${statusColors[p.status]} text-[10px]`}>{p.status}</span>
+                  <span className="pill-badge bg-muted text-foreground text-[10px]">D{p.drop}</span>
+                </div>
+                <p className="font-medium text-sm truncate">{p.descricao}</p>
+                <p className="text-xs text-muted-foreground truncate">{p.categoria} • {p.tamanho} • {getFornNome(p.fornecedoraId)}</p>
+              </div>
+              <p className="font-mono-price text-primary text-sm font-bold shrink-0">{fmt(p.preco)}</p>
+            </div>
+            <div className="flex gap-2 mt-3" onClick={e => e.stopPropagation()}>
+              <Button size="sm" variant="outline" className="flex-1 rounded-full text-xs h-8" onClick={() => openEdit(p)}>
+                <Edit className="h-3 w-3 mr-1" /> Editar
+              </Button>
+              {p.status === 'Disponível' && (
+                <Button size="sm" className="flex-1 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs h-8" onClick={() => { setShowVenda(p); setVendaDesconto('0'); setVendaPagamento('Pix'); }}>
+                  <ShoppingCart className="h-3 w-3 mr-1" /> Vender
+                </Button>
+              )}
+            </div>
+          </div>
+        ))}
+        {filtered.length > 0 && (
+          <div className="bg-primary rounded-2xl p-4 flex items-center justify-between text-white">
+            <span className="text-xs text-white/70">{filtered.length} peças ({totalDisponivel} disponíveis)</span>
+            <span className="font-mono-price text-sm font-bold">{fmt(totalPreco)}</span>
+          </div>
+        )}
       </div>
 
       {/* Nova/Editar Peça Dialog */}

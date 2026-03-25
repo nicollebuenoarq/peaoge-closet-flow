@@ -220,7 +220,9 @@ export default function Dashboard() {
 
             <TabsContent value="repasses" className="mt-0">
               {repasses.length > 0 ? (
-                  <table className="w-full text-sm table-editorial">
+                <>
+                  {/* Desktop table */}
+                  <table className="hidden md:table w-full text-sm table-editorial">
                     <thead>
                       <tr>
                         <th className="text-left">NOME</th>
@@ -274,7 +276,49 @@ export default function Dashboard() {
                         );
                       })}
                     </tbody>
-                   </table>
+                  </table>
+                  {/* Mobile cards */}
+                  <div className="md:hidden divide-y divide-border">
+                    {repasses.map(r => {
+                      const progress = r.comissaoDevida > 0 ? (r.pago / r.comissaoDevida) * 100 : 100;
+                      return (
+                        <div key={r.id} className="p-4 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                                style={{ backgroundColor: `hsl(${r.nome.charCodeAt(0) * 7 % 360}, 45%, 45%)` }}
+                              >
+                                {r.nome.charAt(0).toUpperCase()}
+                              </div>
+                              <span className="text-sm font-medium">{r.nome}</span>
+                              {r.ehSocia && <span className="pill-badge bg-accent/15 text-accent text-[10px]">⭐</span>}
+                            </div>
+                            {r.pendente <= 0 ? (
+                              <span className="pill-badge bg-status-available/15 text-status-available text-[10px]">✓ Pago</span>
+                            ) : (
+                              <span className="pill-badge bg-status-reserved/15 text-status-reserved text-[10px]">Pendente</span>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 text-center">
+                            <div><p className="text-[9px] text-muted-foreground uppercase">Comissão</p><p className="font-mono-price text-xs">{fmt(r.comissaoDevida)}</p></div>
+                            <div><p className="text-[9px] text-muted-foreground uppercase">Brechó</p><p className="font-mono-price text-xs">{r.ehSocia ? fmt(r.parteBrechoSocia) : '—'}</p></div>
+                            <div><p className="text-[9px] text-muted-foreground uppercase">Total</p><p className="font-mono-price text-xs font-bold text-primary">{fmt(r.totalReceber)}</p></div>
+                          </div>
+                          <div>
+                            <Progress value={progress} className="h-1.5 rounded-full" />
+                            <p className="text-[10px] text-muted-foreground mt-1">{Math.round(progress)}%</p>
+                          </div>
+                          {r.vendasPendentes > 0 && (
+                            <Button size="sm" className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs h-8" onClick={() => handlePagarTudo(r.id)}>
+                              Pagar Tudo ({r.vendasPendentes})
+                            </Button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
               ) : (
                 <div className="empty-state py-12">
                   <p className="text-sm">Nenhum repasse registrado</p>
@@ -284,7 +328,9 @@ export default function Dashboard() {
 
             <TabsContent value="previsao" className="mt-0">
               {previsaoForn.length > 0 ? (
-                   <table className="w-full text-sm table-editorial">
+                <>
+                  {/* Desktop table */}
+                  <table className="hidden md:table w-full text-sm table-editorial">
                     <thead>
                       <tr>
                         <th className="text-left">NOME</th>
@@ -315,7 +361,30 @@ export default function Dashboard() {
                         </tr>
                       ))}
                     </tbody>
-                   </table>
+                  </table>
+                  {/* Mobile cards */}
+                  <div className="md:hidden divide-y divide-border">
+                    {previsaoForn.map(r => (
+                      <div key={r.id} className="p-4 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                            style={{ backgroundColor: `hsl(${r.nome.charCodeAt(0) * 7 % 360}, 45%, 45%)` }}
+                          >
+                            {r.nome.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="text-sm font-medium">{r.nome}</span>
+                          <span className="pill-badge bg-muted text-foreground text-[10px] ml-auto">{r.qtd} peças</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-center">
+                          <div><p className="text-[9px] text-muted-foreground uppercase">Comissão</p><p className="font-mono-price text-xs">{fmt(r.prevComissao)}</p></div>
+                          <div><p className="text-[9px] text-muted-foreground uppercase">Brechó</p><p className="font-mono-price text-xs">{fmt(r.prevBrecho)}</p></div>
+                          <div><p className="text-[9px] text-muted-foreground uppercase">Total</p><p className="font-mono-price text-xs font-bold text-primary">{fmt(r.prevTotal)}</p></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
               ) : (
                 <div className="empty-state py-12">
                   <p className="text-sm">Nenhuma peça disponível para previsão</p>

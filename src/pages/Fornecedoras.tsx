@@ -108,7 +108,7 @@ export default function Fornecedoras() {
       <h1 className="font-display text-4xl md:text-5xl text-primary tracking-wide">FORNECEDORAS</h1>
 
       {/* Summary mini-cards */}
-      <div className="grid grid-cols-3 gap-4 animate-stagger">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 animate-stagger">
         {summaryCards.map((card, i) => (
           <div
             key={card.label}
