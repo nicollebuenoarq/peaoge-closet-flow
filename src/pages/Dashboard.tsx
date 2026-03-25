@@ -137,6 +137,11 @@ export default function Dashboard() {
         })}
       </section>
 
+      {/* GREETING */}
+      <p className="font-body text-sm text-muted-foreground tracking-wide">
+        Olá, {userName} 👋 — seu painel de controle
+      </p>
+
       {/* DROP FILTER BAR */}
       <div className="flex items-center gap-3 bg-card border border-border rounded-2xl px-5 py-3">
         <Filter className="h-4 w-4 text-muted-foreground" />
