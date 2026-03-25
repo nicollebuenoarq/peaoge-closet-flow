@@ -132,6 +132,20 @@ export default function Configuracoes() {
           </div>
         </CardContent>
       </Card>
+      <Card>
+        <CardHeader><CardTitle className="font-heading text-base">Dados</CardTitle></CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-3">Limpa todos os dados e reimporta os dados iniciais da planilha original.</p>
+          <Button variant="destructive" onClick={() => {
+            if (confirm('Tem certeza? Todos os dados atuais serão perdidos!')) {
+              resetAndReimport();
+              window.location.reload();
+            }
+          }}>
+            <RotateCcw className="h-4 w-4 mr-1" /> Resetar e Reimportar
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
