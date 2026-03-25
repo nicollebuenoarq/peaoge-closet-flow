@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Plus, Search, ShoppingCart, Edit, Trash2, Download, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Search, ShoppingCart, Edit, Trash2, Download, ArrowUpDown, ArrowUp, ArrowDown, Package } from 'lucide-react';
 import { toast } from 'sonner';
 
 const statusColors: Record<StatusPeca, string> = {
@@ -25,8 +25,8 @@ type SortKey = 'sku' | 'descricao' | 'categoria' | 'preco' | 'drop' | 'status' |
 type SortDir = 'asc' | 'desc';
 
 function SortIcon({ column, sortBy, sortDir }: { column: SortKey; sortBy: SortKey | null; sortDir: SortDir }) {
-  if (sortBy !== column) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-40" />;
-  return sortDir === 'asc' ? <ArrowUp className="h-3 w-3 ml-1" /> : <ArrowDown className="h-3 w-3 ml-1" />;
+  if (sortBy !== column) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-30" />;
+  return sortDir === 'asc' ? <ArrowUp className="h-3 w-3 ml-1 text-primary" /> : <ArrowDown className="h-3 w-3 ml-1 text-primary" />;
 }
 
 export default function Catalogo() {
@@ -50,11 +50,9 @@ export default function Catalogo() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<Peca | null>(null);
   const [showStatusWarning, setShowStatusWarning] = useState<{ peca: Peca; newStatus: StatusPeca } | null>(null);
 
-  // Sort state
   const [sortBy, setSortBy] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>('asc');
 
-  // Form fields
   const [formDescricao, setFormDescricao] = useState('');
   const [formCategoria, setFormCategoria] = useState('');
   const [formTamanho, setFormTamanho] = useState('');
@@ -62,7 +60,6 @@ export default function Catalogo() {
   const [formPreco, setFormPreco] = useState('');
   const [formDrop, setFormDrop] = useState(String(config.dropAtual));
 
-  // Venda form
   const [vendaDesconto, setVendaDesconto] = useState('0');
   const [vendaPagamento, setVendaPagamento] = useState<string>('Pix');
   const [vendaCompradora, setVendaCompradora] = useState('');
@@ -77,7 +74,6 @@ export default function Catalogo() {
 
   const categorias = useMemo(() => Array.from(new Set(pecas.map(p => p.categoria).filter(Boolean))), [pecas]);
 
-  // Counts for filters
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     config.statusValidos.forEach(s => { counts[s] = pecas.filter(p => p.status === s).length; });
@@ -117,17 +113,12 @@ export default function Catalogo() {
     return result;
   }, [pecas, dropFilter, statusFilter, fornFilter, catFilter, busca, sortBy, sortDir]);
 
-  // Totals
   const totalPreco = filtered.reduce((s, p) => s + p.preco, 0);
   const totalDisponivel = filtered.filter(p => p.status === 'Disponível').length;
 
   const toggleSort = (key: SortKey) => {
-    if (sortBy === key) {
-      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(key);
-      setSortDir('asc');
-    }
+    if (sortBy === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortBy(key); setSortDir('asc'); }
   };
 
   const openNew = () => {
@@ -146,9 +137,7 @@ export default function Catalogo() {
 
   const handleSave = () => {
     const preco = parseFloat(formPreco) || 0;
-    if (preco <= 0 && !editingPeca) {
-      toast.warning('Atenção: peça cadastrada com preço R$ 0,00');
-    }
+    if (preco <= 0 && !editingPeca) toast.warning('Atenção: peça cadastrada com preço R$ 0,00');
 
     if (editingPeca) {
       const all = store.getPecas().map(p =>
@@ -162,15 +151,9 @@ export default function Catalogo() {
     } else {
       const sku = store.getNextSku();
       const nova: Peca = {
-        sku,
-        descricao: formDescricao,
-        categoria: formCategoria,
-        tamanho: formTamanho,
-        fornecedoraId: formFornecedoraId,
-        dataEntrada: new Date().toISOString().split('T')[0],
-        status: 'Disponível',
-        preco,
-        drop: parseInt(formDrop) || config.dropAtual,
+        sku, descricao: formDescricao, categoria: formCategoria, tamanho: formTamanho,
+        fornecedoraId: formFornecedoraId, dataEntrada: new Date().toISOString().split('T')[0],
+        status: 'Disponível', preco, drop: parseInt(formDrop) || config.dropAtual,
       };
       store.setPecas([...pecas, nova]);
       store.setNextSku(sku + 1);
@@ -181,13 +164,9 @@ export default function Catalogo() {
   };
 
   const handleDelete = (peca: Peca) => {
-    const all = store.getPecas().filter(p => p.sku !== peca.sku);
-    store.setPecas(all);
-    // Remove associated sales
-    const vendas = store.getVendas().filter(v => v.skuPeca !== peca.sku);
-    store.setVendas(vendas);
-    setShowDeleteConfirm(null);
-    setSelectedPeca(null);
+    store.setPecas(store.getPecas().filter(p => p.sku !== peca.sku));
+    store.setVendas(store.getVendas().filter(v => v.skuPeca !== peca.sku));
+    setShowDeleteConfirm(null); setSelectedPeca(null);
     toast.success(`Peça #${peca.sku} excluída`);
     reload();
   };
@@ -195,15 +174,13 @@ export default function Catalogo() {
   const handleStatusChange = (sku: number, newStatus: StatusPeca) => {
     const peca = pecas.find(p => p.sku === sku);
     if (peca && peca.status === 'Vendido' && newStatus !== 'Vendido') {
-      setShowStatusWarning({ peca, newStatus });
-      return;
+      setShowStatusWarning({ peca, newStatus }); return;
     }
     applyStatusChange(sku, newStatus);
   };
 
   const applyStatusChange = (sku: number, status: StatusPeca) => {
-    const all = store.getPecas().map(p => p.sku === sku ? { ...p, status } : p);
-    store.setPecas(all);
+    store.setPecas(store.getPecas().map(p => p.sku === sku ? { ...p, status } : p));
     setSelectedPeca(prev => prev ? { ...prev, status } : null);
     setShowStatusWarning(null);
     toast.success(`Status alterado para "${status}"`);
@@ -215,40 +192,22 @@ export default function Catalogo() {
     const peca = showVenda;
     const desconto = parseFloat(vendaDesconto) || 0;
     const precoFinal = peca.preco - desconto;
-
-    if (precoFinal < 0) {
-      toast.error('Desconto não pode ser maior que o preço!');
-      return;
-    }
+    if (precoFinal < 0) { toast.error('Desconto não pode ser maior que o preço!'); return; }
 
     const pagamento = vendaPagamento as MeioPagamento;
     const base = pagamento === 'Cartão Crédito' ? precoFinal * (1 - config.taxaCartao) : precoFinal;
 
     const venda: Venda = {
-      id: crypto.randomUUID(),
-      dataVenda: new Date().toISOString().split('T')[0],
-      skuPeca: peca.sku,
-      descricaoPeca: peca.descricao,
-      fornecedoraId: peca.fornecedoraId,
-      drop: peca.drop,
-      desconto,
-      precoFinal,
-      pagamento,
-      comissaoFornecedora: base * config.percentualFornecedora,
-      parcelaBrecho: base * config.percentualBrecho,
-      pagoFornecedora: false,
-      dataPagamento: null,
-      compradora: vendaCompradora,
-      enderecoEntrega: vendaEndereco,
-      dataEntrega: vendaDataEntrega || null,
+      id: crypto.randomUUID(), dataVenda: new Date().toISOString().split('T')[0],
+      skuPeca: peca.sku, descricaoPeca: peca.descricao, fornecedoraId: peca.fornecedoraId, drop: peca.drop,
+      desconto, precoFinal, pagamento,
+      comissaoFornecedora: base * config.percentualFornecedora, parcelaBrecho: base * config.percentualBrecho,
+      pagoFornecedora: false, dataPagamento: null,
+      compradora: vendaCompradora, enderecoEntrega: vendaEndereco, dataEntrega: vendaDataEntrega || null,
     };
 
-    const vendas = store.getVendas();
-    store.setVendas([...vendas, venda]);
-
-    const allPecas = store.getPecas().map(p => p.sku === peca.sku ? { ...p, status: 'Vendido' as StatusPeca } : p);
-    store.setPecas(allPecas);
-
+    store.setVendas([...store.getVendas(), venda]);
+    store.setPecas(store.getPecas().map(p => p.sku === peca.sku ? { ...p, status: 'Vendido' as StatusPeca } : p));
     setShowVenda(null);
     setVendaDesconto('0'); setVendaCompradora(''); setVendaEndereco(''); setVendaDataEntrega('');
     toast.success(`Venda registrada: #${peca.sku}`);
@@ -268,13 +227,13 @@ export default function Catalogo() {
   const vendaBase = showVenda && vendaPagamento === 'Cartão Crédito' ? vendaPrecoFinal * (1 - config.taxaCartao) : vendaPrecoFinal;
 
   return (
-    <div className="space-y-4">
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-end">
+    <div className="space-y-6 animate-fade-in">
+      {/* Filter bar */}
+      <div className="glass rounded-xl p-4 flex flex-wrap gap-3 items-end">
         <div>
-          <Label className="text-xs">DROP</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Drop</Label>
           <Select value={dropFilter} onValueChange={setDropFilter}>
-            <SelectTrigger className="w-32 bg-card"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-32 bg-card/80"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
               {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d} ({dropCounts[d]})</SelectItem>)}
@@ -282,9 +241,9 @@ export default function Catalogo() {
           </Select>
         </div>
         <div>
-          <Label className="text-xs">Status</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Status</Label>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40 bg-card"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-40 bg-card/80"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos ({pecas.length})</SelectItem>
               {config.statusValidos.map(s => <SelectItem key={s} value={s}>{s} ({statusCounts[s] || 0})</SelectItem>)}
@@ -292,9 +251,9 @@ export default function Catalogo() {
           </Select>
         </div>
         <div>
-          <Label className="text-xs">Fornecedora</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Fornecedora</Label>
           <Select value={fornFilter} onValueChange={setFornFilter}>
-            <SelectTrigger className="w-36 bg-card"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-36 bg-card/80"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas</SelectItem>
               {fornecedoras.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
@@ -303,9 +262,9 @@ export default function Catalogo() {
         </div>
         {categorias.length > 0 && (
           <div>
-            <Label className="text-xs">Categoria</Label>
+            <Label className="text-xs uppercase tracking-wider text-muted-foreground">Categoria</Label>
             <Select value={catFilter} onValueChange={setCatFilter}>
-              <SelectTrigger className="w-32 bg-card"><SelectValue placeholder="Todas" /></SelectTrigger>
+              <SelectTrigger className="w-32 bg-card/80"><SelectValue placeholder="Todas" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
                 {categorias.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
@@ -314,74 +273,76 @@ export default function Catalogo() {
           </div>
         )}
         <div className="flex-1 min-w-[180px]">
-          <Label className="text-xs">Buscar</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Buscar</Label>
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-8 bg-card" placeholder="SKU ou descrição..." value={busca} onChange={e => setBusca(e.target.value)} />
+            <Input className="pl-8 bg-card/80" placeholder="SKU ou descrição..." value={busca} onChange={e => setBusca(e.target.value)} />
           </div>
         </div>
-        <Button variant="outline" onClick={handleExportCSV} className="shrink-0">
+        <Button variant="outline" onClick={handleExportCSV} className="shrink-0 hover:bg-primary hover:text-primary-foreground transition-colors">
           <Download className="h-4 w-4 mr-1" /> CSV
         </Button>
-        <Button onClick={openNew} className="shrink-0">
+        <Button onClick={openNew} className="shrink-0 shadow-md hover:shadow-lg transition-shadow">
           <Plus className="h-4 w-4 mr-1" /> Nova Peça
         </Button>
       </div>
 
       {/* Table */}
-      <Card>
+      <Card className="card-elevated overflow-hidden border-0">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm table-modern table-zebra">
               <thead>
-                <tr className="border-b text-left text-muted-foreground bg-muted/30">
-                  <th className="p-3 cursor-pointer select-none" onClick={() => toggleSort('sku')}>
+                <tr className="border-b">
+                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('sku')}>
                     <span className="flex items-center">SKU <SortIcon column="sku" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
-                  <th className="p-3 cursor-pointer select-none" onClick={() => toggleSort('descricao')}>
+                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('descricao')}>
                     <span className="flex items-center">Descrição <SortIcon column="descricao" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
-                  <th className="p-3 cursor-pointer select-none" onClick={() => toggleSort('categoria')}>
+                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('categoria')}>
                     <span className="flex items-center">Categoria <SortIcon column="categoria" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
-                  <th className="p-3">Tam.</th>
-                  <th className="p-3">Fornecedora</th>
-                  <th className="p-3 cursor-pointer select-none" onClick={() => toggleSort('dataEntrada')}>
+                  <th className="p-3 text-left">Tam.</th>
+                  <th className="p-3 text-left">Fornecedora</th>
+                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('dataEntrada')}>
                     <span className="flex items-center">Entrada <SortIcon column="dataEntrada" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
-                  <th className="p-3 cursor-pointer select-none" onClick={() => toggleSort('status')}>
+                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('status')}>
                     <span className="flex items-center">Status <SortIcon column="status" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
-                  <th className="p-3 cursor-pointer select-none" onClick={() => toggleSort('preco')}>
+                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('preco')}>
                     <span className="flex items-center">Preço <SortIcon column="preco" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
-                  <th className="p-3 cursor-pointer select-none" onClick={() => toggleSort('drop')}>
-                    <span className="flex items-center">DROP <SortIcon column="drop" sortBy={sortBy} sortDir={sortDir} /></span>
+                  <th className="p-3 text-left cursor-pointer select-none" onClick={() => toggleSort('drop')}>
+                    <span className="flex items-center">Drop <SortIcon column="drop" sortBy={sortBy} sortDir={sortDir} /></span>
                   </th>
                   <th className="p-3"></th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map(p => (
-                  <tr key={p.sku} className="border-b last:border-0 hover:bg-muted/20 cursor-pointer" onClick={() => setSelectedPeca(p)}>
-                    <td className="p-3 font-mono text-xs">#{p.sku}</td>
+                  <tr key={p.sku} className="border-b last:border-0 hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => setSelectedPeca(p)}>
+                    <td className="p-3 font-mono text-xs text-muted-foreground">#{p.sku}</td>
                     <td className="p-3 font-medium">{p.descricao}</td>
-                    <td className="p-3">{p.categoria}</td>
-                    <td className="p-3">{p.tamanho}</td>
-                    <td className="p-3">{getFornNome(p.fornecedoraId)}</td>
-                    <td className="p-3 text-xs">{p.dataEntrada}</td>
+                    <td className="p-3 text-muted-foreground">{p.categoria}</td>
+                    <td className="p-3 text-muted-foreground">{p.tamanho}</td>
+                    <td className="p-3 text-muted-foreground">{getFornNome(p.fornecedoraId)}</td>
+                    <td className="p-3 text-xs text-muted-foreground">{p.dataEntrada}</td>
                     <td className="p-3">
-                      <Badge variant="outline" className={statusColors[p.status]}>{p.status}</Badge>
+                      <Badge variant="outline" className={`${statusColors[p.status]} rounded-full px-2.5`}>{p.status}</Badge>
                     </td>
-                    <td className="p-3 font-semibold">{fmt(p.preco)}</td>
-                    <td className="p-3">{p.drop}</td>
+                    <td className="p-3 font-mono-price">{fmt(p.preco)}</td>
+                    <td className="p-3">
+                      <Badge variant="outline" className="font-mono text-xs">{p.drop}</Badge>
+                    </td>
                     <td className="p-3" onClick={e => e.stopPropagation()}>
                       <div className="flex gap-1">
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(p)}>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-primary/10" onClick={() => openEdit(p)}>
                           <Edit className="h-3 w-3" />
                         </Button>
                         {p.status === 'Disponível' && (
-                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setShowVenda(p); setVendaDesconto('0'); setVendaPagamento('Pix'); }}>
+                          <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-status-available/10 text-status-available" onClick={() => { setShowVenda(p); setVendaDesconto('0'); setVendaPagamento('Pix'); }}>
                             <ShoppingCart className="h-3 w-3" />
                           </Button>
                         )}
@@ -390,15 +351,26 @@ export default function Catalogo() {
                   </tr>
                 ))}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={10} className="p-8 text-center text-muted-foreground">Nenhuma peça encontrada</td></tr>
+                  <tr>
+                    <td colSpan={10} className="p-0">
+                      <div className="empty-state">
+                        <Package className="h-12 w-12 mb-3 opacity-30" />
+                        <p className="text-lg font-heading">Nenhuma peça encontrada</p>
+                        <p className="text-sm">Tente ajustar os filtros ou cadastre uma nova</p>
+                      </div>
+                    </td>
+                  </tr>
                 )}
               </tbody>
               {filtered.length > 0 && (
                 <tfoot>
-                  <tr className="border-t bg-muted/20 font-semibold">
-                    <td className="p-3" colSpan={6}>{filtered.length} peças ({totalDisponivel} disponíveis)</td>
+                  <tr className="border-t bg-primary/5 font-semibold">
+                    <td className="p-3" colSpan={6}>
+                      <span className="text-muted-foreground">{filtered.length} peças</span>
+                      <span className="text-xs text-muted-foreground/70 ml-2">({totalDisponivel} disponíveis)</span>
+                    </td>
                     <td className="p-3"></td>
-                    <td className="p-3">{fmt(totalPreco)}</td>
+                    <td className="p-3 font-mono-price">{fmt(totalPreco)}</td>
                     <td className="p-3" colSpan={2}></td>
                   </tr>
                 </tfoot>
@@ -410,31 +382,33 @@ export default function Catalogo() {
 
       {/* Nova/Editar Peça Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle className="font-heading">{editingPeca ? `Editar Peça #${editingPeca.sku}` : 'Nova Peça'}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div><Label>Descrição</Label><Input value={formDescricao} onChange={e => setFormDescricao(e.target.value)} /></div>
+        <DialogContent className="max-w-md overflow-hidden">
+          <DialogHeader className="bg-primary/5 -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
+            <DialogTitle className="font-heading text-lg">{editingPeca ? `Editar Peça #${editingPeca.sku}` : 'Nova Peça'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Descrição</Label><Input value={formDescricao} onChange={e => setFormDescricao(e.target.value)} className="mt-1" /></div>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Categoria</Label><Input value={formCategoria} onChange={e => setFormCategoria(e.target.value)} /></div>
-              <div><Label>Tamanho</Label><Input value={formTamanho} onChange={e => setFormTamanho(e.target.value)} /></div>
+              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Categoria</Label><Input value={formCategoria} onChange={e => setFormCategoria(e.target.value)} className="mt-1" /></div>
+              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Tamanho</Label><Input value={formTamanho} onChange={e => setFormTamanho(e.target.value)} className="mt-1" /></div>
             </div>
             <div>
-              <Label>Fornecedora</Label>
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Fornecedora</Label>
               <Select value={formFornecedoraId} onValueChange={setFormFornecedoraId}>
-                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
                 <SelectContent>
                   {fornecedoras.filter(f => f.ativa).map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Preço (R$)</Label><Input type="number" step="0.01" value={formPreco} onChange={e => setFormPreco(e.target.value)} /></div>
-              <div><Label>DROP</Label><Input type="number" value={formDrop} onChange={e => setFormDrop(e.target.value)} /></div>
+              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Preço (R$)</Label><Input type="number" step="0.01" value={formPreco} onChange={e => setFormPreco(e.target.value)} className="mt-1" /></div>
+              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Drop</Label><Input type="number" value={formDrop} onChange={e => setFormDrop(e.target.value)} className="mt-1" /></div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setShowForm(false)}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={!formDescricao || !formFornecedoraId}>Salvar</Button>
+            <Button onClick={handleSave} disabled={!formDescricao || !formFornecedoraId} className="shadow-md">Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -444,28 +418,34 @@ export default function Catalogo() {
         <SheetContent>
           {selectedPeca && (
             <>
-              <SheetHeader>
-                <SheetTitle className="font-heading">Peça #{selectedPeca.sku}</SheetTitle>
+              <SheetHeader className="pb-4 border-b">
+                <SheetTitle className="font-heading text-xl">Peça #{selectedPeca.sku}</SheetTitle>
               </SheetHeader>
-              <div className="mt-4 space-y-4">
-                <div><p className="text-xs text-muted-foreground">Descrição</p><p className="font-medium">{selectedPeca.descricao}</p></div>
+              <div className="mt-6 space-y-5">
+                <div><p className="text-xs text-muted-foreground uppercase tracking-wider">Descrição</p><p className="font-medium mt-1">{selectedPeca.descricao}</p></div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><p className="text-xs text-muted-foreground">Categoria</p><p>{selectedPeca.categoria}</p></div>
-                  <div><p className="text-xs text-muted-foreground">Tamanho</p><p>{selectedPeca.tamanho}</p></div>
+                  <div><p className="text-xs text-muted-foreground uppercase tracking-wider">Categoria</p><p className="mt-1">{selectedPeca.categoria}</p></div>
+                  <div><p className="text-xs text-muted-foreground uppercase tracking-wider">Tamanho</p><p className="mt-1">{selectedPeca.tamanho}</p></div>
                 </div>
-                <div><p className="text-xs text-muted-foreground">Fornecedora</p><p>{getFornNome(selectedPeca.fornecedoraId)}</p></div>
+                <div><p className="text-xs text-muted-foreground uppercase tracking-wider">Fornecedora</p><p className="mt-1">{getFornNome(selectedPeca.fornecedoraId)}</p></div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><p className="text-xs text-muted-foreground">Preço</p><p className="font-bold">{fmt(selectedPeca.preco)}</p></div>
-                  <div><p className="text-xs text-muted-foreground">DROP</p><p>{selectedPeca.drop}</p></div>
+                  <div className="p-3 rounded-xl bg-muted/30">
+                    <p className="text-xs text-muted-foreground">Preço</p>
+                    <p className="font-bold text-xl font-mono-price mt-1">{fmt(selectedPeca.preco)}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-muted/30">
+                    <p className="text-xs text-muted-foreground">Drop</p>
+                    <p className="font-bold text-xl mt-1">{selectedPeca.drop}</p>
+                  </div>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Status</p>
-                  <Badge variant="outline" className={statusColors[selectedPeca.status]}>{selectedPeca.status}</Badge>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Status</p>
+                  <Badge variant="outline" className={`${statusColors[selectedPeca.status]} rounded-full px-3 py-1`}>{selectedPeca.status}</Badge>
                 </div>
                 <div>
-                  <Label className="text-xs">Alterar Status</Label>
+                  <Label className="text-xs uppercase tracking-wider text-muted-foreground">Alterar Status</Label>
                   <Select value={selectedPeca.status} onValueChange={(v) => handleStatusChange(selectedPeca.sku, v as StatusPeca)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {config.statusValidos.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                     </SelectContent>
@@ -473,7 +453,7 @@ export default function Catalogo() {
                 </div>
                 <div className="flex gap-2">
                   {selectedPeca.status === 'Disponível' && (
-                    <Button className="flex-1" onClick={() => { setShowVenda(selectedPeca); setSelectedPeca(null); setVendaDesconto('0'); setVendaPagamento('Pix'); }}>
+                    <Button className="flex-1 shadow-md" onClick={() => { setShowVenda(selectedPeca); setSelectedPeca(null); setVendaDesconto('0'); setVendaPagamento('Pix'); }}>
                       <ShoppingCart className="h-4 w-4 mr-2" /> Vender
                     </Button>
                   )}
@@ -484,9 +464,9 @@ export default function Catalogo() {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="pt-2 border-t">
-                  <p className="text-xs text-muted-foreground">Comissão Fornecedora: {fmt(selectedPeca.preco * config.percentualFornecedora)}</p>
-                  <p className="text-xs text-muted-foreground">Parcela Brechó: {fmt(selectedPeca.preco * config.percentualBrecho)}</p>
+                <div className="pt-3 border-t space-y-1">
+                  <p className="text-xs text-muted-foreground">Comissão Fornecedora: <span className="font-mono-price">{fmt(selectedPeca.preco * config.percentualFornecedora)}</span></p>
+                  <p className="text-xs text-muted-foreground">Parcela Brechó: <span className="font-mono-price">{fmt(selectedPeca.preco * config.percentualBrecho)}</span></p>
                 </div>
               </div>
             </>
@@ -528,40 +508,42 @@ export default function Catalogo() {
 
       {/* Venda Dialog */}
       <Dialog open={!!showVenda} onOpenChange={() => setShowVenda(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle className="font-heading">Registrar Venda</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-md overflow-hidden">
+          <DialogHeader className="bg-status-available/5 -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
+            <DialogTitle className="font-heading text-lg">Registrar Venda</DialogTitle>
+          </DialogHeader>
           {showVenda && (
-            <div className="space-y-3">
-              <div className="bg-muted/30 p-3 rounded-lg">
+            <div className="space-y-4">
+              <div className="bg-muted/30 p-3 rounded-xl">
                 <p className="font-medium">#{showVenda.sku} — {showVenda.descricao}</p>
                 <p className="text-sm text-muted-foreground">{getFornNome(showVenda.fornecedoraId)} • Drop {showVenda.drop} • {fmt(showVenda.preco)}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><Label>Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} /></div>
-                <div><Label>Pagamento</Label>
+                <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} className="mt-1" /></div>
+                <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Pagamento</Label>
                   <Select value={vendaPagamento} onValueChange={setVendaPagamento}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {config.meiosPagamento.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-              <div className="bg-accent/10 p-3 rounded-lg text-sm space-y-1">
-                <p>Preço Final: <strong>{fmt(vendaPrecoFinal)}</strong></p>
+              <div className="bg-accent/10 p-4 rounded-xl text-sm space-y-1.5 border border-accent/20">
+                <p>Preço Final: <strong className="font-mono-price">{fmt(vendaPrecoFinal)}</strong></p>
                 {vendaPagamento === 'Cartão Crédito' && <p className="text-xs text-muted-foreground">Taxa 5% aplicada → Base: {fmt(vendaBase)}</p>}
-                <p>Comissão Forn.: <strong>{fmt(vendaBase * config.percentualFornecedora)}</strong></p>
-                <p>Parcela Brechó: <strong>{fmt(vendaBase * config.percentualBrecho)}</strong></p>
+                <p>Comissão Forn.: <strong className="font-mono-price">{fmt(vendaBase * config.percentualFornecedora)}</strong></p>
+                <p>Parcela Brechó: <strong className="font-mono-price">{fmt(vendaBase * config.percentualBrecho)}</strong></p>
                 {vendaPrecoFinal < 0 && <p className="text-destructive font-semibold">⚠️ Desconto maior que o preço!</p>}
               </div>
-              <div><Label>Compradora</Label><Input value={vendaCompradora} onChange={e => setVendaCompradora(e.target.value)} /></div>
-              <div><Label>Endereço de Entrega</Label><Input value={vendaEndereco} onChange={e => setVendaEndereco(e.target.value)} /></div>
-              <div><Label>Data de Entrega</Label><Input type="date" value={vendaDataEntrega} onChange={e => setVendaDataEntrega(e.target.value)} /></div>
+              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Compradora</Label><Input value={vendaCompradora} onChange={e => setVendaCompradora(e.target.value)} className="mt-1" /></div>
+              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Endereço de Entrega</Label><Input value={vendaEndereco} onChange={e => setVendaEndereco(e.target.value)} className="mt-1" /></div>
+              <div><Label className="text-xs uppercase tracking-wider text-muted-foreground">Data de Entrega</Label><Input type="date" value={vendaDataEntrega} onChange={e => setVendaDataEntrega(e.target.value)} className="mt-1" /></div>
             </div>
           )}
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setShowVenda(null)}>Cancelar</Button>
-            <Button onClick={handleVenda} disabled={!showVenda || vendaPrecoFinal < 0}>Confirmar Venda</Button>
+            <Button onClick={handleVenda} disabled={!showVenda || vendaPrecoFinal < 0} className="shadow-md">Confirmar Venda</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
