@@ -1,66 +1,91 @@
 
 
-## Plano de Melhorias para o Brecho Peaoge
+## Plano: Redesign Visual Moderno
 
-Analisei todo o codigo e identifiquei melhorias em 3 categorias: **usabilidade**, **organizacao** e **funcionalidades novas**.
+O site hoje esta funcional mas visualmente "flat" -- tudo tem o mesmo peso visual, sem hierarquia, sem respiro, sem personalidade. Vou transformar ele num visual moderno e elegante, mantendo as cores do brecho mas com muito mais impacto.
 
 ---
 
-### 1. Editar pecas no catalogo (nao so status)
+### 1. Sidebar com glassmorphism e logo destacado
 
-Hoje so da pra mudar o status de uma peca no painel lateral. Vou adicionar edicao completa: descricao, categoria, tamanho, preco, drop e fornecedora. Tambem adicionar botao de excluir peca.
+- Sidebar com gradiente sutil (do verde escuro pro verde mais profundo)
+- Logo com padding generoso e efeito de brilho sutil
+- Itens de nav com transicao suave, icone animado no hover
+- Indicador lateral colorido no item ativo (barrinha lateral em vez de so fundo)
+- Footer da sidebar com versao estilizada
 
-### 2. Editar e excluir vendas
+### 2. Header redesenhado
 
-Nao existe forma de corrigir uma venda errada ou excluir. Vou adicionar:
-- Botao de editar venda (abre modal pre-preenchido)
-- Botao de excluir venda (volta o status da peca para "Disponivel")
+- Remover o header basico e transformar num breadcrumb elegante com saudacao ("Boa tarde, Peaoge")
+- Adicionar data atual estilizada
+- Botao de hamburguer com animacao de transicao (menu -> X)
 
-### 3. Confirmacoes e feedback visual (toasts)
+### 3. Cards do Dashboard com gradientes e icones grandes
 
-Nenhuma acao do sistema mostra feedback. Vou adicionar toasts de confirmacao em: salvar peca, registrar venda, marcar como pago, editar fornecedora, etc.
+- Cards de indicadores com gradiente sutil no fundo (cada um com tom diferente baseado na cor do sistema)
+- Icones maiores com fundo circular colorido
+- Numeros com fonte maior e mais bold
+- Sombra suave e hover com elevacao
+- Separar visualmente cards de "realizado" vs "previsao" com borda/fundo diferente
 
-### 4. Dashboard: marcar repasse como pago em lote
+### 4. Tabelas modernas
 
-Hoje pra marcar pagamento a fornecedora tem que ir venda por venda. Vou adicionar um botao "Pagar Tudo" na tabela de repasses do Dashboard que marca todas as vendas pendentes daquela fornecedora como pagas de uma vez.
+- Linhas com hover mais pronunciado (fundo com cor levemente acentuada)
+- Badges de status com cores mais vibrantes e cantos mais arredondados
+- Cabecalho da tabela com fundo mais definido e tipografia uppercase pequena
+- Botoes de acao com tooltip e transicao suave
+- Linhas zebradas suaves para facilitar leitura
+- Celulas de preco com destaque tipografico (negrito + cor)
 
-### 5. Totalizadores nas tabelas
+### 5. Filtros redesenhados
 
-Adicionar linha de totais no rodape das tabelas de Vendas e Catalogo (total de pecas, faturamento total, comissao total). Facilita a conferencia rapida.
+- Substituir os filtros soltos por uma barra de filtros unificada com fundo card e padding
+- Selects com estilo mais clean
+- Botao de busca com icone animado
+- Chip/tag mostrando filtros ativos com "x" para remover
 
-### 6. Ordenacao nas colunas das tabelas
+### 6. Pagina de Fornecedoras com cards visuais
 
-Permitir clicar no cabecalho das colunas para ordenar (por preco, data, SKU, nome). Hoje tudo vem numa ordem fixa.
+- Cards com avatar/iniciais coloridas da fornecedora
+- Indicador visual de socia (estrela dourada com brilho)
+- Barra de progresso visual para "pago vs pendente"
+- Hover com sombra elevada e scale sutil
 
-### 7. Exportar dados (CSV)
+### 7. Dialogs e Sheets mais elegantes
 
-Botao "Exportar CSV" nas paginas de Catalogo e Vendas. Gera um arquivo .csv com os dados filtrados para voces abrirem no Excel/Google Sheets.
+- Dialogs com header colorido (fundo primary)
+- Campos de formulario com labels flutuantes ou melhor espacamento
+- Botoes com gradiente sutil
+- Sheet de detalhes com header fixo bonito
 
-### 8. Contadores nos filtros
+### 8. Animacoes e transicoes
 
-Mostrar a quantidade de resultados ao lado dos filtros (ex: "Disponivel (42)", "Drop 2 (38)") para dar contexto sem precisar contar.
+- Fade-in nos cards ao carregar a pagina
+- Transicao suave ao trocar filtros
+- Hover com scale(1.02) nos cards clicaveis
+- Skeleton loading para dados
 
-### 9. Melhorar pagina de Fornecedoras
+### 9. Tipografia e espacamento
 
-- Adicionar filtro por socia/externa e ativa/inativa
-- Mostrar historico resumido: total ja pago vs pendente
-- Ao clicar no card da fornecedora, abrir painel com lista das pecas e vendas dela
+- Titulos de secao maiores e com mais respiro (mb-6 em vez de mb-4)
+- Subtitulos com cor accent
+- Labels de filtro com estilo mais discreto
+- Numeros financeiros com fonte monospacada
 
-### 10. Validacoes e protecoes
+### 10. Empty states e microinteracoes
 
-- Impedir venda com preco final negativo (desconto maior que preco)
-- Impedir cadastro de peca sem preco (ou avisar)
-- Confirmar antes de mudar status de "Vendido" para outro (pode desconectar da venda)
+- Ilustracoes SVG simples para "nenhuma peca encontrada" e "nenhuma venda"
+- Icone animado no botao de exportar CSV
+- Efeito ripple nos botoes principais
 
 ---
 
 ### Detalhes tecnicos
 
-- Toasts via `sonner` (ja instalado no projeto)
-- Exportacao CSV usando `Blob` + `URL.createObjectURL` nativo (sem lib extra)
-- Ordenacao com estado local `sortBy`/`sortDir` + `.sort()` no array filtrado
-- Edicao de peca reutiliza o mesmo Dialog de "Nova Peca" com campos pre-preenchidos
-- Pagamento em lote: `store.setVendas()` com map marcando `pagoFornecedora: true` para todas as vendas de uma fornecedora
-
-Todas as mudancas sao no frontend com localStorage, sem necessidade de backend.
+- Todas as mudancas sao CSS/Tailwind + pequenos ajustes de JSX
+- Adicionar keyframes customizados no `tailwind.config.ts` (fade-in, scale-up)
+- Atualizar `src/index.css` com novas utilidades (glassmorphism, gradientes)
+- Manter todas as cores HSL existentes, apenas adicionar variacoes com opacidade
+- Nenhuma lib nova necessaria -- tudo com Tailwind + CSS nativo
+- Arquivos editados: `Layout.tsx`, `Dashboard.tsx`, `Catalogo.tsx`, `Vendas.tsx`, `Fornecedoras.tsx`, `Configuracoes.tsx`, `index.css`, `tailwind.config.ts`
 
