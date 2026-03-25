@@ -1,1 +1,5 @@
-Design system: Y2K editorial brechó cult. Bebas Neue headings, DM Serif Display italic accents, Space Mono body/labels. Creme #f5f0e8 bg, Verde escuro #2d4a2e primary, Verde médio #4a7a4b medium, Rosa #e8527a accent, Rosa claro #f7b8cc accent-light, Preto #111111 foreground. Border-radius 16px cards, pill buttons. Table headers dark primary bg white text (Space Mono uppercase). Grain overlay 2.5% on body::after. Logo: navbar rotate(-3deg) no filter, login invert white rotate(-4deg), watermark rotate(8deg) opacity 15%. Photos already P&B halftone — no extra filters.
+Design system: editorial brecho. Dark green primary hsl(122 27% 23%), coral accent hsl(340 75% 56%), cream bg hsl(36 33% 93%).
+Fonts: Bebas Neue (headings/display), DM Serif Display (italic accents), Inter (body/tables), Space Mono (labels/badges/prices only).
+Border-radius 1rem default. Cards: 0 top-radius + 3px colored top bar. Pill buttons/badges. Table headers dark primary bg with white text.
+Logo watermark rotated 8deg, opacity 0.15. Photo strip = nav to 5 pages. Grain overlay on body.
+Sidebar cards removed from dashboard — decorative cards now inline above tables. Tables unified with Tabs component.
