@@ -1,44 +1,66 @@
 
 
-## Plano: Importar dados da planilha e melhorias
+## Plano de Melhorias para o Brecho Peaoge
 
-### Dados encontrados na planilha
+Analisei todo o codigo e identifiquei melhorias em 3 categorias: **usabilidade**, **organizacao** e **funcionalidades novas**.
 
-**Fornecedoras (7)** -- com dados de contato reais:
-- Joice: (31) 98368-3967, Pix: 31983683967
-- Nicolle: (31) 99377-6577, Pix: 31993776577
-- Larissa, Luiza, Luana Otoni, Marcilene, Thaynara (sem contato preenchido)
+---
 
-**Catálogo (114 peças)** -- SKU 1 a 114, distribuidas entre Drop 1, 2 e 3. Algumas peças sem preço ou drop preenchido.
+### 1. Editar pecas no catalogo (nao so status)
 
-**Vendas (~42 registros)** -- vendas reais de 08/03 (Drop 1) e 15-19/03 (Drop 2), com nomes de compradoras, endereços de entrega, datas de entrega e status de pagamento.
+Hoje so da pra mudar o status de uma peca no painel lateral. Vou adicionar edicao completa: descricao, categoria, tamanho, preco, drop e fornecedora. Tambem adicionar botao de excluir peca.
 
-### O que sera feito
+### 2. Editar e excluir vendas
 
-**1. Ler a planilha com pandas (via script)**
-- Usar pandas para extrair os dados corretos das 3 abas (Fornecedoras, Catalogo, Vendas), ja que o parser de documento perdeu alguns valores de preco.
-- Gerar os arrays JSON com todos os dados mapeados para os tipos do sistema.
+Nao existe forma de corrigir uma venda errada ou excluir. Vou adicionar:
+- Botao de editar venda (abre modal pre-preenchido)
+- Botao de excluir venda (volta o status da peca para "Disponivel")
 
-**2. Atualizar `src/lib/initialData.ts`**
-- Substituir as fornecedoras iniciais pelos dados completos (com contato e chave Pix reais).
-- Inserir as 114 pecas do catalogo com SKU, descricao, categoria, tamanho, fornecedora, data de entrada, status, preco e drop.
-- Pecas que foram vendidas terao status "Vendido".
-- Pecas sem preco serao marcadas com preco 0 (para voces preencherem depois).
-- Inserir as ~42 vendas com todos os campos: data, SKU, compradora, endereco, pagamento, status de pagamento a fornecedora, etc.
-- Configurar `nextSku` para 115 (proximo disponivel).
-- Configurar `dropAtual` para 3 (ultimo drop com pecas).
+### 3. Confirmacoes e feedback visual (toasts)
 
-**3. Normalizar categorias**
-- A planilha tem categorias inconsistentes (ex: "blusa" vs "Blusa", "short" vs "Short", "calça jeans" vs "calça"). Vou padronizar com primeira letra maiuscula para melhorar os filtros do catalogo.
+Nenhuma acao do sistema mostra feedback. Vou adicionar toasts de confirmacao em: salvar peca, registrar venda, marcar como pago, editar fornecedora, etc.
 
-**4. Adicionar botao "Limpar dados e reimportar"**
-- Na pagina de Configuracoes, adicionar um botao que reseta o localStorage e reimporta os dados iniciais da planilha. Util caso voces queiram voltar ao estado original.
+### 4. Dashboard: marcar repasse como pago em lote
+
+Hoje pra marcar pagamento a fornecedora tem que ir venda por venda. Vou adicionar um botao "Pagar Tudo" na tabela de repasses do Dashboard que marca todas as vendas pendentes daquela fornecedora como pagas de uma vez.
+
+### 5. Totalizadores nas tabelas
+
+Adicionar linha de totais no rodape das tabelas de Vendas e Catalogo (total de pecas, faturamento total, comissao total). Facilita a conferencia rapida.
+
+### 6. Ordenacao nas colunas das tabelas
+
+Permitir clicar no cabecalho das colunas para ordenar (por preco, data, SKU, nome). Hoje tudo vem numa ordem fixa.
+
+### 7. Exportar dados (CSV)
+
+Botao "Exportar CSV" nas paginas de Catalogo e Vendas. Gera um arquivo .csv com os dados filtrados para voces abrirem no Excel/Google Sheets.
+
+### 8. Contadores nos filtros
+
+Mostrar a quantidade de resultados ao lado dos filtros (ex: "Disponivel (42)", "Drop 2 (38)") para dar contexto sem precisar contar.
+
+### 9. Melhorar pagina de Fornecedoras
+
+- Adicionar filtro por socia/externa e ativa/inativa
+- Mostrar historico resumido: total ja pago vs pendente
+- Ao clicar no card da fornecedora, abrir painel com lista das pecas e vendas dela
+
+### 10. Validacoes e protecoes
+
+- Impedir venda com preco final negativo (desconto maior que preco)
+- Impedir cadastro de peca sem preco (ou avisar)
+- Confirmar antes de mudar status de "Vendido" para outro (pode desconectar da venda)
+
+---
 
 ### Detalhes tecnicos
 
-- Script Python com pandas le o xlsx e gera os arrays TypeScript.
-- Mapeamento fornecedora por nome (ex: "Larissa" -> id "f3") mantendo os IDs existentes.
-- Comissoes das vendas calculadas automaticamente com as regras de negocio (60/40, taxa cartao).
-- Vendas do Drop 1 marcadas como `pagoFornecedora: true` (conforme planilha mostra "Sim").
-- Vendas do Drop 2 marcadas como `pagoFornecedora: false`.
+- Toasts via `sonner` (ja instalado no projeto)
+- Exportacao CSV usando `Blob` + `URL.createObjectURL` nativo (sem lib extra)
+- Ordenacao com estado local `sortBy`/`sortDir` + `.sort()` no array filtrado
+- Edicao de peca reutiliza o mesmo Dialog de "Nova Peca" com campos pre-preenchidos
+- Pagamento em lote: `store.setVendas()` com map marcando `pagoFornecedora: true` para todas as vendas de uma fornecedora
+
+Todas as mudancas sao no frontend com localStorage, sem necessidade de backend.
 
