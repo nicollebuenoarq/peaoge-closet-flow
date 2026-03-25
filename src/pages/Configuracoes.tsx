@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { X, Plus, Save, RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Configuracoes() {
   const [, setTick] = useState(0);
@@ -29,6 +30,7 @@ export default function Configuracoes() {
     c.taxaCartao = parseFloat(taxaCartao) / 100;
     c.dropAtual = parseInt(dropAtual) || c.dropAtual;
     store.setConfig(c);
+    toast.success('Configurações salvas');
     reload();
   };
 
@@ -38,6 +40,7 @@ export default function Configuracoes() {
     if (!c.statusValidos.includes(novoStatus)) {
       c.statusValidos.push(novoStatus);
       store.setConfig(c);
+      toast.success(`Status "${novoStatus}" adicionado`);
     }
     setNovoStatus('');
     reload();
@@ -47,6 +50,7 @@ export default function Configuracoes() {
     const c = store.getConfig();
     c.statusValidos = c.statusValidos.filter(x => x !== s);
     store.setConfig(c);
+    toast.success(`Status "${s}" removido`);
     reload();
   };
 
@@ -56,6 +60,7 @@ export default function Configuracoes() {
     if (!c.meiosPagamento.includes(novoPgto)) {
       c.meiosPagamento.push(novoPgto);
       store.setConfig(c);
+      toast.success(`Meio de pagamento "${novoPgto}" adicionado`);
     }
     setNovoPgto('');
     reload();
@@ -65,6 +70,7 @@ export default function Configuracoes() {
     const c = store.getConfig();
     c.meiosPagamento = c.meiosPagamento.filter(x => x !== s);
     store.setConfig(c);
+    toast.success(`Meio "${s}" removido`);
     reload();
   };
 
@@ -74,24 +80,12 @@ export default function Configuracoes() {
         <CardHeader><CardTitle className="font-heading text-base">Percentuais e Taxas</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>% Fornecedora</Label>
-              <Input type="number" step="1" value={percForn} onChange={e => setPercForn(e.target.value)} />
-            </div>
-            <div>
-              <Label>% Brechó</Label>
-              <Input type="number" step="1" value={percBrecho} onChange={e => setPercBrecho(e.target.value)} />
-            </div>
+            <div><Label>% Fornecedora</Label><Input type="number" step="1" value={percForn} onChange={e => setPercForn(e.target.value)} /></div>
+            <div><Label>% Brechó</Label><Input type="number" step="1" value={percBrecho} onChange={e => setPercBrecho(e.target.value)} /></div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Taxa Cartão Crédito (%)</Label>
-              <Input type="number" step="0.1" value={taxaCartao} onChange={e => setTaxaCartao(e.target.value)} />
-            </div>
-            <div>
-              <Label>DROP Atual</Label>
-              <Input type="number" value={dropAtual} onChange={e => setDropAtual(e.target.value)} />
-            </div>
+            <div><Label>Taxa Cartão Crédito (%)</Label><Input type="number" step="0.1" value={taxaCartao} onChange={e => setTaxaCartao(e.target.value)} /></div>
+            <div><Label>DROP Atual</Label><Input type="number" value={dropAtual} onChange={e => setDropAtual(e.target.value)} /></div>
           </div>
           <Button onClick={savePercentuais}><Save className="h-4 w-4 mr-1" /> Salvar</Button>
         </CardContent>
@@ -132,6 +126,7 @@ export default function Configuracoes() {
           </div>
         </CardContent>
       </Card>
+
       <Card>
         <CardHeader><CardTitle className="font-heading text-base">Dados</CardTitle></CardHeader>
         <CardContent>
