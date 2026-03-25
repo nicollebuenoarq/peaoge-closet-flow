@@ -259,11 +259,11 @@ export default function Catalogo() {
       </div>
 
       {/* Filter bar */}
-      <div className="filter-bar flex flex-wrap gap-4 items-end">
+      <div className="filter-bar flex flex-wrap gap-3 sm:gap-4 items-end">
         <div>
           <Label className="label-upper">Drop</Label>
           <Select value={dropFilter} onValueChange={setDropFilter}>
-            <SelectTrigger className="w-32 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-28 sm:w-32 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
               {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d} ({dropCounts[d]})</SelectItem>)}
