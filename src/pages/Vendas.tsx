@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Search, Download, Edit, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Receipt } from 'lucide-react';
+import { Plus, Search, Download, Edit, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Receipt, DollarSign, Users, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 
 type SortKey = 'dataVenda' | 'skuPeca' | 'descricaoPeca' | 'precoFinal' | 'comissaoFornecedora' | 'drop';
@@ -19,6 +19,9 @@ function SortIcon({ column, sortBy, sortDir }: { column: SortKey; sortBy: SortKe
   if (sortBy !== column) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-30" />;
   return sortDir === 'asc' ? <ArrowUp className="h-3 w-3 ml-1" /> : <ArrowDown className="h-3 w-3 ml-1" />;
 }
+
+const topBarColors = ['#2d4a2e', '#e8527a', '#f0a500'];
+const iconBgs = ['bg-primary/10 text-primary', 'bg-accent/10 text-accent', 'bg-[#f0a500]/10 text-[#f0a500]'];
 
 export default function Vendas() {
   const [, setTick] = useState(0);
@@ -183,16 +186,42 @@ export default function Vendas() {
   const vendaPrecoFinal = pecaSelecionada ? pecaSelecionada.preco - (parseFloat(vendaDesconto) || 0) : 0;
   const vendaBase = pecaSelecionada && vendaPagamento === 'Cartão Crédito' ? vendaPrecoFinal * (1 - config.taxaCartao) : vendaPrecoFinal;
 
+  const metricCards = [
+    { label: 'FATURAMENTO', value: fmt(totalFaturamento), icon: DollarSign, colorIdx: 0 },
+    { label: 'COMISSÃO FORNECEDORAS', value: fmt(totalComissao), icon: Users, colorIdx: 1 },
+    { label: 'PARCELA BRECHÓ', value: fmt(totalBrecho), icon: TrendingUp, colorIdx: 2 },
+  ];
+
   return (
     <div className="space-y-6 animate-fade-up">
       <h1 className="font-display text-4xl md:text-5xl text-primary tracking-wide">VENDAS</h1>
+
+      {/* Metric mini-cards */}
+      <div className="grid grid-cols-3 gap-4 animate-stagger">
+        {metricCards.map((card, i) => (
+          <div
+            key={card.label}
+            className="bg-card border border-border overflow-hidden transition-transform duration-300 hover:translate-y-[-2px]"
+            style={{ borderRadius: '0 0 16px 16px' }}
+          >
+            <div className="h-[3px]" style={{ backgroundColor: topBarColors[i] }} />
+            <div className="p-4">
+              <div className={`icon-circle h-9 w-9 mb-2 rounded-full ${iconBgs[i]}`}>
+                <card.icon className="h-4 w-4" />
+              </div>
+              <p className="font-display text-2xl leading-none text-foreground">{card.value}</p>
+              <p className="label-upper mt-1.5 text-[9px]">{card.label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* Filter bar */}
       <div className="filter-bar flex flex-wrap gap-4 items-end">
         <div>
           <Label className="label-upper">Drop</Label>
           <Select value={dropFilter} onValueChange={setDropFilter}>
-            <SelectTrigger className="w-32 rounded-full bg-muted/50 border-0 mt-1 font-mono text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-32 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
               {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d} ({dropCounts[d]})</SelectItem>)}
@@ -202,7 +231,7 @@ export default function Vendas() {
         <div>
           <Label className="label-upper">Fornecedora</Label>
           <Select value={fornFilter} onValueChange={setFornFilter}>
-            <SelectTrigger className="w-36 rounded-full bg-muted/50 border-0 mt-1 font-mono text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-36 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas</SelectItem>
               {fornecedoras.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
@@ -212,7 +241,7 @@ export default function Vendas() {
         <div>
           <Label className="label-upper">Pagamento Forn.</Label>
           <Select value={pagoFilter} onValueChange={setPagoFilter}>
-            <SelectTrigger className="w-36 rounded-full bg-muted/50 border-0 mt-1 font-mono text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-36 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos ({vendas.length})</SelectItem>
               <SelectItem value="pago">Pago ({vendas.filter(v => v.pagoFornecedora).length})</SelectItem>
@@ -224,13 +253,13 @@ export default function Vendas() {
           <Label className="label-upper">Buscar</Label>
           <div className="relative mt-1">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-9 rounded-full bg-muted/50 border-0 font-mono text-xs" placeholder="SKU, descrição ou compradora..." value={busca} onChange={e => setBusca(e.target.value)} />
+            <Input className="pl-9 rounded-full bg-muted/50 border-0 text-sm" placeholder="SKU, descrição ou compradora..." value={busca} onChange={e => setBusca(e.target.value)} />
           </div>
         </div>
-        <Button variant="outline" onClick={handleExportCSV} className="shrink-0 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-200 font-mono text-xs">
+        <Button variant="outline" onClick={handleExportCSV} className="shrink-0 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-200 text-xs">
           <Download className="h-4 w-4 mr-1" /> CSV
         </Button>
-        <Button onClick={() => setShowNova(true)} className="shrink-0 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono text-xs">
+        <Button onClick={() => setShowNova(true)} className="shrink-0 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">
           <Plus className="h-4 w-4 mr-1" /> NOVA VENDA
         </Button>
       </div>
@@ -271,12 +300,12 @@ export default function Vendas() {
             <tbody>
               {filtered.map(v => (
                 <tr key={v.id} className="border-b last:border-0">
-                  <td className="font-mono text-xs text-muted-foreground">{v.dataVenda}</td>
-                  <td className="font-mono text-xs text-muted-foreground">#{v.skuPeca}</td>
-                  <td className="font-medium font-mono text-xs">{v.descricaoPeca}</td>
-                  <td className="text-muted-foreground font-mono text-xs">{getFornNome(v.fornecedoraId)}</td>
+                  <td className="text-muted-foreground text-sm">{v.dataVenda}</td>
+                  <td className="font-mono-price text-xs text-muted-foreground">#{v.skuPeca}</td>
+                  <td className="font-medium text-sm">{v.descricaoPeca}</td>
+                  <td className="text-muted-foreground text-sm">{getFornNome(v.fornecedoraId)}</td>
                   <td><span className="pill-badge bg-muted text-foreground">{v.drop}</span></td>
-                  <td className="text-muted-foreground font-mono text-xs">{v.desconto > 0 ? fmt(v.desconto) : '—'}</td>
+                  <td className="text-muted-foreground text-sm">{v.desconto > 0 ? fmt(v.desconto) : '—'}</td>
                   <td className="font-mono-price text-primary text-xs">{fmt(v.precoFinal)}</td>
                   <td><span className="pill-badge bg-muted text-foreground">{v.pagamento}</span></td>
                   <td className="font-mono-price text-muted-foreground text-xs">{fmt(v.comissaoFornecedora)}</td>
@@ -284,7 +313,7 @@ export default function Vendas() {
                   <td>
                     <Checkbox checked={v.pagoFornecedora} onCheckedChange={() => togglePago(v.id)} />
                   </td>
-                  <td className="text-muted-foreground font-mono text-xs">{v.compradora || '—'}</td>
+                  <td className="text-muted-foreground text-sm">{v.compradora || '—'}</td>
                   <td>
                     <div className="flex gap-1">
                       <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-primary/10" onClick={() => openEdit(v)}>
@@ -303,7 +332,7 @@ export default function Vendas() {
                     <div className="empty-state">
                       <Receipt className="h-16 w-16 mb-4 opacity-20" />
                       <p className="text-xl font-display">NENHUMA VENDA ENCONTRADA</p>
-                      <p className="text-xs mt-1 font-mono">Tente ajustar os filtros ou registre uma nova</p>
+                      <p className="text-sm mt-1">Tente ajustar os filtros ou registre uma nova</p>
                     </div>
                   </td>
                 </tr>
@@ -311,14 +340,14 @@ export default function Vendas() {
             </tbody>
             {filtered.length > 0 && (
               <tfoot>
-                <tr className="border-t bg-primary/5 font-semibold">
+                <tr className="border-t bg-primary text-white font-semibold">
                   <td className="py-4 px-4" colSpan={6}>
-                    <span className="text-muted-foreground font-mono text-xs">{filtered.length} vendas</span>
+                    <span className="text-white/70 text-xs">{filtered.length} vendas</span>
                   </td>
-                  <td className="py-4 px-4 font-mono-price text-primary text-xs">{fmt(totalFaturamento)}</td>
+                  <td className="py-4 px-4 font-mono-price text-white text-xs">{fmt(totalFaturamento)}</td>
                   <td className="py-4 px-4"></td>
-                  <td className="py-4 px-4 font-mono-price text-xs">{fmt(totalComissao)}</td>
-                  <td className="py-4 px-4 font-mono-price text-xs">{fmt(totalBrecho)}</td>
+                  <td className="py-4 px-4 font-mono-price text-white/80 text-xs">{fmt(totalComissao)}</td>
+                  <td className="py-4 px-4 font-mono-price text-white/80 text-xs">{fmt(totalBrecho)}</td>
                   <td className="py-4 px-4" colSpan={3}></td>
                 </tr>
               </tfoot>
@@ -331,59 +360,59 @@ export default function Vendas() {
       <Dialog open={showNova} onOpenChange={setShowNova}>
         <DialogContent className="max-w-lg overflow-hidden rounded-2xl">
           <DialogHeader className="bg-primary -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
-            <DialogTitle className="font-display text-xl text-primary-foreground tracking-wide">NOVA VENDA</DialogTitle>
+            <DialogTitle className="font-display text-xl text-white tracking-wide">NOVA VENDA</DialogTitle>
           </DialogHeader>
           <div className="space-y-5">
             {!pecaSelecionada ? (
               <div>
                 <Label className="label-upper">Buscar Peça (SKU ou nome)</Label>
-                <Input value={buscaPeca} onChange={e => setBuscaPeca(e.target.value)} placeholder="Digite para buscar..." className="mt-1.5 rounded-xl font-mono text-xs" />
+                <Input value={buscaPeca} onChange={e => setBuscaPeca(e.target.value)} placeholder="Digite para buscar..." className="mt-1.5 rounded-xl text-sm" />
                 <div className="mt-2 max-h-40 overflow-y-auto space-y-1">
                   {pecasDisponiveis.slice(0, 10).map(p => (
                     <button key={p.sku} onClick={() => setPecaSelecionada(p)}
-                      className="w-full text-left p-3 rounded-2xl hover:bg-muted/50 text-xs font-mono transition-colors">
-                      <span className="text-muted-foreground">#{p.sku}</span> — {p.descricao} — <span className="font-mono-price">{fmt(p.preco)}</span>
+                      className="w-full text-left p-3 rounded-2xl hover:bg-muted/50 text-sm transition-colors">
+                      <span className="text-muted-foreground font-mono-price">#{p.sku}</span> — {p.descricao} — <span className="font-mono-price">{fmt(p.preco)}</span>
                     </button>
                   ))}
-                  {pecasDisponiveis.length === 0 && <p className="text-xs text-muted-foreground p-2 font-mono">Nenhuma peça disponível</p>}
+                  {pecasDisponiveis.length === 0 && <p className="text-sm text-muted-foreground p-2">Nenhuma peça disponível</p>}
                 </div>
               </div>
             ) : (
               <>
                 <div className="bg-muted/40 p-4 rounded-2xl flex justify-between items-center">
                   <div>
-                    <p className="font-medium font-mono text-xs">#{pecaSelecionada.sku} — {pecaSelecionada.descricao}</p>
-                    <p className="text-xs text-muted-foreground font-mono">{getFornNome(pecaSelecionada.fornecedoraId)} • {fmt(pecaSelecionada.preco)}</p>
+                    <p className="font-medium text-sm">#{pecaSelecionada.sku} — {pecaSelecionada.descricao}</p>
+                    <p className="text-sm text-muted-foreground">{getFornNome(pecaSelecionada.fornecedoraId)} • {fmt(pecaSelecionada.preco)}</p>
                   </div>
-                  <Button size="sm" variant="ghost" onClick={() => setPecaSelecionada(null)} className="rounded-full font-mono text-xs">Trocar</Button>
+                  <Button size="sm" variant="ghost" onClick={() => setPecaSelecionada(null)} className="rounded-full text-xs">Trocar</Button>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><Label className="label-upper">Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+                  <div><Label className="label-upper">Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
                   <div><Label className="label-upper">Pagamento</Label>
                     <Select value={vendaPagamento} onValueChange={setVendaPagamento}>
-                      <SelectTrigger className="mt-1.5 rounded-xl font-mono text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="mt-1.5 rounded-xl text-sm"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {config.meiosPagamento.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
-                <div className="bg-accent/10 p-5 rounded-2xl text-xs space-y-2 border border-accent/20 font-mono">
+                <div className="bg-accent/10 p-5 rounded-2xl text-sm space-y-2 border border-accent/20">
                   <p>Preço Final: <strong className="font-mono-price text-primary">{fmt(vendaPrecoFinal)}</strong></p>
                   {vendaPagamento === 'Cartão Crédito' && <p className="text-muted-foreground">Taxa 5% → Base: {fmt(vendaBase)}</p>}
                   <p>Comissão Forn.: <strong className="font-mono-price">{fmt(vendaBase * config.percentualFornecedora)}</strong></p>
                   <p>Parcela Brechó: <strong className="font-mono-price">{fmt(vendaBase * config.percentualBrecho)}</strong></p>
                   {vendaPrecoFinal < 0 && <p className="text-destructive font-semibold">⚠️ Desconto maior que o preço!</p>}
                 </div>
-                <div><Label className="label-upper">Compradora</Label><Input value={vendaCompradora} onChange={e => setVendaCompradora(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
-                <div><Label className="label-upper">Endereço de Entrega</Label><Input value={vendaEndereco} onChange={e => setVendaEndereco(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
-                <div><Label className="label-upper">Data de Entrega</Label><Input type="date" value={vendaDataEntrega} onChange={e => setVendaDataEntrega(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+                <div><Label className="label-upper">Compradora</Label><Input value={vendaCompradora} onChange={e => setVendaCompradora(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
+                <div><Label className="label-upper">Endereço de Entrega</Label><Input value={vendaEndereco} onChange={e => setVendaEndereco(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
+                <div><Label className="label-upper">Data de Entrega</Label><Input type="date" value={vendaDataEntrega} onChange={e => setVendaDataEntrega(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
               </>
             )}
           </div>
           <DialogFooter className="mt-5">
-            <Button variant="outline" onClick={() => { setShowNova(false); setPecaSelecionada(null); }} className="rounded-full font-mono text-xs">Cancelar</Button>
-            <Button onClick={handleVenda} disabled={!pecaSelecionada || vendaPrecoFinal < 0} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono text-xs">Confirmar Venda</Button>
+            <Button variant="outline" onClick={() => { setShowNova(false); setPecaSelecionada(null); }} className="rounded-full text-xs">Cancelar</Button>
+            <Button onClick={handleVenda} disabled={!pecaSelecionada || vendaPrecoFinal < 0} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">Confirmar Venda</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -392,22 +421,22 @@ export default function Vendas() {
       <Dialog open={!!editingVenda} onOpenChange={() => setEditingVenda(null)}>
         <DialogContent className="max-w-md overflow-hidden rounded-2xl">
           <DialogHeader className="bg-primary -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
-            <DialogTitle className="font-display text-xl text-primary-foreground tracking-wide">EDITAR VENDA</DialogTitle>
+            <DialogTitle className="font-display text-xl text-white tracking-wide">EDITAR VENDA</DialogTitle>
           </DialogHeader>
           {editingVenda && (
             <div className="space-y-5">
               <div className="bg-muted/40 p-4 rounded-2xl">
-                <p className="font-medium font-mono text-xs">#{editingVenda.skuPeca} — {editingVenda.descricaoPeca}</p>
-                <p className="text-xs text-muted-foreground font-mono">{fmt(editingVenda.precoFinal)} • {editingVenda.pagamento}</p>
+                <p className="font-medium text-sm">#{editingVenda.skuPeca} — {editingVenda.descricaoPeca}</p>
+                <p className="text-sm text-muted-foreground">{fmt(editingVenda.precoFinal)} • {editingVenda.pagamento}</p>
               </div>
-              <div><Label className="label-upper">Compradora</Label><Input value={editCompradora} onChange={e => setEditCompradora(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
-              <div><Label className="label-upper">Endereço de Entrega</Label><Input value={editEndereco} onChange={e => setEditEndereco(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
-              <div><Label className="label-upper">Data de Entrega</Label><Input type="date" value={editDataEntrega} onChange={e => setEditDataEntrega(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+              <div><Label className="label-upper">Compradora</Label><Input value={editCompradora} onChange={e => setEditCompradora(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
+              <div><Label className="label-upper">Endereço de Entrega</Label><Input value={editEndereco} onChange={e => setEditEndereco(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
+              <div><Label className="label-upper">Data de Entrega</Label><Input type="date" value={editDataEntrega} onChange={e => setEditDataEntrega(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
             </div>
           )}
           <DialogFooter className="mt-5">
-            <Button variant="outline" onClick={() => setEditingVenda(null)} className="rounded-full font-mono text-xs">Cancelar</Button>
-            <Button onClick={handleEditSave} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono text-xs">Salvar</Button>
+            <Button variant="outline" onClick={() => setEditingVenda(null)} className="rounded-full text-xs">Cancelar</Button>
+            <Button onClick={handleEditSave} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -417,13 +446,13 @@ export default function Vendas() {
         <DialogContent className="max-w-sm rounded-2xl">
           <DialogHeader>
             <DialogTitle className="font-display text-xl tracking-wide">EXCLUIR VENDA</DialogTitle>
-            <DialogDescription className="font-mono text-xs">
+            <DialogDescription className="text-sm">
               Excluir a venda de #{showDeleteConfirm?.skuPeca} — {showDeleteConfirm?.descricaoPeca}? A peça voltará ao status "Disponível".
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteConfirm(null)} className="rounded-full font-mono text-xs">Cancelar</Button>
-            <Button variant="destructive" onClick={() => showDeleteConfirm && handleDelete(showDeleteConfirm)} className="rounded-full font-mono text-xs">Excluir</Button>
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(null)} className="rounded-full text-xs">Cancelar</Button>
+            <Button variant="destructive" onClick={() => showDeleteConfirm && handleDelete(showDeleteConfirm)} className="rounded-full text-xs">Excluir</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

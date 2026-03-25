@@ -3,7 +3,6 @@ import { store } from '@/lib/store';
 import { Peca, StatusPeca, MeioPagamento, Venda } from '@/types';
 import { fmt } from '@/lib/fmt';
 import { exportCSV } from '@/lib/csv';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Plus, Search, ShoppingCart, Edit, Trash2, Download, ArrowUpDown, ArrowUp, ArrowDown, Package } from 'lucide-react';
+import { Plus, Search, ShoppingCart, Edit, Trash2, Download, ArrowUpDown, ArrowUp, ArrowDown, Package, CheckCircle, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 
 const statusColors: Record<StatusPeca, string> = {
@@ -28,6 +27,9 @@ function SortIcon({ column, sortBy, sortDir }: { column: SortKey; sortBy: SortKe
   if (sortBy !== column) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-30" />;
   return sortDir === 'asc' ? <ArrowUp className="h-3 w-3 ml-1" /> : <ArrowDown className="h-3 w-3 ml-1" />;
 }
+
+const topBarColors = ['#2d4a2e', '#e8527a', '#f0a500'];
+const iconBgs = ['bg-primary/10 text-primary', 'bg-accent/10 text-accent', 'bg-[#f0a500]/10 text-[#f0a500]'];
 
 export default function Catalogo() {
   const [, setTick] = useState(0);
@@ -226,17 +228,42 @@ export default function Catalogo() {
   const vendaPrecoFinal = showVenda ? showVenda.preco - (parseFloat(vendaDesconto) || 0) : 0;
   const vendaBase = showVenda && vendaPagamento === 'Cartão Crédito' ? vendaPrecoFinal * (1 - config.taxaCartao) : vendaPrecoFinal;
 
+  const summaryCards = [
+    { label: 'TOTAL DE PEÇAS', value: String(filtered.length), icon: Package, colorIdx: 0 },
+    { label: 'DISPONÍVEIS', value: String(totalDisponivel), icon: CheckCircle, colorIdx: 1 },
+    { label: 'VALOR TOTAL', value: fmt(totalPreco), icon: DollarSign, colorIdx: 2 },
+  ];
+
   return (
     <div className="space-y-6 animate-fade-up">
-      {/* Page title */}
       <h1 className="font-display text-4xl md:text-5xl text-primary tracking-wide">CATÁLOGO</h1>
+
+      {/* Summary mini-cards */}
+      <div className="grid grid-cols-3 gap-4 animate-stagger">
+        {summaryCards.map((card, i) => (
+          <div
+            key={card.label}
+            className="bg-card border border-border overflow-hidden transition-transform duration-300 hover:translate-y-[-2px]"
+            style={{ borderRadius: '0 0 16px 16px' }}
+          >
+            <div className="h-[3px]" style={{ backgroundColor: topBarColors[i] }} />
+            <div className="p-4">
+              <div className={`icon-circle h-9 w-9 mb-2 rounded-full ${iconBgs[i]}`}>
+                <card.icon className="h-4 w-4" />
+              </div>
+              <p className="font-display text-2xl leading-none text-foreground">{card.value}</p>
+              <p className="label-upper mt-1.5 text-[9px]">{card.label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* Filter bar */}
       <div className="filter-bar flex flex-wrap gap-4 items-end">
         <div>
           <Label className="label-upper">Drop</Label>
           <Select value={dropFilter} onValueChange={setDropFilter}>
-            <SelectTrigger className="w-32 rounded-full bg-muted/50 border-0 mt-1 font-mono text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-32 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
               {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d} ({dropCounts[d]})</SelectItem>)}
@@ -246,7 +273,7 @@ export default function Catalogo() {
         <div>
           <Label className="label-upper">Status</Label>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40 rounded-full bg-muted/50 border-0 mt-1 font-mono text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-40 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos ({pecas.length})</SelectItem>
               {config.statusValidos.map(s => <SelectItem key={s} value={s}>{s} ({statusCounts[s] || 0})</SelectItem>)}
@@ -256,7 +283,7 @@ export default function Catalogo() {
         <div>
           <Label className="label-upper">Fornecedora</Label>
           <Select value={fornFilter} onValueChange={setFornFilter}>
-            <SelectTrigger className="w-36 rounded-full bg-muted/50 border-0 mt-1 font-mono text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-36 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas</SelectItem>
               {fornecedoras.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
@@ -267,7 +294,7 @@ export default function Catalogo() {
           <div>
             <Label className="label-upper">Categoria</Label>
             <Select value={catFilter} onValueChange={setCatFilter}>
-              <SelectTrigger className="w-32 rounded-full bg-muted/50 border-0 mt-1 font-mono text-xs"><SelectValue placeholder="Todas" /></SelectTrigger>
+              <SelectTrigger className="w-32 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue placeholder="Todas" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
                 {categorias.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
@@ -279,13 +306,13 @@ export default function Catalogo() {
           <Label className="label-upper">Buscar</Label>
           <div className="relative mt-1">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-9 rounded-full bg-muted/50 border-0 font-mono text-xs" placeholder="SKU ou descrição..." value={busca} onChange={e => setBusca(e.target.value)} />
+            <Input className="pl-9 rounded-full bg-muted/50 border-0 text-sm" placeholder="SKU ou descrição..." value={busca} onChange={e => setBusca(e.target.value)} />
           </div>
         </div>
-        <Button variant="outline" onClick={handleExportCSV} className="shrink-0 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-200 font-mono text-xs">
+        <Button variant="outline" onClick={handleExportCSV} className="shrink-0 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-200 text-xs">
           <Download className="h-4 w-4 mr-1" /> CSV
         </Button>
-        <Button onClick={openNew} className="shrink-0 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono text-xs">
+        <Button onClick={openNew} className="shrink-0 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">
           <Plus className="h-4 w-4 mr-1" /> NOVA PEÇA
         </Button>
       </div>
@@ -325,12 +352,12 @@ export default function Catalogo() {
             <tbody>
               {filtered.map(p => (
                 <tr key={p.sku} className="border-b last:border-0 cursor-pointer" onClick={() => setSelectedPeca(p)}>
-                  <td className="font-mono text-xs text-muted-foreground">#{p.sku}</td>
-                  <td className="font-medium font-mono text-xs">{p.descricao}</td>
-                  <td className="text-muted-foreground font-mono text-xs">{p.categoria}</td>
-                  <td className="text-muted-foreground font-mono text-xs">{p.tamanho}</td>
-                  <td className="text-muted-foreground font-mono text-xs">{getFornNome(p.fornecedoraId)}</td>
-                  <td className="font-mono text-xs text-muted-foreground">{p.dataEntrada}</td>
+                  <td className="font-mono-price text-xs text-muted-foreground">#{p.sku}</td>
+                  <td className="font-medium text-sm">{p.descricao}</td>
+                  <td className="text-muted-foreground text-sm">{p.categoria}</td>
+                  <td className="text-muted-foreground text-sm">{p.tamanho}</td>
+                  <td className="text-muted-foreground text-sm">{getFornNome(p.fornecedoraId)}</td>
+                  <td className="text-muted-foreground text-sm">{p.dataEntrada}</td>
                   <td>
                     <span className={`pill-badge ${statusColors[p.status]}`}>{p.status}</span>
                   </td>
@@ -358,7 +385,7 @@ export default function Catalogo() {
                     <div className="empty-state">
                       <Package className="h-16 w-16 mb-4 opacity-20" />
                       <p className="text-xl font-display">NENHUMA PEÇA ENCONTRADA</p>
-                      <p className="text-xs mt-1 font-mono">Tente ajustar os filtros ou cadastre uma nova</p>
+                      <p className="text-sm mt-1">Tente ajustar os filtros ou cadastre uma nova</p>
                     </div>
                   </td>
                 </tr>
@@ -366,13 +393,13 @@ export default function Catalogo() {
             </tbody>
             {filtered.length > 0 && (
               <tfoot>
-                <tr className="border-t bg-primary/5 font-semibold">
+                <tr className="border-t bg-primary text-white font-semibold">
                   <td className="py-4 px-4" colSpan={6}>
-                    <span className="text-muted-foreground font-mono text-xs">{filtered.length} peças</span>
-                    <span className="text-xs text-muted-foreground/70 ml-2 font-mono">({totalDisponivel} disponíveis)</span>
+                    <span className="text-white/70 text-xs">{filtered.length} peças</span>
+                    <span className="text-white/50 ml-2 text-xs">({totalDisponivel} disponíveis)</span>
                   </td>
                   <td className="py-4 px-4"></td>
-                  <td className="py-4 px-4 font-mono-price text-primary text-xs">{fmt(totalPreco)}</td>
+                  <td className="py-4 px-4 font-mono-price text-white text-xs">{fmt(totalPreco)}</td>
                   <td className="py-4 px-4" colSpan={2}></td>
                 </tr>
               </tfoot>
@@ -385,31 +412,31 @@ export default function Catalogo() {
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-md overflow-hidden rounded-2xl">
           <DialogHeader className="bg-primary -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
-            <DialogTitle className="font-display text-xl text-primary-foreground tracking-wide">{editingPeca ? `EDITAR PEÇA #${editingPeca.sku}` : 'NOVA PEÇA'}</DialogTitle>
+            <DialogTitle className="font-display text-xl text-white tracking-wide">{editingPeca ? `EDITAR PEÇA #${editingPeca.sku}` : 'NOVA PEÇA'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-5">
-            <div><Label className="label-upper">Descrição</Label><Input value={formDescricao} onChange={e => setFormDescricao(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+            <div><Label className="label-upper">Descrição</Label><Input value={formDescricao} onChange={e => setFormDescricao(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
             <div className="grid grid-cols-2 gap-4">
-              <div><Label className="label-upper">Categoria</Label><Input value={formCategoria} onChange={e => setFormCategoria(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
-              <div><Label className="label-upper">Tamanho</Label><Input value={formTamanho} onChange={e => setFormTamanho(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+              <div><Label className="label-upper">Categoria</Label><Input value={formCategoria} onChange={e => setFormCategoria(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
+              <div><Label className="label-upper">Tamanho</Label><Input value={formTamanho} onChange={e => setFormTamanho(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
             </div>
             <div>
               <Label className="label-upper">Fornecedora</Label>
               <Select value={formFornecedoraId} onValueChange={setFormFornecedoraId}>
-                <SelectTrigger className="mt-1.5 rounded-xl font-mono text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectTrigger className="mt-1.5 rounded-xl text-sm"><SelectValue placeholder="Selecione" /></SelectTrigger>
                 <SelectContent>
                   {fornecedoras.filter(f => f.ativa).map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div><Label className="label-upper">Preço (R$)</Label><Input type="number" step="0.01" value={formPreco} onChange={e => setFormPreco(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
-              <div><Label className="label-upper">Drop</Label><Input type="number" value={formDrop} onChange={e => setFormDrop(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+              <div><Label className="label-upper">Preço (R$)</Label><Input type="number" step="0.01" value={formPreco} onChange={e => setFormPreco(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
+              <div><Label className="label-upper">Drop</Label><Input type="number" value={formDrop} onChange={e => setFormDrop(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
             </div>
           </div>
           <DialogFooter className="mt-5">
-            <Button variant="outline" onClick={() => setShowForm(false)} className="rounded-full font-mono text-xs">Cancelar</Button>
-            <Button onClick={handleSave} disabled={!formDescricao || !formFornecedoraId} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono text-xs">Salvar</Button>
+            <Button variant="outline" onClick={() => setShowForm(false)} className="rounded-full text-xs">Cancelar</Button>
+            <Button onClick={handleSave} disabled={!formDescricao || !formFornecedoraId} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -423,12 +450,12 @@ export default function Catalogo() {
                 <SheetTitle className="font-display text-3xl tracking-wide">PEÇA #{selectedPeca.sku}</SheetTitle>
               </SheetHeader>
               <div className="mt-6 space-y-5">
-                <div><p className="label-upper">Descrição</p><p className="font-medium mt-1 font-mono text-sm">{selectedPeca.descricao}</p></div>
+                <div><p className="label-upper">Descrição</p><p className="font-medium mt-1 text-sm">{selectedPeca.descricao}</p></div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><p className="label-upper">Categoria</p><p className="mt-1 font-mono text-sm">{selectedPeca.categoria}</p></div>
-                  <div><p className="label-upper">Tamanho</p><p className="mt-1 font-mono text-sm">{selectedPeca.tamanho}</p></div>
+                  <div><p className="label-upper">Categoria</p><p className="mt-1 text-sm">{selectedPeca.categoria}</p></div>
+                  <div><p className="label-upper">Tamanho</p><p className="mt-1 text-sm">{selectedPeca.tamanho}</p></div>
                 </div>
-                <div><p className="label-upper">Fornecedora</p><p className="mt-1 font-mono text-sm">{getFornNome(selectedPeca.fornecedoraId)}</p></div>
+                <div><p className="label-upper">Fornecedora</p><p className="mt-1 text-sm">{getFornNome(selectedPeca.fornecedoraId)}</p></div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 rounded-2xl bg-muted/40">
                     <p className="label-upper">Preço</p>
@@ -446,7 +473,7 @@ export default function Catalogo() {
                 <div>
                   <Label className="label-upper">Alterar Status</Label>
                   <Select value={selectedPeca.status} onValueChange={(v) => handleStatusChange(selectedPeca.sku, v as StatusPeca)}>
-                    <SelectTrigger className="mt-1.5 rounded-xl font-mono text-xs"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1.5 rounded-xl text-sm"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {config.statusValidos.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                     </SelectContent>
@@ -454,11 +481,11 @@ export default function Catalogo() {
                 </div>
                 <div className="flex gap-2">
                   {selectedPeca.status === 'Disponível' && (
-                    <Button className="flex-1 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono text-xs" onClick={() => { setShowVenda(selectedPeca); setSelectedPeca(null); setVendaDesconto('0'); setVendaPagamento('Pix'); }}>
+                    <Button className="flex-1 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs" onClick={() => { setShowVenda(selectedPeca); setSelectedPeca(null); setVendaDesconto('0'); setVendaPagamento('Pix'); }}>
                       <ShoppingCart className="h-4 w-4 mr-2" /> Vender
                     </Button>
                   )}
-                  <Button variant="outline" className="flex-1 rounded-full font-mono text-xs" onClick={() => { openEdit(selectedPeca); setSelectedPeca(null); }}>
+                  <Button variant="outline" className="flex-1 rounded-full text-xs" onClick={() => { openEdit(selectedPeca); setSelectedPeca(null); }}>
                     <Edit className="h-4 w-4 mr-2" /> Editar
                   </Button>
                   <Button variant="destructive" size="icon" className="rounded-full" onClick={() => setShowDeleteConfirm(selectedPeca)}>
@@ -466,8 +493,8 @@ export default function Catalogo() {
                   </Button>
                 </div>
                 <div className="pt-4 border-t space-y-2">
-                  <p className="text-xs text-muted-foreground font-mono">Comissão Fornecedora: <span className="font-mono-price text-foreground">{fmt(selectedPeca.preco * config.percentualFornecedora)}</span></p>
-                  <p className="text-xs text-muted-foreground font-mono">Parcela Brechó: <span className="font-mono-price text-foreground">{fmt(selectedPeca.preco * config.percentualBrecho)}</span></p>
+                  <p className="text-sm text-muted-foreground">Comissão Fornecedora: <span className="font-mono-price text-foreground">{fmt(selectedPeca.preco * config.percentualFornecedora)}</span></p>
+                  <p className="text-sm text-muted-foreground">Parcela Brechó: <span className="font-mono-price text-foreground">{fmt(selectedPeca.preco * config.percentualBrecho)}</span></p>
                 </div>
               </div>
             </>
@@ -480,13 +507,13 @@ export default function Catalogo() {
         <DialogContent className="max-w-sm rounded-2xl">
           <DialogHeader>
             <DialogTitle className="font-display text-xl tracking-wide">EXCLUIR PEÇA</DialogTitle>
-            <DialogDescription className="font-mono text-xs">
+            <DialogDescription className="text-sm">
               Tem certeza que deseja excluir a peça #{showDeleteConfirm?.sku} — {showDeleteConfirm?.descricao}? As vendas associadas também serão removidas.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteConfirm(null)} className="rounded-full font-mono text-xs">Cancelar</Button>
-            <Button variant="destructive" onClick={() => showDeleteConfirm && handleDelete(showDeleteConfirm)} className="rounded-full font-mono text-xs">Excluir</Button>
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(null)} className="rounded-full text-xs">Cancelar</Button>
+            <Button variant="destructive" onClick={() => showDeleteConfirm && handleDelete(showDeleteConfirm)} className="rounded-full text-xs">Excluir</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -496,13 +523,13 @@ export default function Catalogo() {
         <DialogContent className="max-w-sm rounded-2xl">
           <DialogHeader>
             <DialogTitle className="font-display text-xl tracking-wide">ATENÇÃO</DialogTitle>
-            <DialogDescription className="font-mono text-xs">
+            <DialogDescription className="text-sm">
               Esta peça está marcada como "Vendido". Alterar o status pode desconectar da venda registrada. Deseja continuar?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowStatusWarning(null)} className="rounded-full font-mono text-xs">Cancelar</Button>
-            <Button onClick={() => showStatusWarning && applyStatusChange(showStatusWarning.peca.sku, showStatusWarning.newStatus)} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono text-xs">Continuar</Button>
+            <Button variant="outline" onClick={() => setShowStatusWarning(null)} className="rounded-full text-xs">Cancelar</Button>
+            <Button onClick={() => showStatusWarning && applyStatusChange(showStatusWarning.peca.sku, showStatusWarning.newStatus)} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">Continuar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -511,40 +538,40 @@ export default function Catalogo() {
       <Dialog open={!!showVenda} onOpenChange={() => setShowVenda(null)}>
         <DialogContent className="max-w-md overflow-hidden rounded-2xl">
           <DialogHeader className="bg-primary -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
-            <DialogTitle className="font-display text-xl text-primary-foreground tracking-wide">REGISTRAR VENDA</DialogTitle>
+            <DialogTitle className="font-display text-xl text-white tracking-wide">REGISTRAR VENDA</DialogTitle>
           </DialogHeader>
           {showVenda && (
             <div className="space-y-5">
               <div className="bg-muted/40 p-4 rounded-2xl">
-                <p className="font-medium font-mono text-xs">#{showVenda.sku} — {showVenda.descricao}</p>
-                <p className="text-xs text-muted-foreground font-mono">{getFornNome(showVenda.fornecedoraId)} • Drop {showVenda.drop} • {fmt(showVenda.preco)}</p>
+                <p className="font-medium text-sm">#{showVenda.sku} — {showVenda.descricao}</p>
+                <p className="text-sm text-muted-foreground">{getFornNome(showVenda.fornecedoraId)} • Drop {showVenda.drop} • {fmt(showVenda.preco)}</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div><Label className="label-upper">Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+                <div><Label className="label-upper">Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
                 <div><Label className="label-upper">Pagamento</Label>
                   <Select value={vendaPagamento} onValueChange={setVendaPagamento}>
-                    <SelectTrigger className="mt-1.5 rounded-xl font-mono text-xs"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1.5 rounded-xl text-sm"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {config.meiosPagamento.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-              <div className="bg-accent/10 p-5 rounded-2xl text-xs space-y-2 border border-accent/20 font-mono">
+              <div className="bg-accent/10 p-5 rounded-2xl text-sm space-y-2 border border-accent/20">
                 <p>Preço Final: <strong className="font-mono-price text-primary">{fmt(vendaPrecoFinal)}</strong></p>
                 {vendaPagamento === 'Cartão Crédito' && <p className="text-muted-foreground">Taxa 5% aplicada → Base: {fmt(vendaBase)}</p>}
                 <p>Comissão Forn.: <strong className="font-mono-price">{fmt(vendaBase * config.percentualFornecedora)}</strong></p>
                 <p>Parcela Brechó: <strong className="font-mono-price">{fmt(vendaBase * config.percentualBrecho)}</strong></p>
                 {vendaPrecoFinal < 0 && <p className="text-destructive font-semibold">⚠️ Desconto maior que o preço!</p>}
               </div>
-              <div><Label className="label-upper">Compradora</Label><Input value={vendaCompradora} onChange={e => setVendaCompradora(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
-              <div><Label className="label-upper">Endereço de Entrega</Label><Input value={vendaEndereco} onChange={e => setVendaEndereco(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
-              <div><Label className="label-upper">Data de Entrega</Label><Input type="date" value={vendaDataEntrega} onChange={e => setVendaDataEntrega(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+              <div><Label className="label-upper">Compradora</Label><Input value={vendaCompradora} onChange={e => setVendaCompradora(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
+              <div><Label className="label-upper">Endereço de Entrega</Label><Input value={vendaEndereco} onChange={e => setVendaEndereco(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
+              <div><Label className="label-upper">Data de Entrega</Label><Input type="date" value={vendaDataEntrega} onChange={e => setVendaDataEntrega(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
             </div>
           )}
           <DialogFooter className="mt-5">
-            <Button variant="outline" onClick={() => setShowVenda(null)} className="rounded-full font-mono text-xs">Cancelar</Button>
-            <Button onClick={handleVenda} disabled={!showVenda || vendaPrecoFinal < 0} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono text-xs">Confirmar Venda</Button>
+            <Button variant="outline" onClick={() => setShowVenda(null)} className="rounded-full text-xs">Cancelar</Button>
+            <Button onClick={handleVenda} disabled={!showVenda || vendaPrecoFinal < 0} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">Confirmar Venda</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
