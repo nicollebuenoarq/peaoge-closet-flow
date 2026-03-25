@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, Receipt, Users, Settings, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import logo from '@/assets/logo.webp';
 
 const navItems = [
   { label: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -24,15 +25,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground">
-      <div className="p-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🪝</span>
-          {(sidebarOpen || mobileOpen) && (
-            <h1 className="font-heading text-xl font-bold tracking-tight text-sidebar-primary">
-              Brechó Peaogê
-            </h1>
-          )}
-        </div>
+      <div className="p-4 border-b border-sidebar-border flex items-center justify-center">
+        {(sidebarOpen || mobileOpen) ? (
+          <img src={logo} alt="Brechó Peaogê" className="h-16 w-auto object-contain rounded-md bg-background/10 p-1" />
+        ) : (
+          <img src={logo} alt="Brechó Peaogê" className="h-9 w-9 object-cover rounded-md" />
+        )}
       </div>
       <nav className="flex-1 p-2 space-y-1">
         {navItems.map((item) => {
