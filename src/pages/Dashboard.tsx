@@ -1,16 +1,17 @@
 import { useMemo, useState } from 'react';
 import { store } from '@/lib/store';
-import { Fornecedora, Peca, Venda } from '@/types';
+import { fmt } from '@/lib/fmt';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { DollarSign, TrendingUp, Users, Package, Wallet, CheckCircle } from 'lucide-react';
-
-function fmt(v: number) {
-  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
+import { toast } from 'sonner';
 
 export default function Dashboard() {
+  const [, setTick] = useState(0);
+  const reload = () => setTick(t => t + 1);
+
   const [dropFilter, setDropFilter] = useState<string>('all');
   const config = store.getConfig();
   const fornecedoras = store.getFornecedoras();
@@ -34,12 +35,10 @@ export default function Dashboard() {
   const totalPago = filteredVendas.filter(v => v.pagoFornecedora).reduce((s, v) => s + v.comissaoFornecedora, 0);
   const saldoPagar = comissaoTotal - totalPago;
 
-  // Previsão
   const prevFaturamento = disponíveis.reduce((s, p) => s + p.preco, 0);
   const prevComissao = prevFaturamento * config.percentualFornecedora;
   const prevParcelaBrecho = prevFaturamento * config.percentualBrecho;
 
-  // Repasses por fornecedora
   const socias = fornecedoras.filter(f => f.ehSocia);
   const parcelaSocia = parcelaBrecho / (socias.length || 1);
 
@@ -50,16 +49,28 @@ export default function Dashboard() {
     const parteBrechoSocia = f.ehSocia ? parcelaSocia : 0;
     const totalReceber = comissaoDevida + parteBrechoSocia;
     const pendente = comissaoDevida - pago;
-    return { ...f, comissaoDevida, parteBrechoSocia, totalReceber, pago, pendente, vendasCount: vendasF.length };
+    const vendasPendentes = vendasF.filter(v => !v.pagoFornecedora).length;
+    return { ...f, comissaoDevida, parteBrechoSocia, totalReceber, pago, pendente, vendasCount: vendasF.length, vendasPendentes };
   }).filter(r => r.vendasCount > 0 || r.parteBrechoSocia > 0);
 
-  // Previsão por fornecedora
   const previsaoForn = fornecedoras.map(f => {
     const pecasF = disponíveis.filter(p => p.fornecedoraId === f.id);
     const prevComF = pecasF.reduce((s, p) => s + p.preco, 0) * config.percentualFornecedora;
     const prevBrechoF = pecasF.reduce((s, p) => s + p.preco, 0) * config.percentualBrecho;
     return { ...f, qtd: pecasF.length, prevComissao: prevComF, prevBrecho: prevBrechoF, prevTotal: prevComF + (f.ehSocia ? prevBrechoF / (socias.length || 1) : 0) };
   }).filter(r => r.qtd > 0);
+
+  const handlePagarTudo = (fornecedoraId: string) => {
+    const allVendas = store.getVendas().map(v =>
+      v.fornecedoraId === fornecedoraId && !v.pagoFornecedora && (dropFilter === 'all' || v.drop === Number(dropFilter))
+        ? { ...v, pagoFornecedora: true, dataPagamento: new Date().toISOString().split('T')[0] }
+        : v
+    );
+    store.setVendas(allVendas);
+    const forn = fornecedoras.find(f => f.id === fornecedoraId);
+    toast.success(`Todas as vendas de ${forn?.nome} marcadas como pagas`);
+    reload();
+  };
 
   const indicators = [
     { label: 'Faturamento Bruto', value: fmt(faturamento), icon: DollarSign, color: 'text-primary' },
@@ -71,23 +82,17 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Drop selector */}
       <div className="flex items-center gap-3">
         <label className="font-heading font-semibold text-sm">DROP:</label>
         <Select value={dropFilter} onValueChange={setDropFilter}>
-          <SelectTrigger className="w-40 bg-card">
-            <SelectValue />
-          </SelectTrigger>
+          <SelectTrigger className="w-40 bg-card"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
-            {drops.map(d => (
-              <SelectItem key={d} value={String(d)}>Drop {d}</SelectItem>
-            ))}
+            {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Indicators */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {indicators.map(ind => (
           <Card key={ind.label}>
@@ -102,7 +107,6 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Previsão */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-heading flex items-center gap-2">
@@ -111,23 +115,13 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div>
-              <p className="text-xs text-muted-foreground">Fat. Previsto</p>
-              <p className="font-bold">{fmt(prevFaturamento)}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Comissão Prevista</p>
-              <p className="font-bold">{fmt(prevComissao)}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Parcela Brechó Prev.</p>
-              <p className="font-bold">{fmt(prevParcelaBrecho)}</p>
-            </div>
+            <div><p className="text-xs text-muted-foreground">Fat. Previsto</p><p className="font-bold">{fmt(prevFaturamento)}</p></div>
+            <div><p className="text-xs text-muted-foreground">Comissão Prevista</p><p className="font-bold">{fmt(prevComissao)}</p></div>
+            <div><p className="text-xs text-muted-foreground">Parcela Brechó Prev.</p><p className="font-bold">{fmt(prevParcelaBrecho)}</p></div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Repasses */}
       {repasses.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
@@ -143,6 +137,7 @@ export default function Dashboard() {
                     <th className="pb-2">Parte Brechó</th>
                     <th className="pb-2">Total a Receber</th>
                     <th className="pb-2">Status</th>
+                    <th className="pb-2"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -158,7 +153,14 @@ export default function Dashboard() {
                         {r.pendente <= 0 ? (
                           <Badge className="bg-secondary/20 text-secondary border-0">Pago</Badge>
                         ) : (
-                          <Badge variant="outline" className="border-destructive/30 text-destructive">Pendente</Badge>
+                          <Badge variant="outline" className="border-destructive/30 text-destructive">Pendente ({r.vendasPendentes})</Badge>
+                        )}
+                      </td>
+                      <td className="py-2">
+                        {r.vendasPendentes > 0 && (
+                          <Button size="sm" variant="outline" onClick={() => handlePagarTudo(r.id)}>
+                            Pagar Tudo
+                          </Button>
                         )}
                       </td>
                     </tr>
@@ -170,7 +172,6 @@ export default function Dashboard() {
         </Card>
       )}
 
-      {/* Previsão por fornecedora */}
       {previsaoForn.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
