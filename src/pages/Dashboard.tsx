@@ -110,7 +110,7 @@ export default function Dashboard() {
     <div className="space-y-8 animate-fade-up">
 
       {/* PHOTO STRIP */}
-      <section className="flex md:grid md:grid-cols-5 gap-1 h-[120px] md:h-[160px] rounded-2xl overflow-x-auto md:overflow-hidden scrollbar-hide">
+      <section className="flex md:grid md:grid-cols-6 gap-1 h-[120px] md:h-[160px] rounded-2xl overflow-x-auto md:overflow-hidden scrollbar-hide">
         {photoStrip.map((photo, i) => {
           const isActive = location.pathname === photo.path;
           return (
