@@ -9,6 +9,7 @@ import Catalogo from "./pages/Catalogo";
 import Vendas from "./pages/Vendas";
 import Fornecedoras from "./pages/Fornecedoras";
 import Configuracoes from "./pages/Configuracoes";
+import Planejamento from "./pages/Planejamento";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { initializeData } from "@/lib/initialData";
