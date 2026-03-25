@@ -160,17 +160,21 @@ export default function Dashboard() {
       </section>
 
       {/* METRIC CARDS */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 animate-stagger">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 animate-stagger mt-10">
         {indicators.map((ind, i) => (
           <div
             key={ind.label}
-            className={`card-editorial p-5 border-t-[3px] ${borderColors[i]}`}
+            className="bg-card border border-border overflow-hidden transition-transform duration-300 hover:translate-y-[-2px]"
+            style={{ borderRadius: '0 0 16px 16px' }}
           >
-            <div className={`icon-circle h-10 w-10 mb-3 rounded-full ${iconBgs[i]}`}>
-              <ind.icon className="h-5 w-5" />
+            <div className="h-[3px]" style={{ backgroundColor: topBarColors[i] }} />
+            <div className="p-5">
+              <div className={`icon-circle h-10 w-10 mb-3 rounded-full ${iconBgs[i]}`}>
+                <ind.icon className="h-5 w-5" />
+              </div>
+              <p className="font-display text-[40px] leading-none text-foreground">{ind.value}</p>
+              <p className="label-upper mt-2">{ind.label}</p>
             </div>
-            <p className="font-display text-[34px] leading-none text-foreground">{ind.value}</p>
-            <p className="label-upper mt-2">{ind.label}</p>
           </div>
         ))}
       </div>
