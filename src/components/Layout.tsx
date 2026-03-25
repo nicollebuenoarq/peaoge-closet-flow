@@ -64,11 +64,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               })}
             </nav>
 
-            {/* User chip */}
+            {/* User chip — pink bg, white initial */}
             <div className="hidden md:flex items-center gap-2 shrink-0">
               <div
                 className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                style={{ backgroundColor: userColor }}
+                style={{ backgroundColor: '#e8527a' }}
               >
                 {userName.charAt(0).toUpperCase()}
               </div>
