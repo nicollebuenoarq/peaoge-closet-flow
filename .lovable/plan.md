@@ -1,47 +1,54 @@
 
 
-## Plano: Adaptar o site para mobile
+## Plano: Lembretes + Planejamento de Drops
 
-### Problema principal
-As tabelas de Catálogo (10 colunas) e Vendas (13 colunas) são impossíveis de ler no celular. O photo strip do Dashboard com 5 fotos fica minúsculo. Os cards de métricas e filtros ficam apertados.
+### Resumo
+Nova página **PLANEJAMENTO** com sistema de lembretes por sócia (com pop-up no login) e planejamento de drops futuros. A foto enviada será usada no photo strip do Dashboard.
 
-### Mudanças por página
+### Mudanças
 
-**1. Dashboard (`src/pages/Dashboard.tsx`)**
-- Photo strip: `grid-cols-5` apenas em `md+`. No mobile, mostrar como scroll horizontal ou `grid-cols-3` com as 2 últimas escondidas
-- Metric cards: já tem `grid-cols-2 md:grid-cols-3 lg:grid-cols-5` — ok
-- Forecast card: `grid-cols-1` no mobile em vez de `grid-cols-3`
-- Tabelas de repasses/previsão: mostrar como **cards empilhados** no mobile (`md:hidden` / `hidden md:block`)
+**1. Foto (`src/assets/photos/flatlay_edited.jpg`)**
+- Copiar a foto enviada para assets
 
-**2. Catálogo (`src/pages/Catalogo.tsx`)**
-- Summary cards: `grid-cols-1 sm:grid-cols-3` 
-- Filter bar: já é flex-wrap — ok, mas reduzir `min-w` do campo busca
-- **Tabela → Cards no mobile**: No mobile, cada peça vira um card compacto com SKU, descrição, status badge, preço, fornecedora. A tabela fica `hidden md:block` e os cards `md:hidden`
-- Botão de ações (vender/editar/excluir) acessível no card
+**2. Tipos (`src/types/index.ts`)**
+- Adicionar `Lembrete`: id, titulo, descricao, dataLimite?, responsavel (`'Nicolle'|'Larissa'|'Joice'|'Todas'`), concluido, criadoEm
+- Adicionar `DropPlan`: drop, dataPrevista, precoMaximo, metaPecas, observacoes
 
-**3. Vendas (`src/pages/Vendas.tsx`)**
-- Mesma abordagem: tabela escondida no mobile, cards empilhados com info essencial (data, SKU, descrição, preço, status pago, ações)
+**3. Store (`src/lib/store.ts`)**
+- get/set para `brecho_lembretes` e `brecho_drop_plans`
 
-**4. Fornecedoras (`src/pages/Fornecedoras.tsx`)**
-- Grid de cards: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` (já é quase isso)
-- Summary cards: `grid-cols-1 sm:grid-cols-3`
+**4. Página Planejamento (`src/pages/Planejamento.tsx`)**
+- Duas abas: **Lembretes** e **Drops**
+- Lembretes: criar, editar, concluir, excluir. Filtro por responsável. Cards com título, descrição, data limite, badge de responsável
+- Drops: criar/editar planos de drop com número, data prevista, preço máximo, meta de peças, observações. Card mostra progresso (peças cadastradas vs meta via catálogo)
+- Mobile-first com cards responsivos
 
-**5. Login (`src/pages/Login.tsx`)**
-- Já funciona bem no mobile (lado esquerdo escondido com `hidden lg:flex`)
+**5. Pop-up de Lembretes (`src/components/LembretesPopup.tsx`)**
+- Dialog que aparece ao montar o Layout
+- Filtra lembretes pendentes onde `responsavel === userName || responsavel === 'Todas'`
+- Mostra lista com botão "✓ Entendido" que marca como visto na sessão (sessionStorage)
+- Se não há lembretes pendentes, não aparece
 
 **6. Layout (`src/components/Layout.tsx`)**
-- Já tem hamburger mobile — ok
-- Reduzir padding do main em mobile
+- Adicionar item "PLANEJAMENTO" no nav (ícone `ClipboardList`) entre Fornecedoras e Configurações
+- Importar e renderizar `<LembretesPopup />` dentro do layout
 
-### Componente reutilizável
-Criar um componente `MobileCard` genérico não vale a pena — cada página tem dados diferentes. Melhor fazer inline com `md:hidden` / `hidden md:block`.
+**7. Dashboard (`src/pages/Dashboard.tsx`)**
+- Adicionar 6º item no photoStrip com a foto nova, label "PLANEJAMENTO", path `/planejamento`
+- Ajustar grid para `md:grid-cols-6`
 
-### Arquivos a editar
-| Arquivo | Mudança |
+**8. Rota (`src/App.tsx`)**
+- Adicionar `<Route path="/planejamento" element={<Planejamento />} />`
+
+### Arquivos
+| Arquivo | Ação |
 |---|---|
-| `src/pages/Dashboard.tsx` | Photo strip responsivo, forecast cols, tabelas → cards mobile |
-| `src/pages/Catalogo.tsx` | Summary cards responsivo, tabela → cards mobile |
-| `src/pages/Vendas.tsx` | Tabela → cards mobile |
-| `src/pages/Fornecedoras.tsx` | Summary cards responsivo |
-| `src/components/Layout.tsx` | Padding mobile menor |
+| `src/assets/photos/flatlay_edited.jpg` | Copiar foto |
+| `src/types/index.ts` | Adicionar Lembrete + DropPlan |
+| `src/lib/store.ts` | get/set lembretes e dropPlans |
+| `src/pages/Planejamento.tsx` | Nova página |
+| `src/components/LembretesPopup.tsx` | Novo componente pop-up |
+| `src/components/Layout.tsx` | Nav item + popup |
+| `src/pages/Dashboard.tsx` | Photo strip 6 itens |
+| `src/App.tsx` | Nova rota |
 
