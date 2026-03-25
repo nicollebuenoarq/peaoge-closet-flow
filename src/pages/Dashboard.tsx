@@ -107,27 +107,6 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 animate-fade-up">
-      {/* HERO BANNER — compact */}
-      <section className="relative overflow-hidden py-8 md:py-12">
-        <span
-          className="absolute top-1/2 -translate-y-1/2 right-[-20px] pointer-events-none select-none font-display text-[140px] md:text-[200px] lg:text-[260px] text-primary/[0.06] leading-none tracking-[0.08em] whitespace-nowrap z-0"
-          aria-hidden="true"
-        >
-          PEAOGÊ
-        </span>
-
-        <div className="relative z-[1] flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
-          <div>
-            <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-primary leading-[0.85] tracking-[0.04em]">
-              GESTÃO DE<br />
-              <span className="font-serif-italic text-accent">Estilo</span>
-            </h1>
-            <p className="font-body text-sm text-muted-foreground mt-3 tracking-wide">
-              Olá, {userName} 👋 — seu painel de controle
-            </p>
-          </div>
-        </div>
-      </section>
 
       {/* PHOTO STRIP */}
       <section className="grid grid-cols-5 gap-1 h-[160px] rounded-2xl overflow-hidden">
