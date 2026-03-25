@@ -203,3 +203,31 @@ export default function Configuracoes() {
     </div>
   );
 }
+
+function SenhaField({ name, storageKey }: { name: string; storageKey: string }) {
+  const [value, setValue] = useState('');
+  const save = () => {
+    if (!value.trim() || value.length < 4) {
+      toast.error('Senha deve ter pelo menos 4 caracteres');
+      return;
+    }
+    localStorage.setItem(storageKey, value);
+    setValue('');
+    toast.success(`Senha de ${name} atualizada`);
+  };
+  return (
+    <div className="flex items-center gap-3">
+      <span className="font-display text-sm tracking-wide text-primary w-20">{name}</span>
+      <Input
+        type="password"
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        placeholder="Nova senha..."
+        className="flex-1 rounded-xl text-sm"
+      />
+      <Button size="sm" onClick={save} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">
+        <Save className="h-3.5 w-3.5" />
+      </Button>
+    </div>
+  );
+}
