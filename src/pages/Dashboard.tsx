@@ -22,7 +22,7 @@ const photoStrip = [
   { src: flatlay2, label: 'CATÁLOGO', path: '/catalogo' },
   { src: shortsJeans, label: 'VENDAS', path: '/vendas' },
   { src: looksCabide, label: 'FORNECEDORAS', path: '/fornecedoras' },
-  { src: camisetasRosa, label: 'CONFIG', path: '/configuracoes' },
+  { src: camisetasRosa, label: 'CONFIGURAÇÕES', path: '/configuracoes' },
 ];
 
 const topBarColors = ['#2d4a2e', '#e8527a', '#f0a500', '#3ab5a0', '#7b61ff'];
