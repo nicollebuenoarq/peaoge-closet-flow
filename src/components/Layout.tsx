@@ -62,16 +62,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 })}
               </nav>
 
-              {/* User chip */}
-              <div className="hidden md:flex items-center gap-2 shrink-0">
-                <div
-                  className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                  style={{ backgroundColor: '#e8527a' }}
-                >
-                  {userName.charAt(0).toUpperCase()}
-                </div>
-                <span className="text-xs font-bold text-primary">{userName}</span>
-              </div>
+              {/* Logout */}
+              <button
+                onClick={() => { localStorage.removeItem('brecho_user_name'); localStorage.removeItem('brecho_user_color'); navigate('/login'); }}
+                className="hidden md:flex items-center gap-2 shrink-0 px-3 py-2 rounded-full text-xs font-bold tracking-wide text-muted-foreground hover:bg-muted transition-colors"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span>Sair</span>
+              </button>
 
               {/* Mobile hamburger */}
               <button
