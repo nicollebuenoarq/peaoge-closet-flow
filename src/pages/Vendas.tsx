@@ -3,12 +3,10 @@ import { store } from '@/lib/store';
 import { Venda, Peca, MeioPagamento, StatusPeca } from '@/types';
 import { fmt } from '@/lib/fmt';
 import { exportCSV } from '@/lib/csv';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Search, Download, Edit, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Receipt } from 'lucide-react';
@@ -186,13 +184,15 @@ export default function Vendas() {
   const vendaBase = pecaSelecionada && vendaPagamento === 'Cartão Crédito' ? vendaPrecoFinal * (1 - config.taxaCartao) : vendaPrecoFinal;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-up">
+      <h1 className="font-display text-4xl md:text-5xl text-primary tracking-wide">VENDAS</h1>
+
       {/* Filter bar */}
       <div className="filter-bar flex flex-wrap gap-4 items-end">
         <div>
           <Label className="label-upper">Drop</Label>
           <Select value={dropFilter} onValueChange={setDropFilter}>
-            <SelectTrigger className="w-32 rounded-full bg-muted/50 border-0 mt-1"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-32 rounded-full bg-muted/50 border-0 mt-1 font-mono text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
               {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d} ({dropCounts[d]})</SelectItem>)}
@@ -202,7 +202,7 @@ export default function Vendas() {
         <div>
           <Label className="label-upper">Fornecedora</Label>
           <Select value={fornFilter} onValueChange={setFornFilter}>
-            <SelectTrigger className="w-36 rounded-full bg-muted/50 border-0 mt-1"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-36 rounded-full bg-muted/50 border-0 mt-1 font-mono text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas</SelectItem>
               {fornecedoras.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
@@ -212,7 +212,7 @@ export default function Vendas() {
         <div>
           <Label className="label-upper">Pagamento Forn.</Label>
           <Select value={pagoFilter} onValueChange={setPagoFilter}>
-            <SelectTrigger className="w-36 rounded-full bg-muted/50 border-0 mt-1"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-36 rounded-full bg-muted/50 border-0 mt-1 font-mono text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos ({vendas.length})</SelectItem>
               <SelectItem value="pago">Pago ({vendas.filter(v => v.pagoFornecedora).length})</SelectItem>
@@ -224,208 +224,206 @@ export default function Vendas() {
           <Label className="label-upper">Buscar</Label>
           <div className="relative mt-1">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-9 rounded-full bg-muted/50 border-0" placeholder="SKU, descrição ou compradora..." value={busca} onChange={e => setBusca(e.target.value)} />
+            <Input className="pl-9 rounded-full bg-muted/50 border-0 font-mono text-xs" placeholder="SKU, descrição ou compradora..." value={busca} onChange={e => setBusca(e.target.value)} />
           </div>
         </div>
-        <Button variant="outline" onClick={handleExportCSV} className="shrink-0 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+        <Button variant="outline" onClick={handleExportCSV} className="shrink-0 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-200 font-mono text-xs">
           <Download className="h-4 w-4 mr-1" /> CSV
         </Button>
-        <Button onClick={() => setShowNova(true)} className="shrink-0 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-md hover:shadow-lg transition-all duration-300">
-          <Plus className="h-4 w-4 mr-1" /> Nova Venda
+        <Button onClick={() => setShowNova(true)} className="shrink-0 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono text-xs">
+          <Plus className="h-4 w-4 mr-1" /> NOVA VENDA
         </Button>
       </div>
 
       {/* Table */}
-      <Card className="card-modern overflow-hidden border-0">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm table-premium">
-              <thead>
-                <tr>
-                  <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('dataVenda')}>
-                    <span className="flex items-center">Data <SortIcon column="dataVenda" sortBy={sortBy} sortDir={sortDir} /></span>
-                  </th>
-                  <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('skuPeca')}>
-                    <span className="flex items-center">SKU <SortIcon column="skuPeca" sortBy={sortBy} sortDir={sortDir} /></span>
-                  </th>
-                  <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('descricaoPeca')}>
-                    <span className="flex items-center">Descrição <SortIcon column="descricaoPeca" sortBy={sortBy} sortDir={sortDir} /></span>
-                  </th>
-                  <th className="text-left">Fornecedora</th>
-                  <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('drop')}>
-                    <span className="flex items-center">Drop <SortIcon column="drop" sortBy={sortBy} sortDir={sortDir} /></span>
-                  </th>
-                  <th className="text-left">Desc.</th>
-                  <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('precoFinal')}>
-                    <span className="flex items-center">Preço Final <SortIcon column="precoFinal" sortBy={sortBy} sortDir={sortDir} /></span>
-                  </th>
-                  <th className="text-left">Pgto</th>
-                  <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('comissaoFornecedora')}>
-                    <span className="flex items-center">Com. Forn. <SortIcon column="comissaoFornecedora" sortBy={sortBy} sortDir={sortDir} /></span>
-                  </th>
-                  <th className="text-left">P. Brechó</th>
-                  <th className="text-left">Pago?</th>
-                  <th className="text-left">Compradora</th>
-                  <th></th>
+      <div className="card-editorial overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm table-editorial">
+            <thead>
+              <tr>
+                <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('dataVenda')}>
+                  <span className="flex items-center">DATA <SortIcon column="dataVenda" sortBy={sortBy} sortDir={sortDir} /></span>
+                </th>
+                <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('skuPeca')}>
+                  <span className="flex items-center">SKU <SortIcon column="skuPeca" sortBy={sortBy} sortDir={sortDir} /></span>
+                </th>
+                <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('descricaoPeca')}>
+                  <span className="flex items-center">DESCRIÇÃO <SortIcon column="descricaoPeca" sortBy={sortBy} sortDir={sortDir} /></span>
+                </th>
+                <th className="text-left">FORNECEDORA</th>
+                <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('drop')}>
+                  <span className="flex items-center">DROP <SortIcon column="drop" sortBy={sortBy} sortDir={sortDir} /></span>
+                </th>
+                <th className="text-left">DESC.</th>
+                <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('precoFinal')}>
+                  <span className="flex items-center">PREÇO <SortIcon column="precoFinal" sortBy={sortBy} sortDir={sortDir} /></span>
+                </th>
+                <th className="text-left">PGTO</th>
+                <th className="text-left cursor-pointer select-none" onClick={() => toggleSort('comissaoFornecedora')}>
+                  <span className="flex items-center">COM. <SortIcon column="comissaoFornecedora" sortBy={sortBy} sortDir={sortDir} /></span>
+                </th>
+                <th className="text-left">BRECHÓ</th>
+                <th className="text-left">PAGO?</th>
+                <th className="text-left">COMPRADORA</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(v => (
+                <tr key={v.id} className="border-b last:border-0">
+                  <td className="font-mono text-xs text-muted-foreground">{v.dataVenda}</td>
+                  <td className="font-mono text-xs text-muted-foreground">#{v.skuPeca}</td>
+                  <td className="font-medium font-mono text-xs">{v.descricaoPeca}</td>
+                  <td className="text-muted-foreground font-mono text-xs">{getFornNome(v.fornecedoraId)}</td>
+                  <td><span className="pill-badge bg-muted text-foreground">{v.drop}</span></td>
+                  <td className="text-muted-foreground font-mono text-xs">{v.desconto > 0 ? fmt(v.desconto) : '—'}</td>
+                  <td className="font-mono-price text-primary text-xs">{fmt(v.precoFinal)}</td>
+                  <td><span className="pill-badge bg-muted text-foreground">{v.pagamento}</span></td>
+                  <td className="font-mono-price text-muted-foreground text-xs">{fmt(v.comissaoFornecedora)}</td>
+                  <td className="font-mono-price text-muted-foreground text-xs">{fmt(v.parcelaBrecho)}</td>
+                  <td>
+                    <Checkbox checked={v.pagoFornecedora} onCheckedChange={() => togglePago(v.id)} />
+                  </td>
+                  <td className="text-muted-foreground font-mono text-xs">{v.compradora || '—'}</td>
+                  <td>
+                    <div className="flex gap-1">
+                      <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-primary/10" onClick={() => openEdit(v)}>
+                        <Edit className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-destructive/10 text-destructive" onClick={() => setShowDeleteConfirm(v)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filtered.map(v => (
-                  <tr key={v.id} className="border-b last:border-0">
-                    <td className="text-xs text-muted-foreground">{v.dataVenda}</td>
-                    <td className="font-mono text-xs text-muted-foreground">#{v.skuPeca}</td>
-                    <td className="font-medium">{v.descricaoPeca}</td>
-                    <td className="text-muted-foreground">{getFornNome(v.fornecedoraId)}</td>
-                    <td><span className="pill-badge bg-muted text-foreground">{v.drop}</span></td>
-                    <td className="text-muted-foreground">{v.desconto > 0 ? fmt(v.desconto) : '—'}</td>
-                    <td className="font-mono-price text-primary">{fmt(v.precoFinal)}</td>
-                    <td><span className="pill-badge bg-muted text-foreground">{v.pagamento}</span></td>
-                    <td className="font-mono-price text-muted-foreground">{fmt(v.comissaoFornecedora)}</td>
-                    <td className="font-mono-price text-muted-foreground">{fmt(v.parcelaBrecho)}</td>
-                    <td>
-                      <Checkbox checked={v.pagoFornecedora} onCheckedChange={() => togglePago(v.id)} />
-                    </td>
-                    <td className="text-muted-foreground">{v.compradora || '—'}</td>
-                    <td>
-                      <div className="flex gap-1">
-                        <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-primary/10" onClick={() => openEdit(v)}>
-                          <Edit className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full hover:bg-destructive/10 text-destructive" onClick={() => setShowDeleteConfirm(v)}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={13} className="p-0">
-                      <div className="empty-state">
-                        <Receipt className="h-16 w-16 mb-4 opacity-20" />
-                        <p className="text-xl font-heading">Nenhuma venda encontrada</p>
-                        <p className="text-sm mt-1">Tente ajustar os filtros ou registre uma nova</p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-              {filtered.length > 0 && (
-                <tfoot>
-                  <tr className="border-t bg-primary/5 font-semibold">
-                    <td className="py-4 px-4" colSpan={6}>
-                      <span className="text-muted-foreground">{filtered.length} vendas</span>
-                    </td>
-                    <td className="py-4 px-4 font-mono-price text-primary">{fmt(totalFaturamento)}</td>
-                    <td className="py-4 px-4"></td>
-                    <td className="py-4 px-4 font-mono-price">{fmt(totalComissao)}</td>
-                    <td className="py-4 px-4 font-mono-price">{fmt(totalBrecho)}</td>
-                    <td className="py-4 px-4" colSpan={3}></td>
-                  </tr>
-                </tfoot>
+              ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={13} className="p-0">
+                    <div className="empty-state">
+                      <Receipt className="h-16 w-16 mb-4 opacity-20" />
+                      <p className="text-xl font-display">NENHUMA VENDA ENCONTRADA</p>
+                      <p className="text-xs mt-1 font-mono">Tente ajustar os filtros ou registre uma nova</p>
+                    </div>
+                  </td>
+                </tr>
               )}
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+            </tbody>
+            {filtered.length > 0 && (
+              <tfoot>
+                <tr className="border-t bg-primary/5 font-semibold">
+                  <td className="py-4 px-4" colSpan={6}>
+                    <span className="text-muted-foreground font-mono text-xs">{filtered.length} vendas</span>
+                  </td>
+                  <td className="py-4 px-4 font-mono-price text-primary text-xs">{fmt(totalFaturamento)}</td>
+                  <td className="py-4 px-4"></td>
+                  <td className="py-4 px-4 font-mono-price text-xs">{fmt(totalComissao)}</td>
+                  <td className="py-4 px-4 font-mono-price text-xs">{fmt(totalBrecho)}</td>
+                  <td className="py-4 px-4" colSpan={3}></td>
+                </tr>
+              </tfoot>
+            )}
+          </table>
+        </div>
+      </div>
 
       {/* Nova Venda Dialog */}
       <Dialog open={showNova} onOpenChange={setShowNova}>
-        <DialogContent className="max-w-lg overflow-hidden rounded-3xl">
+        <DialogContent className="max-w-lg overflow-hidden rounded-2xl">
           <DialogHeader className="bg-primary -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
-            <DialogTitle className="font-heading text-lg text-primary-foreground">Nova Venda</DialogTitle>
+            <DialogTitle className="font-display text-xl text-primary-foreground tracking-wide">NOVA VENDA</DialogTitle>
           </DialogHeader>
           <div className="space-y-5">
             {!pecaSelecionada ? (
               <div>
                 <Label className="label-upper">Buscar Peça (SKU ou nome)</Label>
-                <Input value={buscaPeca} onChange={e => setBuscaPeca(e.target.value)} placeholder="Digite para buscar..." className="mt-1.5 rounded-xl" />
+                <Input value={buscaPeca} onChange={e => setBuscaPeca(e.target.value)} placeholder="Digite para buscar..." className="mt-1.5 rounded-xl font-mono text-xs" />
                 <div className="mt-2 max-h-40 overflow-y-auto space-y-1">
                   {pecasDisponiveis.slice(0, 10).map(p => (
                     <button key={p.sku} onClick={() => setPecaSelecionada(p)}
-                      className="w-full text-left p-3 rounded-2xl hover:bg-muted/50 text-sm transition-colors">
-                      <span className="font-mono text-xs text-muted-foreground">#{p.sku}</span> — {p.descricao} — <span className="font-mono-price">{fmt(p.preco)}</span>
+                      className="w-full text-left p-3 rounded-2xl hover:bg-muted/50 text-xs font-mono transition-colors">
+                      <span className="text-muted-foreground">#{p.sku}</span> — {p.descricao} — <span className="font-mono-price">{fmt(p.preco)}</span>
                     </button>
                   ))}
-                  {pecasDisponiveis.length === 0 && <p className="text-sm text-muted-foreground p-2">Nenhuma peça disponível</p>}
+                  {pecasDisponiveis.length === 0 && <p className="text-xs text-muted-foreground p-2 font-mono">Nenhuma peça disponível</p>}
                 </div>
               </div>
             ) : (
               <>
                 <div className="bg-muted/40 p-4 rounded-2xl flex justify-between items-center">
                   <div>
-                    <p className="font-medium">#{pecaSelecionada.sku} — {pecaSelecionada.descricao}</p>
-                    <p className="text-sm text-muted-foreground">{getFornNome(pecaSelecionada.fornecedoraId)} • {fmt(pecaSelecionada.preco)}</p>
+                    <p className="font-medium font-mono text-xs">#{pecaSelecionada.sku} — {pecaSelecionada.descricao}</p>
+                    <p className="text-xs text-muted-foreground font-mono">{getFornNome(pecaSelecionada.fornecedoraId)} • {fmt(pecaSelecionada.preco)}</p>
                   </div>
-                  <Button size="sm" variant="ghost" onClick={() => setPecaSelecionada(null)} className="rounded-full">Trocar</Button>
+                  <Button size="sm" variant="ghost" onClick={() => setPecaSelecionada(null)} className="rounded-full font-mono text-xs">Trocar</Button>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><Label className="label-upper">Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} className="mt-1.5 rounded-xl" /></div>
+                  <div><Label className="label-upper">Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
                   <div><Label className="label-upper">Pagamento</Label>
                     <Select value={vendaPagamento} onValueChange={setVendaPagamento}>
-                      <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="mt-1.5 rounded-xl font-mono text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {config.meiosPagamento.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
-                <div className="bg-accent/10 p-5 rounded-2xl text-sm space-y-2 border border-accent/20">
+                <div className="bg-accent/10 p-5 rounded-2xl text-xs space-y-2 border border-accent/20 font-mono">
                   <p>Preço Final: <strong className="font-mono-price text-primary">{fmt(vendaPrecoFinal)}</strong></p>
-                  {vendaPagamento === 'Cartão Crédito' && <p className="text-xs text-muted-foreground">Taxa 5% → Base: {fmt(vendaBase)}</p>}
+                  {vendaPagamento === 'Cartão Crédito' && <p className="text-muted-foreground">Taxa 5% → Base: {fmt(vendaBase)}</p>}
                   <p>Comissão Forn.: <strong className="font-mono-price">{fmt(vendaBase * config.percentualFornecedora)}</strong></p>
                   <p>Parcela Brechó: <strong className="font-mono-price">{fmt(vendaBase * config.percentualBrecho)}</strong></p>
                   {vendaPrecoFinal < 0 && <p className="text-destructive font-semibold">⚠️ Desconto maior que o preço!</p>}
                 </div>
-                <div><Label className="label-upper">Compradora</Label><Input value={vendaCompradora} onChange={e => setVendaCompradora(e.target.value)} className="mt-1.5 rounded-xl" /></div>
-                <div><Label className="label-upper">Endereço de Entrega</Label><Input value={vendaEndereco} onChange={e => setVendaEndereco(e.target.value)} className="mt-1.5 rounded-xl" /></div>
-                <div><Label className="label-upper">Data de Entrega</Label><Input type="date" value={vendaDataEntrega} onChange={e => setVendaDataEntrega(e.target.value)} className="mt-1.5 rounded-xl" /></div>
+                <div><Label className="label-upper">Compradora</Label><Input value={vendaCompradora} onChange={e => setVendaCompradora(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+                <div><Label className="label-upper">Endereço de Entrega</Label><Input value={vendaEndereco} onChange={e => setVendaEndereco(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+                <div><Label className="label-upper">Data de Entrega</Label><Input type="date" value={vendaDataEntrega} onChange={e => setVendaDataEntrega(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
               </>
             )}
           </div>
           <DialogFooter className="mt-5">
-            <Button variant="outline" onClick={() => { setShowNova(false); setPecaSelecionada(null); }} className="rounded-full">Cancelar</Button>
-            <Button onClick={handleVenda} disabled={!pecaSelecionada || vendaPrecoFinal < 0} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-md">Confirmar Venda</Button>
+            <Button variant="outline" onClick={() => { setShowNova(false); setPecaSelecionada(null); }} className="rounded-full font-mono text-xs">Cancelar</Button>
+            <Button onClick={handleVenda} disabled={!pecaSelecionada || vendaPrecoFinal < 0} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono text-xs">Confirmar Venda</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Edit Venda Dialog */}
       <Dialog open={!!editingVenda} onOpenChange={() => setEditingVenda(null)}>
-        <DialogContent className="max-w-md overflow-hidden rounded-3xl">
+        <DialogContent className="max-w-md overflow-hidden rounded-2xl">
           <DialogHeader className="bg-primary -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
-            <DialogTitle className="font-heading text-lg text-primary-foreground">Editar Venda</DialogTitle>
+            <DialogTitle className="font-display text-xl text-primary-foreground tracking-wide">EDITAR VENDA</DialogTitle>
           </DialogHeader>
           {editingVenda && (
             <div className="space-y-5">
               <div className="bg-muted/40 p-4 rounded-2xl">
-                <p className="font-medium">#{editingVenda.skuPeca} — {editingVenda.descricaoPeca}</p>
-                <p className="text-sm text-muted-foreground">{fmt(editingVenda.precoFinal)} • {editingVenda.pagamento}</p>
+                <p className="font-medium font-mono text-xs">#{editingVenda.skuPeca} — {editingVenda.descricaoPeca}</p>
+                <p className="text-xs text-muted-foreground font-mono">{fmt(editingVenda.precoFinal)} • {editingVenda.pagamento}</p>
               </div>
-              <div><Label className="label-upper">Compradora</Label><Input value={editCompradora} onChange={e => setEditCompradora(e.target.value)} className="mt-1.5 rounded-xl" /></div>
-              <div><Label className="label-upper">Endereço de Entrega</Label><Input value={editEndereco} onChange={e => setEditEndereco(e.target.value)} className="mt-1.5 rounded-xl" /></div>
-              <div><Label className="label-upper">Data de Entrega</Label><Input type="date" value={editDataEntrega} onChange={e => setEditDataEntrega(e.target.value)} className="mt-1.5 rounded-xl" /></div>
+              <div><Label className="label-upper">Compradora</Label><Input value={editCompradora} onChange={e => setEditCompradora(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+              <div><Label className="label-upper">Endereço de Entrega</Label><Input value={editEndereco} onChange={e => setEditEndereco(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
+              <div><Label className="label-upper">Data de Entrega</Label><Input type="date" value={editDataEntrega} onChange={e => setEditDataEntrega(e.target.value)} className="mt-1.5 rounded-xl font-mono text-xs" /></div>
             </div>
           )}
           <DialogFooter className="mt-5">
-            <Button variant="outline" onClick={() => setEditingVenda(null)} className="rounded-full">Cancelar</Button>
-            <Button onClick={handleEditSave} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-md">Salvar</Button>
+            <Button variant="outline" onClick={() => setEditingVenda(null)} className="rounded-full font-mono text-xs">Cancelar</Button>
+            <Button onClick={handleEditSave} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-mono text-xs">Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Delete Confirm */}
       <Dialog open={!!showDeleteConfirm} onOpenChange={() => setShowDeleteConfirm(null)}>
-        <DialogContent className="max-w-sm rounded-3xl">
+        <DialogContent className="max-w-sm rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="font-heading">Excluir Venda</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="font-display text-xl tracking-wide">EXCLUIR VENDA</DialogTitle>
+            <DialogDescription className="font-mono text-xs">
               Excluir a venda de #{showDeleteConfirm?.skuPeca} — {showDeleteConfirm?.descricaoPeca}? A peça voltará ao status "Disponível".
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteConfirm(null)} className="rounded-full">Cancelar</Button>
-            <Button variant="destructive" onClick={() => showDeleteConfirm && handleDelete(showDeleteConfirm)} className="rounded-full">Excluir</Button>
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(null)} className="rounded-full font-mono text-xs">Cancelar</Button>
+            <Button variant="destructive" onClick={() => showDeleteConfirm && handleDelete(showDeleteConfirm)} className="rounded-full font-mono text-xs">Excluir</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
