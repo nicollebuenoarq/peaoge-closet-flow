@@ -24,8 +24,8 @@ const photoStrip = [
   { src: camisetasRosa, label: 'CAMISETAS' },
 ];
 
-const borderColors = ['border-t-[#2d4a2e]', 'border-t-[#e8527a]', 'border-t-[#4a7a4b]', 'border-t-[#2d4a2e]', 'border-t-[#e8527a]'];
-const iconBgs = ['bg-primary/10 text-primary', 'bg-accent/10 text-accent', 'bg-primary-medium/10 text-primary-medium', 'bg-primary/10 text-primary', 'bg-accent/10 text-accent'];
+const topBarColors = ['#2d4a2e', '#e8527a', '#f0a500', '#3ab5a0', '#7b61ff'];
+const iconBgs = ['bg-primary/10 text-primary', 'bg-accent/10 text-accent', 'bg-[#f0a500]/10 text-[#f0a500]', 'bg-[#3ab5a0]/10 text-[#3ab5a0]', 'bg-[#7b61ff]/10 text-[#7b61ff]'];
 
 export default function Dashboard() {
   const [, setTick] = useState(0);
