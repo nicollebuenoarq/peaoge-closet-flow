@@ -1,4 +1,4 @@
-import { Fornecedora, Peca, Venda, AppConfig } from '@/types';
+import { Fornecedora, Peca, Venda, AppConfig, Lembrete, DropPlan } from '@/types';
 
 const KEYS = {
   fornecedoras: 'brecho_fornecedoras',
@@ -6,6 +6,8 @@ const KEYS = {
   vendas: 'brecho_vendas',
   config: 'brecho_config',
   nextSku: 'brecho_next_sku',
+  lembretes: 'brecho_lembretes',
+  dropPlans: 'brecho_drop_plans',
 };
 
 function get<T>(key: string, fallback: T): T {
@@ -41,6 +43,12 @@ export const store = {
 
   getNextSku: (): number => get(KEYS.nextSku, 1),
   setNextSku: (n: number) => set(KEYS.nextSku, n),
+
+  getLembretes: (): Lembrete[] => get(KEYS.lembretes, []),
+  setLembretes: (d: Lembrete[]) => set(KEYS.lembretes, d),
+
+  getDropPlans: (): DropPlan[] => get(KEYS.dropPlans, []),
+  setDropPlans: (d: DropPlan[]) => set(KEYS.dropPlans, d),
 
   isInitialized: (): boolean => localStorage.getItem(KEYS.fornecedoras) !== null,
 };

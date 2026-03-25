@@ -44,6 +44,26 @@ export interface Venda {
   dataEntrega: string | null;
 }
 
+export type Responsavel = 'Nicolle' | 'Larissa' | 'Joice' | 'Todas';
+
+export interface Lembrete {
+  id: string;
+  titulo: string;
+  descricao: string;
+  dataLimite: string | null;
+  responsavel: Responsavel;
+  concluido: boolean;
+  criadoEm: string;
+}
+
+export interface DropPlan {
+  drop: number;
+  dataPrevista: string;
+  precoMaximo: number;
+  metaPecas: number;
+  observacoes: string;
+}
+
 export interface AppConfig {
   percentualFornecedora: number;
   percentualBrecho: number;

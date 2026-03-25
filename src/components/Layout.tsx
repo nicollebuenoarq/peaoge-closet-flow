@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Receipt, Users, Settings, Menu, X, LogOut } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Receipt, Users, Settings, Menu, X, LogOut, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import logo from '@/assets/logo_peaoge_sem_fundo.png';
+import LembretesPopup from '@/components/LembretesPopup';
 
 const navItems = [
   { label: 'DASHBOARD', path: '/', icon: LayoutDashboard },
   { label: 'CATÁLOGO', path: '/catalogo', icon: ShoppingBag },
   { label: 'VENDAS', path: '/vendas', icon: Receipt },
   { label: 'FORNECEDORAS', path: '/fornecedoras', icon: Users },
+  { label: 'PLANEJAMENTO', path: '/planejamento', icon: ClipboardList },
   { label: 'CONFIGURAÇÕES', path: '/configuracoes', icon: Settings },
 ];
 
@@ -118,6 +120,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </header>
       )}
+
+      {/* Lembretes popup */}
+      <LembretesPopup />
 
       {/* Main content */}
       <main className="flex-1 max-w-[1400px] mx-auto w-full px-2 sm:px-4 md:px-8 py-4 md:py-6">
