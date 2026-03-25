@@ -62,7 +62,7 @@ export default function Planejamento() {
     if (r === 'Todas') {
       setLResponsavel(['Todas']);
     } else {
-      let next = lResponsavel.filter(x => x !== 'Todas');
+      let next: Responsavel[] = lResponsavel.filter(x => x !== 'Todas');
       if (next.includes(r)) {
         next = next.filter(x => x !== r);
       } else {
