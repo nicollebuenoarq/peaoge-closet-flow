@@ -302,7 +302,7 @@ export default function Catalogo() {
             </Select>
           </div>
         )}
-        <div className="flex-1 min-w-[180px]">
+        <div className="flex-1 min-w-[140px] sm:min-w-[180px]">
           <Label className="label-upper">Buscar</Label>
           <div className="relative mt-1">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
