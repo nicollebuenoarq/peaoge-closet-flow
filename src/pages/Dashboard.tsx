@@ -145,19 +145,31 @@ export default function Dashboard() {
 
       {/* PHOTO STRIP — extra spacing below */}
       <section className="grid grid-cols-5 gap-1 h-[160px] rounded-2xl overflow-hidden">
-        {photoStrip.map((photo) => (
-          <div key={photo.label} className="relative overflow-hidden group cursor-pointer">
-            <img
-              src={photo.src}
-              alt={photo.label}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-            <span className="absolute bottom-3 left-3 font-display text-white text-sm tracking-[0.1em]" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
-              {photo.label}
-            </span>
-          </div>
-        ))}
+        {photoStrip.map((photo, i) => {
+          const isActive = location.pathname === photo.path;
+          return (
+            <div
+              key={photo.label}
+              className="relative overflow-hidden group cursor-pointer"
+              onClick={() => navigate(photo.path)}
+              role="link"
+            >
+              <img
+                src={photo.src}
+                alt={photo.label}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className={`absolute inset-0 transition-colors duration-300 ${isActive ? 'bg-gradient-to-t from-black/30 to-transparent' : 'bg-gradient-to-t from-black/60 to-black/10'}`} />
+              <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ backgroundColor: topBarColors[i] }} />
+              <span
+                className={`absolute bottom-4 left-3 font-display text-sm tracking-[0.1em] transition-colors duration-300 ${isActive ? 'text-accent' : 'text-white'}`}
+                style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}
+              >
+                {photo.label}
+              </span>
+            </div>
+          );
+        })}
       </section>
 
       {/* METRIC CARDS */}
