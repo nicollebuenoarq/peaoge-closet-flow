@@ -1,79 +1,118 @@
-import { useState } from 'react';
-import { store } from '@/lib/store';
-import { resetAndReimport } from '@/lib/initialData';
+import { useState, useEffect, useCallback } from 'react';
+import { supabaseStore } from '@/lib/supabaseStore';
+import { supabase } from '@/integrations/supabase/client';
+import type { AppConfig } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { X, Plus, Save, RotateCcw, Settings2, CreditCard, Tags, Database, Lock } from 'lucide-react';
+import { X, Plus, Save, Settings2, CreditCard, Tags, Lock } from 'lucide-react';
 import { toast } from 'sonner';
+
+const DEFAULT_CONFIG: AppConfig = {
+  percentualFornecedora: 0.60,
+  percentualBrecho: 0.40,
+  taxaCartao: 0.05,
+  dropAtual: 2,
+  statusValidos: ['Disponível', 'Vendido', 'Devolvido', 'Reservado'],
+  meiosPagamento: ['Dinheiro', 'Pix', 'Cartão Crédito', 'Cartão Débito', 'Transferência'],
+};
 
 const sociasList = ['Nicolle', 'Larissa', 'Joice'] as const;
 
 export default function Configuracoes() {
-  const [, setTick] = useState(0);
-  const reload = () => setTick(t => t + 1);
+  const [config, setConfig] = useState<AppConfig>(DEFAULT_CONFIG);
+  const [loading, setLoading] = useState(true);
 
-  const config = store.getConfig();
-
-  const [percForn, setPercForn] = useState(String(config.percentualFornecedora * 100));
-  const [percBrecho, setPercBrecho] = useState(String(config.percentualBrecho * 100));
-  const [taxaCartao, setTaxaCartao] = useState(String(config.taxaCartao * 100));
-  const [dropAtual, setDropAtual] = useState(String(config.dropAtual));
-
+  const [percForn, setPercForn] = useState(String(DEFAULT_CONFIG.percentualFornecedora * 100));
+  const [percBrecho, setPercBrecho] = useState(String(DEFAULT_CONFIG.percentualBrecho * 100));
+  const [taxaCartao, setTaxaCartao] = useState(String(DEFAULT_CONFIG.taxaCartao * 100));
+  const [dropAtual, setDropAtual] = useState(String(DEFAULT_CONFIG.dropAtual));
   const [novoStatus, setNovoStatus] = useState('');
   const [novoPgto, setNovoPgto] = useState('');
 
-  const savePercentuais = () => {
-    const c = store.getConfig();
-    c.percentualFornecedora = parseFloat(percForn) / 100;
-    c.percentualBrecho = parseFloat(percBrecho) / 100;
-    c.taxaCartao = parseFloat(taxaCartao) / 100;
-    c.dropAtual = parseInt(dropAtual) || c.dropAtual;
-    store.setConfig(c);
-    toast.success('Configurações salvas');
-    reload();
+  const loadConfig = useCallback(async () => {
+    try {
+      const c = await supabaseStore.getConfig();
+      setConfig(c);
+      setPercForn(String(c.percentualFornecedora * 100));
+      setPercBrecho(String(c.percentualBrecho * 100));
+      setTaxaCartao(String(c.taxaCartao * 100));
+      setDropAtual(String(c.dropAtual));
+    } catch (err) {
+      console.error('[Configuracoes] Erro ao carregar config:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { loadConfig(); }, [loadConfig]);
+
+  const savePercentuais = async () => {
+    try {
+      const updated: AppConfig = {
+        ...config,
+        percentualFornecedora: parseFloat(percForn) / 100,
+        percentualBrecho: parseFloat(percBrecho) / 100,
+        taxaCartao: parseFloat(taxaCartao) / 100,
+        dropAtual: parseInt(dropAtual) || config.dropAtual,
+      };
+      await supabaseStore.setConfig(updated);
+      setConfig(updated);
+      toast.success('Configurações salvas');
+    } catch (err) {
+      console.error(err);
+      toast.error('Erro ao salvar configurações');
+    }
   };
 
-  const addStatus = () => {
+  const addStatus = async () => {
     if (!novoStatus) return;
-    const c = store.getConfig();
-    if (!c.statusValidos.includes(novoStatus)) {
-      c.statusValidos.push(novoStatus);
-      store.setConfig(c);
+    if (config.statusValidos.includes(novoStatus)) { setNovoStatus(''); return; }
+    try {
+      const updated = { ...config, statusValidos: [...config.statusValidos, novoStatus] };
+      await supabaseStore.setConfig(updated);
+      setConfig(updated);
       toast.success(`Status "${novoStatus}" adicionado`);
-    }
-    setNovoStatus('');
-    reload();
+      setNovoStatus('');
+    } catch (err) { console.error(err); toast.error('Erro ao adicionar status'); }
   };
 
-  const removeStatus = (s: string) => {
-    const c = store.getConfig();
-    c.statusValidos = c.statusValidos.filter(x => x !== s);
-    store.setConfig(c);
-    toast.success(`Status "${s}" removido`);
-    reload();
+  const removeStatus = async (s: string) => {
+    try {
+      const updated = { ...config, statusValidos: config.statusValidos.filter(x => x !== s) };
+      await supabaseStore.setConfig(updated);
+      setConfig(updated);
+      toast.success(`Status "${s}" removido`);
+    } catch (err) { console.error(err); toast.error('Erro ao remover status'); }
   };
 
-  const addPgto = () => {
+  const addPgto = async () => {
     if (!novoPgto) return;
-    const c = store.getConfig();
-    if (!c.meiosPagamento.includes(novoPgto)) {
-      c.meiosPagamento.push(novoPgto);
-      store.setConfig(c);
+    if (config.meiosPagamento.includes(novoPgto)) { setNovoPgto(''); return; }
+    try {
+      const updated = { ...config, meiosPagamento: [...config.meiosPagamento, novoPgto] };
+      await supabaseStore.setConfig(updated);
+      setConfig(updated);
       toast.success(`Meio de pagamento "${novoPgto}" adicionado`);
-    }
-    setNovoPgto('');
-    reload();
+      setNovoPgto('');
+    } catch (err) { console.error(err); toast.error('Erro ao adicionar meio'); }
   };
 
-  const removePgto = (s: string) => {
-    const c = store.getConfig();
-    c.meiosPagamento = c.meiosPagamento.filter(x => x !== s);
-    store.setConfig(c);
-    toast.success(`Meio "${s}" removido`);
-    reload();
+  const removePgto = async (s: string) => {
+    try {
+      const updated = { ...config, meiosPagamento: config.meiosPagamento.filter(x => x !== s) };
+      await supabaseStore.setConfig(updated);
+      setConfig(updated);
+      toast.success(`Meio "${s}" removido`);
+    } catch (err) { console.error(err); toast.error('Erro ao remover meio'); }
   };
+
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[40vh]">
+      <p className="text-muted-foreground text-sm animate-pulse">Carregando configurações...</p>
+    </div>
+  );
 
   return (
     <div className="space-y-8 max-w-2xl animate-fade-up">
@@ -169,52 +208,45 @@ export default function Configuracoes() {
           </h3>
         </div>
         <div className="p-6 space-y-4">
-          <p className="text-xs text-muted-foreground">Altere as senhas de login de cada sócia.</p>
-          {sociasList.map(name => {
-            const key = `brecho_senha_${name}`;
-            return (
-              <SenhaField key={name} name={name} storageKey={key} />
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="card-editorial overflow-hidden border-destructive/30 border-2">
-        <div className="bg-destructive/5 px-6 py-4 border-b border-border">
-          <h3 className="font-display text-lg tracking-wide flex items-center gap-3">
-            <div className="icon-circle h-10 w-10 bg-destructive/10 text-destructive rounded-full">
-              <Database className="h-5 w-5" />
-            </div>
-            DADOS
-          </h3>
-        </div>
-        <div className="p-6">
-          <p className="text-sm text-muted-foreground mb-4">Limpa todos os dados e reimporta os dados iniciais da planilha original.</p>
-          <Button variant="destructive" className="rounded-full text-xs" onClick={() => {
-            if (confirm('Tem certeza? Todos os dados atuais serão perdidos!')) {
-              resetAndReimport();
-              window.location.reload();
-            }
-          }}>
-            <RotateCcw className="h-4 w-4 mr-1" /> RESETAR E REIMPORTAR
-          </Button>
+          <p className="text-xs text-muted-foreground">Altere a senha da sua própria conta.</p>
+          {sociasList.map(name => (
+            <SenhaField key={name} name={name} />
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-function SenhaField({ name, storageKey }: { name: string; storageKey: string }) {
+function SenhaField({ name }: { name: string }) {
   const [value, setValue] = useState('');
-  const save = () => {
-    if (!value.trim() || value.length < 4) {
-      toast.error('Senha deve ter pelo menos 4 caracteres');
+  const [loading, setLoading] = useState(false);
+
+  const save = async () => {
+    if (!value.trim() || value.length < 6) {
+      toast.error('Senha deve ter pelo menos 6 caracteres');
       return;
     }
-    localStorage.setItem(storageKey, value);
-    setValue('');
-    toast.success(`Senha de ${name} atualizada`);
+    setLoading(true);
+    try {
+      const { data } = await supabase.auth.getUser();
+      const email = data.user?.email ?? '';
+      if (!email.toLowerCase().startsWith(name.toLowerCase())) {
+        toast.error('Você só pode alterar sua própria senha');
+        return;
+      }
+      const { error } = await supabase.auth.updateUser({ password: value });
+      if (error) throw error;
+      setValue('');
+      toast.success(`Senha de ${name} atualizada`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Erro ao atualizar senha: ' + (err?.message ?? 'Desconhecido'));
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
     <div className="flex items-center gap-3">
       <span className="font-display text-sm tracking-wide text-primary w-20">{name}</span>
@@ -225,9 +257,9 @@ function SenhaField({ name, storageKey }: { name: string; storageKey: string }) 
         placeholder="Nova senha..."
         className="flex-1 rounded-xl text-sm"
       />
-      <Button size="sm" onClick={save} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">
+      <Button size="sm" onClick={save} disabled={loading} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">
         <Save className="h-3.5 w-3.5" />
       </Button>
     </div>
   );
-}
+    }
