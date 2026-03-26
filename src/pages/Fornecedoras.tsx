@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
-import { store } from '@/lib/store';
-import { Fornecedora } from '@/types';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { supabaseStore } from '@/lib/supabaseStore';
+import type { Fornecedora } from '@/types';
 import { fmt } from '@/lib/fmt';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,12 +27,10 @@ const topBarColors = ['#2d4a2e', '#e8527a', '#3ab5a0'];
 const iconBgs = ['bg-primary/10 text-primary', 'bg-accent/10 text-accent', 'bg-[#3ab5a0]/10 text-[#3ab5a0]'];
 
 export default function Fornecedoras() {
-  const [, setTick] = useState(0);
-  const reload = () => setTick(t => t + 1);
-
-  const fornecedoras = store.getFornecedoras();
-  const pecas = store.getPecas();
-  const vendas = store.getVendas();
+  const [fornecedoras, setFornecedoras] = useState<Fornecedora[]>([]);
+  const [pecas, setPecas] = useState<{ sku: number; fornecedoraId: string; preco: number }[]>([]);
+  const [vendas, setVendas] = useState<{ id: string; fornecedoraId: string; precoFinal: number; comissaoFornecedora: number; pagoFornecedora: boolean }[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Fornecedora | null>(null);
@@ -49,6 +47,25 @@ export default function Fornecedoras() {
   const [ativa, setAtiva] = useState(true);
   const [ehSocia, setEhSocia] = useState(false);
 
+  const loadData = useCallback(async () => {
+    try {
+      const [forn, pcs, vds] = await Promise.all([
+        supabaseStore.getFornecedoras(),
+        supabaseStore.getPecas(),
+        supabaseStore.getVendas(),
+      ]);
+      setFornecedoras(forn);
+      setPecas(pcs);
+      setVendas(vds);
+    } catch (err) {
+      console.error('[Fornecedoras] Erro ao carregar:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
   const filtered = useMemo(() => {
     return fornecedoras.filter(f => {
       if (tipoFilter === 'socia' && !f.ehSocia) return false;
@@ -60,7 +77,6 @@ export default function Fornecedoras() {
     });
   }, [fornecedoras, tipoFilter, statusFilter, busca]);
 
-  // Summary totals
   const totalPendenteGeral = vendas.filter(v => !v.pagoFornecedora).reduce((s, v) => s + v.comissaoFornecedora, 0);
   const totalPagoGeral = vendas.filter(v => v.pagoFornecedora).reduce((s, v) => s + v.comissaoFornecedora, 0);
 
@@ -76,18 +92,22 @@ export default function Fornecedoras() {
     setShowForm(true);
   };
 
-  const handleSave = () => {
-    if (editing) {
-      const all = fornecedoras.map(f => f.id === editing.id ? { ...f, nome, contato, chavePix, observacoes, ativa, ehSocia } : f);
-      store.setFornecedoras(all);
-      toast.success(`Fornecedora "${nome}" atualizada`);
-    } else {
-      const nova: Fornecedora = { id: crypto.randomUUID(), nome, contato, chavePix, observacoes, ativa, ehSocia };
-      store.setFornecedoras([...fornecedoras, nova]);
-      toast.success(`Fornecedora "${nome}" cadastrada`);
+  const handleSave = async () => {
+    try {
+      if (editing) {
+        await supabaseStore.upsertFornecedora({ ...editing, nome, contato, chavePix, observacoes, ativa, ehSocia });
+        toast.success(`Fornecedora "${nome}" atualizada`);
+      } else {
+        const nova: Fornecedora = { id: crypto.randomUUID(), nome, contato, chavePix, observacoes, ativa, ehSocia };
+        await supabaseStore.upsertFornecedora(nova);
+        toast.success(`Fornecedora "${nome}" cadastrada`);
+      }
+      setShowForm(false);
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      toast.error('Erro ao salvar fornecedora');
     }
-    setShowForm(false);
-    reload();
   };
 
   const detailPecas = detailForn ? pecas.filter(p => p.fornecedoraId === detailForn.id) : [];
@@ -103,6 +123,11 @@ export default function Fornecedoras() {
     { label: 'TOTAL PAGO', value: fmt(totalPagoGeral), icon: CheckCircle, colorIdx: 2 },
   ];
 
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[40vh]">
+      <p className="text-muted-foreground text-sm animate-pulse">Carregando fornecedoras...</p>
+    </div>
+  );
   return (
     <div className="space-y-6 animate-fade-up">
       <h1 className="font-display text-4xl md:text-5xl text-primary tracking-wide">FORNECEDORAS</h1>
