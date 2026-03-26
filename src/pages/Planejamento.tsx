@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { store } from '@/lib/store';
-import { Lembrete, DropPlan, Responsavel } from '@/types';
+import { useState, useEffect, useCallback } from 'react';
+import { supabaseStore } from '@/lib/supabaseStore';
+import type { Lembrete, DropPlan, Responsavel } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -24,8 +24,10 @@ const responsavelColors: Record<string, string> = {
 };
 
 export default function Planejamento() {
-  const [, setTick] = useState(0);
-  const reload = () => setTick(t => t + 1);
+  const [lembretes, setLembretes] = useState<Lembrete[]>([]);
+  const [dropPlans, setDropPlans] = useState<DropPlan[]>([]);
+  const [pecas, setPecas] = useState<{ sku: number; drop: number }[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [filtroResp, setFiltroResp] = useState<string>('all');
   const [showLembrete, setShowLembrete] = useState(false);
@@ -33,28 +35,40 @@ export default function Planejamento() {
   const [showDrop, setShowDrop] = useState(false);
   const [editDrop, setEditDrop] = useState<DropPlan | null>(null);
 
-  // Form states - lembretes
   const [lTitulo, setLTitulo] = useState('');
   const [lDescricao, setLDescricao] = useState('');
   const [lDataLimite, setLDataLimite] = useState('');
   const [lResponsavel, setLResponsavel] = useState<Responsavel[]>(['Todas']);
 
-  // Form states - drops
   const [dDrop, setDDrop] = useState('');
   const [dData, setDData] = useState('');
   const [dPreco, setDPreco] = useState('');
   const [dMeta, setDMeta] = useState('');
   const [dObs, setDObs] = useState('');
 
-  const lembretes = store.getLembretes();
-  const dropPlans = store.getDropPlans();
-  const pecas = store.getPecas();
+  const loadData = useCallback(async () => {
+    try {
+      const [lem, drops, pcs] = await Promise.all([
+        supabaseStore.getLembretes(),
+        supabaseStore.getDropPlans(),
+        supabaseStore.getPecas(),
+      ]);
+      setLembretes(lem);
+      setDropPlans(drops);
+      setPecas(pcs);
+    } catch (err) {
+      console.error('[Planejamento] Erro ao carregar:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
 
   const filteredLembretes = filtroResp === 'all'
     ? lembretes
     : lembretes.filter(l => l.responsavel.includes(filtroResp as Responsavel));
 
-  // Sort: overdue first, then by closest deadline, then no-deadline last
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -64,9 +78,9 @@ export default function Planejamento() {
       const db = b.dataLimite ? new Date(b.dataLimite + 'T00:00:00') : null;
       const overA = da && da < today ? 1 : 0;
       const overB = db && db < today ? 1 : 0;
-      if (overA !== overB) return overB - overA; // overdue first
-      if (da && db) return da.getTime() - db.getTime(); // closest deadline
-      if (da) return -1; // has deadline before no-deadline
+      if (overA !== overB) return overB - overA;
+      if (da && db) return da.getTime() - db.getTime();
+      if (da) return -1;
       if (db) return 1;
       return 0;
     });
@@ -74,7 +88,6 @@ export default function Planejamento() {
   const pendentes = sortByUrgency(filteredLembretes.filter(l => !l.concluido));
   const concluidos = filteredLembretes.filter(l => l.concluido);
 
-  // Checkbox toggle logic
   const toggleResponsavel = (r: Responsavel) => {
     if (r === 'Todas') {
       setLResponsavel(['Todas']);
@@ -91,7 +104,6 @@ export default function Planejamento() {
     }
   };
 
-  // Lembrete CRUD
   const openNewLembrete = () => {
     setEditLembrete(null);
     setLTitulo(''); setLDescricao(''); setLDataLimite(''); setLResponsavel(['Todas']);
@@ -105,46 +117,44 @@ export default function Planejamento() {
     setShowLembrete(true);
   };
 
-  const saveLembrete = () => {
+  const saveLembrete = async () => {
     if (!lTitulo.trim()) { toast.error('Título obrigatório'); return; }
-    const all = store.getLembretes();
-    if (editLembrete) {
-      const updated = all.map(l => l.id === editLembrete.id
-        ? { ...l, titulo: lTitulo, descricao: lDescricao, dataLimite: lDataLimite || null, responsavel: lResponsavel }
-        : l
-      );
-      store.setLembretes(updated);
-      toast.success('Lembrete atualizado');
-    } else {
-      const novo: Lembrete = {
-        id: crypto.randomUUID(),
-        titulo: lTitulo,
-        descricao: lDescricao,
-        dataLimite: lDataLimite || null,
-        responsavel: lResponsavel,
-        concluido: false,
-        criadoEm: new Date().toISOString(),
-      };
-      store.setLembretes([...all, novo]);
-      toast.success('Lembrete criado');
-    }
-    setShowLembrete(false);
-    reload();
+    try {
+      if (editLembrete) {
+        await supabaseStore.upsertLembrete({ ...editLembrete, titulo: lTitulo, descricao: lDescricao, dataLimite: lDataLimite || null, responsavel: lResponsavel });
+        toast.success('Lembrete atualizado');
+      } else {
+        const novo: Lembrete = {
+          id: crypto.randomUUID(),
+          titulo: lTitulo, descricao: lDescricao,
+          dataLimite: lDataLimite || null, responsavel: lResponsavel,
+          concluido: false, criadoEm: new Date().toISOString(),
+        };
+        await supabaseStore.upsertLembrete(novo);
+        toast.success('Lembrete criado');
+      }
+      setShowLembrete(false);
+      await loadData();
+    } catch (err) { console.error(err); toast.error('Erro ao salvar lembrete'); }
   };
 
-  const toggleConcluido = (id: string) => {
-    const all = store.getLembretes().map(l => l.id === id ? { ...l, concluido: !l.concluido } : l);
-    store.setLembretes(all);
-    reload();
+  const toggleConcluido = async (id: string) => {
+    try {
+      const l = lembretes.find(x => x.id === id);
+      if (!l) return;
+      await supabaseStore.upsertLembrete({ ...l, concluido: !l.concluido });
+      await loadData();
+    } catch (err) { console.error(err); }
   };
 
-  const deleteLembrete = (id: string) => {
-    store.setLembretes(store.getLembretes().filter(l => l.id !== id));
-    toast.success('Lembrete excluído');
-    reload();
+  const deleteLembrete = async (id: string) => {
+    try {
+      await supabaseStore.deleteLembrete(id);
+      toast.success('Lembrete excluído');
+      await loadData();
+    } catch (err) { console.error(err); toast.error('Erro ao excluir lembrete'); }
   };
 
-  // Drop CRUD
   const openNewDrop = () => {
     setEditDrop(null);
     setDDrop(''); setDData(''); setDPreco(''); setDMeta(''); setDObs('');
@@ -158,35 +168,37 @@ export default function Planejamento() {
     setShowDrop(true);
   };
 
-  const saveDrop = () => {
+  const saveDrop = async () => {
     if (!dDrop || !dData) { toast.error('Número do drop e data são obrigatórios'); return; }
-    const all = store.getDropPlans();
-    const plan: DropPlan = {
-      drop: Number(dDrop),
-      dataPrevista: dData,
-      precoMaximo: Number(dPreco) || 0,
-      metaPecas: Number(dMeta) || 0,
-      observacoes: dObs,
-    };
-    if (editDrop) {
-      const updated = all.map(d => d.drop === editDrop.drop ? plan : d);
-      store.setDropPlans(updated);
-      toast.success('Drop atualizado');
-    } else {
-      if (all.some(d => d.drop === plan.drop)) { toast.error('Esse drop já existe'); return; }
-      store.setDropPlans([...all, plan]);
-      toast.success('Drop criado');
-    }
-    setShowDrop(false);
-    reload();
+    try {
+      const plan: DropPlan = {
+        drop: Number(dDrop), dataPrevista: dData,
+        precoMaximo: Number(dPreco) || 0, metaPecas: Number(dMeta) || 0, observacoes: dObs,
+      };
+      if (!editDrop) {
+        const exists = dropPlans.some(d => d.drop === plan.drop);
+        if (exists) { toast.error('Esse drop já existe'); return; }
+      }
+      await supabaseStore.upsertDropPlan(plan);
+      toast.success(editDrop ? 'Drop atualizado' : 'Drop criado');
+      setShowDrop(false);
+      await loadData();
+    } catch (err) { console.error(err); toast.error('Erro ao salvar drop'); }
   };
 
-  const deleteDrop = (drop: number) => {
-    store.setDropPlans(store.getDropPlans().filter(d => d.drop !== drop));
-    toast.success('Drop excluído');
-    reload();
+  const deleteDrop = async (drop: number) => {
+    try {
+      await supabaseStore.deleteDropPlan(drop);
+      toast.success('Drop excluído');
+      await loadData();
+    } catch (err) { console.error(err); toast.error('Erro ao excluir drop'); }
   };
 
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[40vh]">
+      <p className="text-muted-foreground text-sm animate-pulse">Carregando planejamento...</p>
+    </div>
+  );
   return (
     <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
