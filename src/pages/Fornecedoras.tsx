@@ -28,8 +28,8 @@ const iconBgs = ['bg-primary/10 text-primary', 'bg-accent/10 text-accent', 'bg-[
 
 export default function Fornecedoras() {
   const [fornecedoras, setFornecedoras] = useState<Fornecedora[]>([]);
-  const [pecas, setPecas] = useState<{ sku: number; fornecedoraId: string; preco: number }[]>([]);
-  const [vendas, setVendas] = useState<{ id: string; fornecedoraId: string; precoFinal: number; comissaoFornecedora: number; pagoFornecedora: boolean }[]>([]);
+  const [pecas, setPecas] = useState<{ sku: number; fornecedoraId: string; preco: number; descricao: string; status: string }[]>([]);
+  const [vendas, setVendas] = useState<{ id: string; fornecedoraId: string; precoFinal: number; comissaoFornecedora: number; pagoFornecedora: boolean; skuPeca: number; descricaoPeca: string; dataVenda: string; compradora: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [showForm, setShowForm] = useState(false);
