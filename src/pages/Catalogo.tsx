@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
-import { store } from '@/lib/store';
-import { Peca, StatusPeca, MeioPagamento, Venda } from '@/types';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { supabaseStore } from '@/lib/supabaseStore';
+import type { Peca, StatusPeca, MeioPagamento, Venda, AppConfig } from '@/types';
 import { fmt } from '@/lib/fmt';
 import { exportCSV } from '@/lib/csv';
 import { Button } from '@/components/ui/button';
@@ -32,12 +32,35 @@ const topBarColors = ['#2d4a2e', '#e8527a', '#f0a500'];
 const iconBgs = ['bg-primary/10 text-primary', 'bg-accent/10 text-accent', 'bg-[#f0a500]/10 text-[#f0a500]'];
 
 export default function Catalogo() {
-  const [, setTick] = useState(0);
-  const reload = () => setTick(t => t + 1);
+  // ── Async data state ─────────────────────────────────────────────────────
+  const DEFAULT_CONFIG: AppConfig = {
+    percentualFornecedora: 0.60, percentualBrecho: 0.40, taxaCartao: 0.05, dropAtual: 2,
+    statusValidos: ['Disponível', 'Vendido', 'Devolvido', 'Reservado'],
+    meiosPagamento: ['Dinheiro', 'Pix', 'Cartão Crédito', 'Cartão Débito', 'Transferência'],
+  };
+  const [config, setConfig] = useState<AppConfig>(DEFAULT_CONFIG);
+  const [fornecedoras, setFornecedoras] = useState<{ id: string; nome: string; ativa: boolean }[]>([]);
+  const [pecas, setPecas] = useState<Peca[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const config = store.getConfig();
-  const fornecedoras = store.getFornecedoras();
-  const pecas = store.getPecas();
+  const loadData = useCallback(async () => {
+    try {
+      const [cfg, forn, pcs] = await Promise.all([
+        supabaseStore.getConfig(),
+        supabaseStore.getFornecedoras(),
+        supabaseStore.getPecas(),
+      ]);
+      setConfig(cfg);
+      setFornecedoras(forn);
+      setPecas(pcs);
+    } catch (err) {
+      console.error('[Catalogo] Erro ao carregar:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
 
   const [dropFilter, setDropFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -60,7 +83,7 @@ export default function Catalogo() {
   const [formTamanho, setFormTamanho] = useState('');
   const [formFornecedoraId, setFormFornecedoraId] = useState('');
   const [formPreco, setFormPreco] = useState('');
-  const [formDrop, setFormDrop] = useState(String(config.dropAtual));
+  const [formDrop, setFormDrop] = useState(String(DEFAULT_CONFIG.dropAtual));
 
   const [vendaDesconto, setVendaDesconto] = useState('0');
   const [vendaPagamento, setVendaPagamento] = useState<string>('Pix');
@@ -100,7 +123,6 @@ export default function Catalogo() {
       }
       return true;
     });
-
     if (sortBy) {
       result = [...result].sort((a, b) => {
         let cmp = 0;
@@ -137,40 +159,40 @@ export default function Catalogo() {
     setShowForm(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const preco = parseFloat(formPreco) || 0;
     if (preco <= 0 && !editingPeca) toast.warning('Atenção: peça cadastrada com preço R$ 0,00');
-
-    if (editingPeca) {
-      const all = store.getPecas().map(p =>
-        p.sku === editingPeca.sku
-          ? { ...p, descricao: formDescricao, categoria: formCategoria, tamanho: formTamanho, fornecedoraId: formFornecedoraId, preco, drop: parseInt(formDrop) || config.dropAtual }
-          : p
-      );
-      store.setPecas(all);
-      setSelectedPeca(prev => prev?.sku === editingPeca.sku ? { ...prev, descricao: formDescricao, categoria: formCategoria, tamanho: formTamanho, fornecedoraId: formFornecedoraId, preco, drop: parseInt(formDrop) || config.dropAtual } : prev);
-      toast.success(`Peça #${editingPeca.sku} atualizada`);
-    } else {
-      const sku = store.getNextSku();
-      const nova: Peca = {
-        sku, descricao: formDescricao, categoria: formCategoria, tamanho: formTamanho,
-        fornecedoraId: formFornecedoraId, dataEntrada: new Date().toISOString().split('T')[0],
-        status: 'Disponível', preco, drop: parseInt(formDrop) || config.dropAtual,
-      };
-      store.setPecas([...pecas, nova]);
-      store.setNextSku(sku + 1);
-      toast.success(`Peça #${sku} cadastrada`);
-    }
-    setShowForm(false);
-    reload();
+    try {
+      if (editingPeca) {
+        const updated: Peca = { ...editingPeca, descricao: formDescricao, categoria: formCategoria, tamanho: formTamanho, fornecedoraId: formFornecedoraId, preco, drop: parseInt(formDrop) || config.dropAtual };
+        await supabaseStore.upsertPeca(updated);
+        setSelectedPeca(prev => prev?.sku === editingPeca.sku ? updated : prev);
+        toast.success(`Peça #${editingPeca.sku} atualizada`);
+      } else {
+        const sku = await supabaseStore.getNextSku();
+        const nova: Peca = {
+          sku, descricao: formDescricao, categoria: formCategoria, tamanho: formTamanho,
+          fornecedoraId: formFornecedoraId, dataEntrada: new Date().toISOString().split('T')[0],
+          status: 'Disponível', preco, drop: parseInt(formDrop) || config.dropAtual,
+        };
+        await supabaseStore.upsertPeca(nova);
+        await supabaseStore.setNextSku(sku + 1);
+        toast.success(`Peça #${sku} cadastrada`);
+      }
+      setShowForm(false);
+      await loadData();
+    } catch (err) { console.error(err); toast.error('Erro ao salvar peça'); }
   };
 
-  const handleDelete = (peca: Peca) => {
-    store.setPecas(store.getPecas().filter(p => p.sku !== peca.sku));
-    store.setVendas(store.getVendas().filter(v => v.skuPeca !== peca.sku));
-    setShowDeleteConfirm(null); setSelectedPeca(null);
-    toast.success(`Peça #${peca.sku} excluída`);
-    reload();
+  const handleDelete = async (peca: Peca) => {
+    try {
+      await supabaseStore.deletePeca(peca.sku);
+      const vendasPeca = await supabaseStore.getVendas();
+      await Promise.all(vendasPeca.filter(v => v.skuPeca === peca.sku).map(v => supabaseStore.deleteVenda(v.id)));
+      setShowDeleteConfirm(null); setSelectedPeca(null);
+      toast.success(`Peça #${peca.sku} excluída`);
+      await loadData();
+    } catch (err) { console.error(err); toast.error('Erro ao excluir peça'); }
   };
 
   const handleStatusChange = (sku: number, newStatus: StatusPeca) => {
@@ -181,39 +203,42 @@ export default function Catalogo() {
     applyStatusChange(sku, newStatus);
   };
 
-  const applyStatusChange = (sku: number, status: StatusPeca) => {
-    store.setPecas(store.getPecas().map(p => p.sku === sku ? { ...p, status } : p));
-    setSelectedPeca(prev => prev ? { ...prev, status } : null);
-    setShowStatusWarning(null);
-    toast.success(`Status alterado para "${status}"`);
-    reload();
+  const applyStatusChange = async (sku: number, status: StatusPeca) => {
+    try {
+      const peca = pecas.find(p => p.sku === sku);
+      if (!peca) return;
+      await supabaseStore.upsertPeca({ ...peca, status });
+      setSelectedPeca(prev => prev ? { ...prev, status } : null);
+      setShowStatusWarning(null);
+      toast.success(`Status alterado para "${status}"`);
+      await loadData();
+    } catch (err) { console.error(err); toast.error('Erro ao alterar status'); }
   };
 
-  const handleVenda = () => {
+  const handleVenda = async () => {
     if (!showVenda) return;
     const peca = showVenda;
     const desconto = parseFloat(vendaDesconto) || 0;
     const precoFinal = peca.preco - desconto;
     if (precoFinal < 0) { toast.error('Desconto não pode ser maior que o preço!'); return; }
-
-    const pagamento = vendaPagamento as MeioPagamento;
-    const base = pagamento === 'Cartão Crédito' ? precoFinal * (1 - config.taxaCartao) : precoFinal;
-
-    const venda: Venda = {
-      id: crypto.randomUUID(), dataVenda: new Date().toISOString().split('T')[0],
-      skuPeca: peca.sku, descricaoPeca: peca.descricao, fornecedoraId: peca.fornecedoraId, drop: peca.drop,
-      desconto, precoFinal, pagamento,
-      comissaoFornecedora: base * config.percentualFornecedora, parcelaBrecho: base * config.percentualBrecho,
-      pagoFornecedora: false, dataPagamento: null,
-      compradora: vendaCompradora, enderecoEntrega: vendaEndereco, dataEntrega: vendaDataEntrega || null,
-    };
-
-    store.setVendas([...store.getVendas(), venda]);
-    store.setPecas(store.getPecas().map(p => p.sku === peca.sku ? { ...p, status: 'Vendido' as StatusPeca } : p));
-    setShowVenda(null);
-    setVendaDesconto('0'); setVendaCompradora(''); setVendaEndereco(''); setVendaDataEntrega('');
-    toast.success(`Venda registrada: #${peca.sku}`);
-    reload();
+    try {
+      const pagamento = vendaPagamento as MeioPagamento;
+      const base = pagamento === 'Cartão Crédito' ? precoFinal * (1 - config.taxaCartao) : precoFinal;
+      const venda: Venda = {
+        id: crypto.randomUUID(), dataVenda: new Date().toISOString().split('T')[0],
+        skuPeca: peca.sku, descricaoPeca: peca.descricao, fornecedoraId: peca.fornecedoraId, drop: peca.drop,
+        desconto, precoFinal, pagamento,
+        comissaoFornecedora: base * config.percentualFornecedora, parcelaBrecho: base * config.percentualBrecho,
+        pagoFornecedora: false, dataPagamento: null,
+        compradora: vendaCompradora, enderecoEntrega: vendaEndereco, dataEntrega: vendaDataEntrega || null,
+      };
+      await supabaseStore.upsertVenda(venda);
+      await supabaseStore.upsertPeca({ ...peca, status: 'Vendido' as StatusPeca });
+      setShowVenda(null);
+      setVendaDesconto('0'); setVendaCompradora(''); setVendaEndereco(''); setVendaDataEntrega('');
+      toast.success(`Venda registrada: #${peca.sku}`);
+      await loadData();
+    } catch (err) { console.error(err); toast.error('Erro ao registrar venda'); }
   };
 
   const handleExportCSV = () => {
@@ -234,6 +259,11 @@ export default function Catalogo() {
     { label: 'VALOR TOTAL', value: fmt(totalPreco), icon: DollarSign, colorIdx: 2 },
   ];
 
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[40vh]">
+      <p className="text-muted-foreground text-sm animate-pulse">Carregando catálogo...</p>
+    </div>
+  );
   return (
     <div className="space-y-6 animate-fade-up">
       <h1 className="font-display text-4xl md:text-5xl text-primary tracking-wide">CATÁLOGO</h1>
