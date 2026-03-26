@@ -1,6 +1,6 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { store } from '@/lib/store';
+import { supabaseStore } from '@/lib/supabaseStore';
 import { supabase } from '@/integrations/supabase/client';
 import { fmt } from '@/lib/fmt';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DollarSign, TrendingUp, Users, Package, Wallet, CheckCircle, Filter } from 'lucide-react';
 import { toast } from 'sonner';
+import type { Fornecedora, Peca, Venda, AppConfig } from '@/types';
 
 import logo from '@/assets/logo_peaoge_sem_fundo.png';
 import saiaXadrez from '@/assets/photos/saia_xadrez_edit.png';
@@ -31,19 +32,52 @@ const photoStrip = [
 const topBarColors = ['#2d4a2e', '#e8527a', '#f0a500', '#3ab5a0', '#9b59b6', '#7b61ff'];
 const iconBgs = ['bg-primary/10 text-primary', 'bg-accent/10 text-accent', 'bg-[#f0a500]/10 text-[#f0a500]', 'bg-[#3ab5a0]/10 text-[#3ab5a0]', 'bg-[#7b61ff]/10 text-[#7b61ff]'];
 
+const DEFAULT_CONFIG: AppConfig = {
+  percentualFornecedora: 0.60,
+  percentualBrecho: 0.40,
+  taxaCartao: 0.05,
+  dropAtual: 2,
+  statusValidos: ['Disponível', 'Vendido', 'Devolvido', 'Reservado'],
+  meiosPagamento: ['Dinheiro', 'Pix', 'Cartão Crédito', 'Cartão Débito', 'Transferência'],
+};
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [, setTick] = useState(0);
-  const reload = () => setTick(t => t + 1);
+
+  // ── Async data state ──────────────────────────────────────────────────────
+  const [config, setConfig] = useState<AppConfig>(DEFAULT_CONFIG);
+  const [fornecedoras, setFornecedoras] = useState<Fornecedora[]>([]);
+  const [pecas, setPecas] = useState<Peca[]>([]);
+  const [vendas, setVendas] = useState<Venda[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [dropFilter, setDropFilter] = useState<string>('all');
-  const config = store.getConfig();
-  const fornecedoras = store.getFornecedoras();
-  const pecas = store.getPecas();
-  const vendas = store.getVendas();
-
   const [userName, setUserName] = useState('Peaogê');
+
+  // Load all data from Supabase on mount
+  const loadData = useCallback(async () => {
+    try {
+      const [cfg, forn, pcs, vds] = await Promise.all([
+        supabaseStore.getConfig(),
+        supabaseStore.getFornecedoras(),
+        supabaseStore.getPecas(),
+        supabaseStore.getVendas(),
+      ]);
+      setConfig(cfg);
+      setFornecedoras(forn);
+      setPecas(pcs);
+      setVendas(vds);
+    } catch (err) {
+      console.error('[Dashboard] Erro ao carregar dados:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -52,7 +86,7 @@ export default function Dashboard() {
       if (name) setUserName(name.charAt(0).toUpperCase() + name.slice(1));
     });
   }, []);
-
+  // ── Derived computations (identical to before) ────────────────────────────
   const drops = useMemo(() => {
     const s = new Set<number>();
     pecas.forEach(p => s.add(p.drop));
@@ -95,16 +129,30 @@ export default function Dashboard() {
     return { ...f, qtd: pecasF.length, prevComissao: prevComF, prevBrecho: prevBrechoF, prevTotal: prevComF + (f.ehSocia ? prevBrechoF / (socias.length || 1) : 0) };
   }).filter(r => r.qtd > 0);
 
-  const handlePagarTudo = (fornecedoraId: string) => {
-    const allVendas = store.getVendas().map(v =>
-      v.fornecedoraId === fornecedoraId && !v.pagoFornecedora && (dropFilter === 'all' || v.drop === Number(dropFilter))
-        ? { ...v, pagoFornecedora: true, dataPagamento: new Date().toISOString().split('T')[0] }
-        : v
-    );
-    store.setVendas(allVendas);
-    const forn = fornecedoras.find(f => f.id === fornecedoraId);
-    toast.success(`Todas as vendas de ${forn?.nome} marcadas como pagas`);
-    reload();
+  const handlePagarTudo = async (fornecedoraId: string) => {
+    try {
+      const allVendas = await supabaseStore.getVendas();
+      const toUpdate = allVendas.filter(
+        v => v.fornecedoraId === fornecedoraId &&
+             !v.pagoFornecedora &&
+             (dropFilter === 'all' || v.drop === Number(dropFilter))
+      );
+      await Promise.all(
+        toUpdate.map(v =>
+          supabaseStore.upsertVenda({
+            ...v,
+            pagoFornecedora: true,
+            dataPagamento: new Date().toISOString().split('T')[0],
+          })
+        )
+      );
+      const forn = fornecedoras.find(f => f.id === fornecedoraId);
+      toast.success(`Todas as vendas de ${forn?.nome} marcadas como pagas`);
+      await loadData();
+    } catch (err) {
+      console.error('[Dashboard] Erro ao pagar:', err);
+      toast.error('Erro ao registrar pagamento');
+    }
   };
 
   const indicators = [
@@ -115,6 +163,13 @@ export default function Dashboard() {
     { label: 'SALDO A PAGAR', value: fmt(saldoPagar), icon: Wallet, colorIdx: 4 },
   ];
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <p className="text-muted-foreground text-sm animate-pulse">Carregando dashboard...</p>
+      </div>
+    );
+  }
   return (
     <div className="space-y-8 animate-fade-up">
 
@@ -214,7 +269,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* TABLES — full width with tabs */}
+      {/* TABLES */}
       {(repasses.length > 0 || previsaoForn.length > 0) && (
         <div className="card-editorial overflow-hidden">
           <Tabs defaultValue="repasses">
