@@ -153,37 +153,39 @@ export default function Fornecedoras() {
       </div>
 
       {/* Filter bar */}
-      <div className="filter-bar flex flex-wrap gap-4 items-end">
-        <div>
-          <Label className="label-upper">Tipo</Label>
-          <Select value={tipoFilter} onValueChange={setTipoFilter}>
-            <SelectTrigger className="w-28 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas ({fornecedoras.length})</SelectItem>
-              <SelectItem value="socia">Sócias ({fornecedoras.filter(f => f.ehSocia).length})</SelectItem>
-              <SelectItem value="externa">Externas ({fornecedoras.filter(f => !f.ehSocia).length})</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="filter-bar flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 sm:items-end">
+        <div className="grid grid-cols-2 sm:flex gap-3 sm:gap-4">
+          <div>
+            <Label className="label-upper">Tipo</Label>
+            <Select value={tipoFilter} onValueChange={setTipoFilter}>
+              <SelectTrigger className="w-full sm:w-28 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas ({fornecedoras.length})</SelectItem>
+                <SelectItem value="socia">Sócias ({fornecedoras.filter(f => f.ehSocia).length})</SelectItem>
+                <SelectItem value="externa">Externas ({fornecedoras.filter(f => !f.ehSocia).length})</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="label-upper">Status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-28 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="ativa">Ativas ({fornecedoras.filter(f => f.ativa).length})</SelectItem>
+                <SelectItem value="inativa">Inativas ({fornecedoras.filter(f => !f.ativa).length})</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <div>
-          <Label className="label-upper">Status</Label>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-28 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              <SelectItem value="ativa">Ativas ({fornecedoras.filter(f => f.ativa).length})</SelectItem>
-              <SelectItem value="inativa">Inativas ({fornecedoras.filter(f => !f.ativa).length})</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex-1 min-w-[150px]">
+        <div className="flex-1 min-w-0 sm:min-w-[150px]">
           <Label className="label-upper">Buscar</Label>
           <div className="relative mt-1">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input className="pl-9 rounded-full bg-muted/50 border-0 text-sm" placeholder="Nome..." value={busca} onChange={e => setBusca(e.target.value)} />
           </div>
         </div>
-        <Button onClick={openNew} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">
+        <Button onClick={openNew} className="w-full sm:w-auto rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">
           <Plus className="h-4 w-4 mr-1" /> NOVA FORNECEDORA
         </Button>
       </div>
