@@ -490,6 +490,9 @@ export default function Catalogo() {
                   <ShoppingCart className="h-3 w-3 mr-1" /> Vender
                 </Button>
               )}
+              <Button size="sm" variant="outline" className="rounded-full text-xs h-8 text-destructive hover:bg-destructive/10" onClick={() => setShowDeleteConfirm(p)}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
             </div>
           </div>
         ))}
