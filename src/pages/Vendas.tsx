@@ -459,7 +459,7 @@ export default function Vendas() {
 
       {/* Nova Venda Dialog */}
       <Dialog open={showNova} onOpenChange={setShowNova}>
-        <DialogContent className="max-w-lg overflow-hidden rounded-2xl">
+        <DialogContent className="max-w-lg overflow-hidden rounded-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader className="bg-primary -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
             <DialogTitle className="font-display text-xl text-white tracking-wide">NOVA VENDA</DialogTitle>
           </DialogHeader>
