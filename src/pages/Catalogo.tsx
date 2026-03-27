@@ -525,7 +525,7 @@ export default function Catalogo() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div><Label className="label-upper">Preço (R$)</Label><Input type="number" step="0.01" value={formPreco} onChange={e => setFormPreco(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
               <div><Label className="label-upper">Drop</Label><Input type="number" value={formDrop} onChange={e => setFormDrop(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
             </div>
