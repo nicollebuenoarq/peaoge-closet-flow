@@ -512,7 +512,7 @@ export default function Catalogo() {
           </DialogHeader>
           <div className="space-y-5">
             <div><Label className="label-upper">Descrição</Label><Input value={formDescricao} onChange={e => setFormDescricao(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div><Label className="label-upper">Categoria</Label><Input value={formCategoria} onChange={e => setFormCategoria(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
               <div><Label className="label-upper">Tamanho</Label><Input value={formTamanho} onChange={e => setFormTamanho(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
             </div>
