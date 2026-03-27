@@ -632,7 +632,7 @@ export default function Catalogo() {
 
       {/* Venda Dialog */}
       <Dialog open={!!showVenda} onOpenChange={() => setShowVenda(null)}>
-        <DialogContent className="max-w-md overflow-hidden rounded-2xl">
+        <DialogContent className="max-w-md overflow-hidden rounded-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader className="bg-primary -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
             <DialogTitle className="font-display text-xl text-white tracking-wide">REGISTRAR VENDA</DialogTitle>
           </DialogHeader>
