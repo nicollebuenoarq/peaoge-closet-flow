@@ -120,7 +120,7 @@ export default function Configuracoes() {
         <div className="icon-circle h-12 w-12 bg-primary/10 text-primary rounded-full">
           <Settings2 className="h-6 w-6" />
         </div>
-        <h1 className="font-display text-4xl md:text-5xl text-primary tracking-wide">CONFIGURAÇÕES</h1>
+        <h1 className="font-display text-2xl sm:text-4xl md:text-5xl text-primary tracking-wide">CONFIGURAÇÕES</h1>
       </div>
 
       <div className="card-editorial overflow-hidden">
