@@ -133,11 +133,11 @@ export default function Configuracoes() {
           </h3>
         </div>
         <div className="p-6 space-y-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div><Label className="label-upper">% Fornecedora</Label><Input type="number" step="1" value={percForn} onChange={e => setPercForn(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
             <div><Label className="label-upper">% Brechó</Label><Input type="number" step="1" value={percBrecho} onChange={e => setPercBrecho(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div><Label className="label-upper">Taxa Cartão Crédito (%)</Label><Input type="number" step="0.1" value={taxaCartao} onChange={e => setTaxaCartao(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
             <div><Label className="label-upper">Drop Atual</Label><Input type="number" value={dropAtual} onChange={e => setDropAtual(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
           </div>

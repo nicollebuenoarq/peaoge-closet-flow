@@ -642,7 +642,7 @@ export default function Catalogo() {
                 <p className="font-medium text-sm">#{showVenda.sku} — {showVenda.descricao}</p>
                 <p className="text-sm text-muted-foreground">{getFornNome(showVenda.fornecedoraId)} • Drop {showVenda.drop} • {fmt(showVenda.preco)}</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><Label className="label-upper">Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
                 <div><Label className="label-upper">Pagamento</Label>
                   <Select value={vendaPagamento} onValueChange={setVendaPagamento}>

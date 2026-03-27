@@ -208,11 +208,13 @@ export default function Dashboard() {
       </p>
 
       {/* DROP FILTER BAR */}
-      <div className="flex items-center gap-3 bg-card border border-border rounded-2xl px-5 py-3">
-        <Filter className="h-4 w-4 text-muted-foreground" />
-        <span className="label-upper">Filtrar por Drop:</span>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-card border border-border rounded-2xl px-5 py-3">
+        <div className="flex items-center gap-3">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <span className="label-upper">Filtrar por Drop:</span>
+        </div>
         <Select value={dropFilter} onValueChange={setDropFilter}>
-          <SelectTrigger className="w-44 rounded-full bg-background border border-border text-sm">
+          <SelectTrigger className="w-full sm:w-44 rounded-full bg-background border border-border text-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

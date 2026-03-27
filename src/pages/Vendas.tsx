@@ -486,7 +486,7 @@ export default function Vendas() {
                   </div>
                   <Button size="sm" variant="ghost" onClick={() => setPecaSelecionada(null)} className="rounded-full text-xs">Trocar</Button>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div><Label className="label-upper">Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
                   <div><Label className="label-upper">Pagamento</Label>
                     <Select value={vendaPagamento} onValueChange={setVendaPagamento}>
