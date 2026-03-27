@@ -289,62 +289,68 @@ export default function Catalogo() {
       </div>
 
       {/* Filter bar */}
-      <div className="filter-bar flex flex-wrap gap-3 sm:gap-4 items-end">
-        <div>
-          <Label className="label-upper">Drop</Label>
-          <Select value={dropFilter} onValueChange={setDropFilter}>
-            <SelectTrigger className="w-28 sm:w-32 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d} ({dropCounts[d]})</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label className="label-upper">Status</Label>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos ({pecas.length})</SelectItem>
-              {config.statusValidos.map(s => <SelectItem key={s} value={s}>{s} ({statusCounts[s] || 0})</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label className="label-upper">Fornecedora</Label>
-          <Select value={fornFilter} onValueChange={setFornFilter}>
-            <SelectTrigger className="w-36 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              {fornecedoras.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        {categorias.length > 0 && (
+      <div className="filter-bar flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 sm:items-end">
+        <div className="grid grid-cols-2 sm:flex gap-3 sm:gap-4">
           <div>
-            <Label className="label-upper">Categoria</Label>
-            <Select value={catFilter} onValueChange={setCatFilter}>
-              <SelectTrigger className="w-32 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue placeholder="Todas" /></SelectTrigger>
+            <Label className="label-upper">Drop</Label>
+            <Select value={dropFilter} onValueChange={setDropFilter}>
+              <SelectTrigger className="w-full sm:w-32 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                {categorias.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                <SelectItem value="all">Todos</SelectItem>
+                {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d} ({dropCounts[d]})</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
-        )}
-        <div className="flex-1 min-w-[140px] sm:min-w-[180px]">
+          <div>
+            <Label className="label-upper">Status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-40 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos ({pecas.length})</SelectItem>
+                {config.statusValidos.map(s => <SelectItem key={s} value={s}>{s} ({statusCounts[s] || 0})</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:flex gap-3 sm:gap-4">
+          <div>
+            <Label className="label-upper">Fornecedora</Label>
+            <Select value={fornFilter} onValueChange={setFornFilter}>
+              <SelectTrigger className="w-full sm:w-36 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                {fornecedoras.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          {categorias.length > 0 && (
+            <div>
+              <Label className="label-upper">Categoria</Label>
+              <Select value={catFilter} onValueChange={setCatFilter}>
+                <SelectTrigger className="w-full sm:w-32 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue placeholder="Todas" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {categorias.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0 sm:min-w-[180px]">
           <Label className="label-upper">Buscar</Label>
           <div className="relative mt-1">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input className="pl-9 rounded-full bg-muted/50 border-0 text-sm" placeholder="SKU ou descrição..." value={busca} onChange={e => setBusca(e.target.value)} />
           </div>
         </div>
-        <Button variant="outline" onClick={handleExportCSV} className="shrink-0 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-200 text-xs">
-          <Download className="h-4 w-4 mr-1" /> CSV
-        </Button>
-        <Button onClick={openNew} className="shrink-0 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">
-          <Plus className="h-4 w-4 mr-1" /> NOVA PEÇA
-        </Button>
+        <div className="flex gap-2 sm:contents">
+          <Button variant="outline" onClick={handleExportCSV} className="flex-1 sm:flex-initial shrink-0 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-200 text-xs">
+            <Download className="h-4 w-4 mr-1" /> CSV
+          </Button>
+          <Button onClick={openNew} className="flex-1 sm:flex-initial shrink-0 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">
+            <Plus className="h-4 w-4 mr-1" /> NOVA PEÇA
+          </Button>
+        </div>
       </div>
 
       {/* Desktop Table */}
