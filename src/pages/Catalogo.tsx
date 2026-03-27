@@ -266,7 +266,7 @@ export default function Catalogo() {
   );
   return (
     <div className="space-y-6 animate-fade-up">
-      <h1 className="font-display text-4xl md:text-5xl text-primary tracking-wide">CATÁLOGO</h1>
+      <h1 className="font-display text-2xl sm:text-4xl md:text-5xl text-primary tracking-wide">CATÁLOGO</h1>
 
       {/* Summary mini-cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 animate-stagger">
@@ -289,62 +289,68 @@ export default function Catalogo() {
       </div>
 
       {/* Filter bar */}
-      <div className="filter-bar flex flex-wrap gap-3 sm:gap-4 items-end">
-        <div>
-          <Label className="label-upper">Drop</Label>
-          <Select value={dropFilter} onValueChange={setDropFilter}>
-            <SelectTrigger className="w-28 sm:w-32 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d} ({dropCounts[d]})</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label className="label-upper">Status</Label>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos ({pecas.length})</SelectItem>
-              {config.statusValidos.map(s => <SelectItem key={s} value={s}>{s} ({statusCounts[s] || 0})</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label className="label-upper">Fornecedora</Label>
-          <Select value={fornFilter} onValueChange={setFornFilter}>
-            <SelectTrigger className="w-36 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              {fornecedoras.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        {categorias.length > 0 && (
+      <div className="filter-bar flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 sm:items-end">
+        <div className="grid grid-cols-2 sm:flex gap-3 sm:gap-4">
           <div>
-            <Label className="label-upper">Categoria</Label>
-            <Select value={catFilter} onValueChange={setCatFilter}>
-              <SelectTrigger className="w-32 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue placeholder="Todas" /></SelectTrigger>
+            <Label className="label-upper">Drop</Label>
+            <Select value={dropFilter} onValueChange={setDropFilter}>
+              <SelectTrigger className="w-full sm:w-32 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                {categorias.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                <SelectItem value="all">Todos</SelectItem>
+                {drops.map(d => <SelectItem key={d} value={String(d)}>Drop {d} ({dropCounts[d]})</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
-        )}
-        <div className="flex-1 min-w-[140px] sm:min-w-[180px]">
+          <div>
+            <Label className="label-upper">Status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-40 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos ({pecas.length})</SelectItem>
+                {config.statusValidos.map(s => <SelectItem key={s} value={s}>{s} ({statusCounts[s] || 0})</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:flex gap-3 sm:gap-4">
+          <div>
+            <Label className="label-upper">Fornecedora</Label>
+            <Select value={fornFilter} onValueChange={setFornFilter}>
+              <SelectTrigger className="w-full sm:w-36 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                {fornecedoras.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          {categorias.length > 0 && (
+            <div>
+              <Label className="label-upper">Categoria</Label>
+              <Select value={catFilter} onValueChange={setCatFilter}>
+                <SelectTrigger className="w-full sm:w-32 rounded-full bg-muted/50 border-0 mt-1 text-sm"><SelectValue placeholder="Todas" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {categorias.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0 sm:min-w-[180px]">
           <Label className="label-upper">Buscar</Label>
           <div className="relative mt-1">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input className="pl-9 rounded-full bg-muted/50 border-0 text-sm" placeholder="SKU ou descrição..." value={busca} onChange={e => setBusca(e.target.value)} />
           </div>
         </div>
-        <Button variant="outline" onClick={handleExportCSV} className="shrink-0 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-200 text-xs">
-          <Download className="h-4 w-4 mr-1" /> CSV
-        </Button>
-        <Button onClick={openNew} className="shrink-0 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">
-          <Plus className="h-4 w-4 mr-1" /> NOVA PEÇA
-        </Button>
+        <div className="flex gap-2 sm:contents">
+          <Button variant="outline" onClick={handleExportCSV} className="flex-1 sm:flex-initial shrink-0 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-200 text-xs">
+            <Download className="h-4 w-4 mr-1" /> CSV
+          </Button>
+          <Button onClick={openNew} className="flex-1 sm:flex-initial shrink-0 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">
+            <Plus className="h-4 w-4 mr-1" /> NOVA PEÇA
+          </Button>
+        </div>
       </div>
 
       {/* Desktop Table */}
@@ -484,6 +490,9 @@ export default function Catalogo() {
                   <ShoppingCart className="h-3 w-3 mr-1" /> Vender
                 </Button>
               )}
+              <Button size="sm" variant="outline" className="rounded-full text-xs h-8 text-destructive hover:bg-destructive/10" onClick={() => setShowDeleteConfirm(p)}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
             </div>
           </div>
         ))}
@@ -497,13 +506,13 @@ export default function Catalogo() {
 
       {/* Nova/Editar Peça Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-md overflow-hidden rounded-2xl">
+        <DialogContent className="max-w-md overflow-hidden rounded-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader className="bg-primary -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
             <DialogTitle className="font-display text-xl text-white tracking-wide">{editingPeca ? `EDITAR PEÇA #${editingPeca.sku}` : 'NOVA PEÇA'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-5">
             <div><Label className="label-upper">Descrição</Label><Input value={formDescricao} onChange={e => setFormDescricao(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div><Label className="label-upper">Categoria</Label><Input value={formCategoria} onChange={e => setFormCategoria(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
               <div><Label className="label-upper">Tamanho</Label><Input value={formTamanho} onChange={e => setFormTamanho(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
             </div>
@@ -516,7 +525,7 @@ export default function Catalogo() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div><Label className="label-upper">Preço (R$)</Label><Input type="number" step="0.01" value={formPreco} onChange={e => setFormPreco(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
               <div><Label className="label-upper">Drop</Label><Input type="number" value={formDrop} onChange={e => setFormDrop(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
             </div>
@@ -623,7 +632,7 @@ export default function Catalogo() {
 
       {/* Venda Dialog */}
       <Dialog open={!!showVenda} onOpenChange={() => setShowVenda(null)}>
-        <DialogContent className="max-w-md overflow-hidden rounded-2xl">
+        <DialogContent className="max-w-md overflow-hidden rounded-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader className="bg-primary -mx-6 -mt-6 px-6 pt-6 pb-4 mb-2">
             <DialogTitle className="font-display text-xl text-white tracking-wide">REGISTRAR VENDA</DialogTitle>
           </DialogHeader>
@@ -633,7 +642,7 @@ export default function Catalogo() {
                 <p className="font-medium text-sm">#{showVenda.sku} — {showVenda.descricao}</p>
                 <p className="text-sm text-muted-foreground">{getFornNome(showVenda.fornecedoraId)} • Drop {showVenda.drop} • {fmt(showVenda.preco)}</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><Label className="label-upper">Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
                 <div><Label className="label-upper">Pagamento</Label>
                   <Select value={vendaPagamento} onValueChange={setVendaPagamento}>
