@@ -89,8 +89,8 @@ export default function Dashboard() {
   // ── Derived computations (identical to before) ────────────────────────────
   const drops = useMemo(() => {
     const s = new Set<number>();
-    pecas.forEach(p => s.add(p.drop));
-    vendas.forEach(v => s.add(v.drop));
+    pecas.forEach(p => { if (p.drop != null) s.add(p.drop); });
+    vendas.forEach(v => { if (v.drop != null) s.add(v.drop); });
     return Array.from(s).sort((a, b) => a - b);
   }, [pecas, vendas]);
 

@@ -54,7 +54,7 @@ function pecaToDb(p: Peca) {
               data_entrada: p.dataEntrada,
               status: p.status,
               preco: p.preco,
-              drop: p.drop,
+              drop: p.drop ?? null,
               foto: p.foto ?? null,
       };
 }
@@ -87,7 +87,7 @@ function vendaToDb(v: Venda) {
               sku_peca: v.skuPeca,
               descricao_peca: v.descricaoPeca,
               fornecedora_id: v.fornecedoraId,
-              drop: v.drop,
+              drop: v.drop ?? null,
               desconto: v.desconto,
               preco_final: v.precoFinal,
               pagamento: v.pagamento,

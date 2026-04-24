@@ -19,7 +19,7 @@ export interface Peca {
   dataEntrada: string;
   status: StatusPeca;
   preco: number;
-  drop: number;
+  drop: number | null;
   foto?: string;
 }
 
@@ -31,7 +31,7 @@ export interface Venda {
   skuPeca: number;
   descricaoPeca: string;
   fornecedoraId: string;
-  drop: number;
+  drop: number | null;
   desconto: number;
   precoFinal: number;
   pagamento: MeioPagamento;

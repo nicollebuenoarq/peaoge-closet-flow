@@ -82,7 +82,7 @@ export default function Vendas() {
 
   const drops = useMemo(() => {
     const s = new Set<number>();
-    vendas.forEach(v => s.add(v.drop));
+    vendas.forEach(v => { if (v.drop != null) s.add(v.drop); });
     return Array.from(s).sort((a, b) => a - b);
   }, [vendas]);
 
@@ -108,7 +108,9 @@ export default function Vendas() {
       result = [...result].sort((a, b) => {
         let cmp = 0;
         if (sortBy === 'skuPeca' || sortBy === 'precoFinal' || sortBy === 'comissaoFornecedora' || sortBy === 'drop') {
-          cmp = (a[sortBy] as number) - (b[sortBy] as number);
+          const av = (a[sortBy] as number | null) ?? -1;
+          const bv = (b[sortBy] as number | null) ?? -1;
+          cmp = av - bv;
         } else {
           cmp = String(a[sortBy]).localeCompare(String(b[sortBy]), 'pt-BR');
         }
@@ -240,7 +242,7 @@ export default function Vendas() {
 
   const handleExportCSV = () => {
     const headers = ['Data', 'SKU', 'Descrição', 'Fornecedora', 'DROP', 'Desconto', 'Preço Final', 'Pagamento', 'Com. Forn.', 'P. Brechó', 'Pago?', 'Compradora'];
-    const rows = filtered.map(v => [v.dataVenda, v.skuPeca, v.descricaoPeca, getFornNome(v.fornecedoraId), v.drop, v.desconto, v.precoFinal, v.pagamento, v.comissaoFornecedora.toFixed(2), v.parcelaBrecho.toFixed(2), v.pagoFornecedora ? 'Sim' : 'Não', v.compradora]);
+    const rows = filtered.map(v => [v.dataVenda, v.skuPeca, v.descricaoPeca, getFornNome(v.fornecedoraId), v.drop ?? '—', v.desconto, v.precoFinal, v.pagamento, v.comissaoFornecedora.toFixed(2), v.parcelaBrecho.toFixed(2), v.pagoFornecedora ? 'Sim' : 'Não', v.compradora]);
     exportCSV('vendas.csv', headers, rows);
     toast.success('CSV exportado');
   };
@@ -365,7 +367,7 @@ export default function Vendas() {
                 <td className="font-mono-price text-xs text-muted-foreground">#{v.skuPeca}</td>
                 <td className="font-medium text-sm truncate">{v.descricaoPeca}</td>
                 <td className="text-muted-foreground text-sm truncate">{getFornNome(v.fornecedoraId)}</td>
-                <td><span className="pill-badge bg-muted text-foreground">{v.drop}</span></td>
+                <td><span className="pill-badge bg-muted text-foreground">{v.drop != null ? v.drop : '—'}</span></td>
                 <td className="text-muted-foreground text-sm">{v.desconto > 0 ? fmt(v.desconto) : '—'}</td>
                 <td className="font-mono-price text-primary text-xs">{fmt(v.precoFinal)}</td>
                 <td className="truncate"><span className="pill-badge bg-muted text-foreground">{v.pagamento}</span></td>
@@ -421,7 +423,7 @@ export default function Vendas() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-mono-price text-xs text-muted-foreground">#{v.skuPeca}</span>
-                  <span className="pill-badge bg-muted text-foreground text-[10px]">D{v.drop}</span>
+                  <span className="pill-badge bg-muted text-foreground text-[10px]">{v.drop != null ? `D${v.drop}` : 'Sem drop'}</span>
                   <span className="pill-badge bg-muted text-foreground text-[10px]">{v.pagamento}</span>
                 </div>
                 <p className="font-medium text-sm truncate">{v.descricaoPeca}</p>

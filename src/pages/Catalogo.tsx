@@ -83,7 +83,7 @@ export default function Catalogo() {
   const [formTamanho, setFormTamanho] = useState('');
   const [formFornecedoraId, setFormFornecedoraId] = useState('');
   const [formPreco, setFormPreco] = useState('');
-  const [formDrop, setFormDrop] = useState(String(DEFAULT_CONFIG.dropAtual));
+  const [formDrop, setFormDrop] = useState('');
 
   const [vendaDesconto, setVendaDesconto] = useState('0');
   const [vendaPagamento, setVendaPagamento] = useState<string>('Pix');
@@ -93,7 +93,7 @@ export default function Catalogo() {
 
   const drops = useMemo(() => {
     const s = new Set<number>();
-    pecas.forEach(p => s.add(p.drop));
+    pecas.forEach(p => { if (p.drop != null) s.add(p.drop); });
     return Array.from(s).sort((a, b) => a - b);
   }, [pecas]);
 
@@ -127,7 +127,9 @@ export default function Catalogo() {
       result = [...result].sort((a, b) => {
         let cmp = 0;
         if (sortBy === 'sku' || sortBy === 'preco' || sortBy === 'drop') {
-          cmp = (a[sortBy] as number) - (b[sortBy] as number);
+          const av = (a[sortBy] as number | null) ?? -1;
+          const bv = (b[sortBy] as number | null) ?? -1;
+          cmp = av - bv;
         } else {
           cmp = String(a[sortBy]).localeCompare(String(b[sortBy]), 'pt-BR');
         }
@@ -148,23 +150,25 @@ export default function Catalogo() {
   const openNew = () => {
     setEditingPeca(null);
     setFormDescricao(''); setFormCategoria(''); setFormTamanho(''); setFormFornecedoraId('');
-    setFormPreco(''); setFormDrop(String(config.dropAtual));
+    setFormPreco(''); setFormDrop('');
     setShowForm(true);
   };
 
   const openEdit = (p: Peca) => {
     setEditingPeca(p);
     setFormDescricao(p.descricao); setFormCategoria(p.categoria); setFormTamanho(p.tamanho);
-    setFormFornecedoraId(p.fornecedoraId); setFormPreco(String(p.preco)); setFormDrop(String(p.drop));
+    setFormFornecedoraId(p.fornecedoraId); setFormPreco(String(p.preco));
+    setFormDrop(p.drop != null ? String(p.drop) : '');
     setShowForm(true);
   };
 
   const handleSave = async () => {
     const preco = parseFloat(formPreco) || 0;
     if (preco <= 0 && !editingPeca) toast.warning('Atenção: peça cadastrada com preço R$ 0,00');
+    const dropValue: number | null = formDrop.trim() ? parseInt(formDrop) : null;
     try {
       if (editingPeca) {
-        const updated: Peca = { ...editingPeca, descricao: formDescricao, categoria: formCategoria, tamanho: formTamanho, fornecedoraId: formFornecedoraId, preco, drop: parseInt(formDrop) || config.dropAtual };
+        const updated: Peca = { ...editingPeca, descricao: formDescricao, categoria: formCategoria, tamanho: formTamanho, fornecedoraId: formFornecedoraId, preco, drop: dropValue };
         await supabaseStore.upsertPeca(updated);
         setSelectedPeca(prev => prev?.sku === editingPeca.sku ? updated : prev);
         toast.success(`Peça #${editingPeca.sku} atualizada`);
@@ -173,7 +177,7 @@ export default function Catalogo() {
         const nova: Peca = {
           sku, descricao: formDescricao, categoria: formCategoria, tamanho: formTamanho,
           fornecedoraId: formFornecedoraId, dataEntrada: new Date().toISOString().split('T')[0],
-          status: 'Disponível', preco, drop: parseInt(formDrop) || config.dropAtual,
+          status: 'Disponível', preco, drop: dropValue,
         };
         await supabaseStore.upsertPeca(nova);
         await supabaseStore.setNextSku(sku + 1);
@@ -243,7 +247,7 @@ export default function Catalogo() {
 
   const handleExportCSV = () => {
     const headers = ['SKU', 'Descrição', 'Categoria', 'Tamanho', 'Fornecedora', 'Entrada', 'Status', 'Preço', 'DROP'];
-    const rows = filtered.map(p => [p.sku, p.descricao, p.categoria, p.tamanho, getFornNome(p.fornecedoraId), p.dataEntrada, p.status, p.preco, p.drop]);
+    const rows = filtered.map(p => [p.sku, p.descricao, p.categoria, p.tamanho, getFornNome(p.fornecedoraId), p.dataEntrada, p.status, p.preco, p.drop ?? '—']);
     exportCSV('catalogo.csv', headers, rows);
     toast.success('CSV exportado');
   };
@@ -410,7 +414,7 @@ export default function Catalogo() {
                   </td>
                   <td className="font-mono-price text-primary text-xs">{fmt(p.preco)}</td>
                   <td>
-                    <span className="pill-badge bg-muted text-foreground">{p.drop}</span>
+                    <span className="pill-badge bg-muted text-foreground">{p.drop != null ? p.drop : '—'}</span>
                   </td>
                   <td onClick={e => e.stopPropagation()}>
                     <div className="flex gap-1">
@@ -474,7 +478,7 @@ export default function Catalogo() {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-mono-price text-xs text-muted-foreground">#{p.sku}</span>
                   <span className={`pill-badge ${statusColors[p.status]} text-[10px]`}>{p.status}</span>
-                  <span className="pill-badge bg-muted text-foreground text-[10px]">D{p.drop}</span>
+                  <span className="pill-badge bg-muted text-foreground text-[10px]">{p.drop != null ? `D${p.drop}` : 'Sem drop'}</span>
                 </div>
                 <p className="font-medium text-sm truncate">{p.descricao}</p>
                 <p className="text-xs text-muted-foreground truncate">{p.categoria} • {p.tamanho} • {getFornNome(p.fornecedoraId)}</p>
@@ -527,7 +531,7 @@ export default function Catalogo() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div><Label className="label-upper">Preço (R$)</Label><Input type="number" step="0.01" value={formPreco} onChange={e => setFormPreco(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
-              <div><Label className="label-upper">Drop</Label><Input type="number" value={formDrop} onChange={e => setFormDrop(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
+              <div><Label className="label-upper">Drop (opcional)</Label><Input type="number" value={formDrop} onChange={e => setFormDrop(e.target.value)} placeholder="Deixe vazio se não souber" className="mt-1.5 rounded-xl text-sm" /></div>
             </div>
           </div>
           <DialogFooter className="mt-5">
@@ -559,7 +563,7 @@ export default function Catalogo() {
                   </div>
                   <div className="p-4 rounded-2xl bg-muted/40">
                     <p className="label-upper">Drop</p>
-                    <p className="font-display text-3xl mt-1">{selectedPeca.drop}</p>
+                    <p className="font-display text-3xl mt-1">{selectedPeca.drop != null ? selectedPeca.drop : '—'}</p>
                   </div>
                 </div>
                 <div>
@@ -640,7 +644,7 @@ export default function Catalogo() {
             <div className="space-y-5">
               <div className="bg-muted/40 p-4 rounded-2xl">
                 <p className="font-medium text-sm">#{showVenda.sku} — {showVenda.descricao}</p>
-                <p className="text-sm text-muted-foreground">{getFornNome(showVenda.fornecedoraId)} • Drop {showVenda.drop} • {fmt(showVenda.preco)}</p>
+                <p className="text-sm text-muted-foreground">{getFornNome(showVenda.fornecedoraId)} • {showVenda.drop != null ? `Drop ${showVenda.drop}` : 'Sem drop'} • {fmt(showVenda.preco)}</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><Label className="label-upper">Desconto (R$)</Label><Input type="number" step="0.01" value={vendaDesconto} onChange={e => setVendaDesconto(e.target.value)} className="mt-1.5 rounded-xl text-sm" /></div>
