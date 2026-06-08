@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabaseStore } from '@/lib/supabaseStore';
-import { supabase } from '@/integrations/supabase/client';
 import type { AppConfig } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { X, Plus, Save, Settings2, CreditCard, Tags, Lock } from 'lucide-react';
+import { X, Plus, Save, Settings2, CreditCard, Tags } from 'lucide-react';
 import { toast } from 'sonner';
 
 const DEFAULT_CONFIG: AppConfig = {
@@ -17,8 +16,6 @@ const DEFAULT_CONFIG: AppConfig = {
   statusValidos: ['Disponível', 'Vendido', 'Devolvido', 'Reservado'],
   meiosPagamento: ['Dinheiro', 'Pix', 'Cartão Crédito', 'Cartão Débito', 'Transferência'],
 };
-
-const sociasList = ['Nicolle', 'Larissa', 'Joice'] as const;
 
 export default function Configuracoes() {
   const [config, setConfig] = useState<AppConfig>(DEFAULT_CONFIG);
@@ -197,69 +194,7 @@ export default function Configuracoes() {
         </div>
       </div>
 
-      {/* Senhas */}
-      <div className="card-editorial overflow-hidden">
-        <div className="bg-primary/5 px-6 py-4 border-b border-border">
-          <h3 className="font-display text-lg tracking-wide flex items-center gap-3">
-            <div className="icon-circle h-10 w-10 bg-primary/10 text-primary rounded-full">
-              <Lock className="h-5 w-5" />
-            </div>
-            SENHAS DE ACESSO
-          </h3>
-        </div>
-        <div className="p-6 space-y-4">
-          <p className="text-xs text-muted-foreground">Altere a senha da sua própria conta.</p>
-          {sociasList.map(name => (
-            <SenhaField key={name} name={name} />
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
 
-function SenhaField({ name }: { name: string }) {
-  const [value, setValue] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const save = async () => {
-    if (!value.trim() || value.length < 6) {
-      toast.error('Senha deve ter pelo menos 6 caracteres');
-      return;
-    }
-    setLoading(true);
-    try {
-      const { data } = await supabase.auth.getUser();
-      const email = data.user?.email ?? '';
-      if (!email.toLowerCase().startsWith(name.toLowerCase())) {
-        toast.error('Você só pode alterar sua própria senha');
-        return;
-      }
-      const { error } = await supabase.auth.updateUser({ password: value });
-      if (error) throw error;
-      setValue('');
-      toast.success(`Senha de ${name} atualizada`);
-    } catch (err: any) {
-      console.error(err);
-      toast.error('Erro ao atualizar senha: ' + (err?.message ?? 'Desconhecido'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="flex items-center gap-3">
-      <span className="font-display text-sm tracking-wide text-primary w-20">{name}</span>
-      <Input
-        type="password"
-        value={value}
-        onChange={e => setValue(e.target.value)}
-        placeholder="Nova senha..."
-        className="flex-1 rounded-xl text-sm"
-      />
-      <Button size="sm" onClick={save} disabled={loading} className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-xs">
-        <Save className="h-3.5 w-3.5" />
-      </Button>
-    </div>
-  );
-    }
