@@ -26,6 +26,7 @@ export default function Login() {
   const [selected, setSelected] = useState<number | null>(null);
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   const handleLogin = async () => {
     if (selected === null) return;
@@ -37,14 +38,49 @@ export default function Login() {
         password: senha,
       });
       if (error) {
-        toast.error('Senha incorreta. Tente novamente.');
+        const msg = (error.message || '').toLowerCase();
+        const code = (error as any).code as string | undefined;
+        if (code === 'invalid_credentials' || msg.includes('invalid login')) {
+          toast.error('Senha incorreta. Tente novamente.');
+        } else if (code === 'email_not_confirmed' || msg.includes('not confirmed')) {
+          toast.error('Email ainda não confirmado.');
+        } else if (code === 'over_request_rate_limit' || msg.includes('rate limit') || (error as any).status === 429) {
+          toast.error('Muitas tentativas. Aguarde 1 minuto e tente de novo.');
+        } else {
+          toast.error(error.message || 'Erro ao fazer login.');
+        }
         return;
       }
       navigate('/');
-    } catch {
-      toast.error('Erro ao fazer login. Tente novamente.');
+    } catch (err: any) {
+      const msg = (err?.message || '').toLowerCase();
+      if (msg.includes('failed to fetch') || msg.includes('network')) {
+        toast.error('Sem conexão. Verifique sua internet e tente novamente.');
+      } else {
+        toast.error(err?.message || 'Erro ao fazer login.');
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (selected === null) {
+      toast.error('Selecione seu perfil primeiro.');
+      return;
+    }
+    const socia = socias[selected];
+    setResetLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(socia.email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success(`Email de recuperação enviado para ${socia.email}. Confira sua caixa de entrada.`);
+    } catch (err: any) {
+      toast.error('Não foi possível enviar o email: ' + (err?.message ?? 'erro desconhecido'));
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -140,6 +176,18 @@ export default function Login() {
           >
             {loading ? 'ENTRANDO...' : 'ENTRAR →'}
           </Button>
+
+          {/* Forgot password */}
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={selected === null || resetLoading}
+              className="text-xs text-muted-foreground hover:text-primary underline-offset-4 hover:underline disabled:opacity-50 disabled:no-underline transition-colors"
+            >
+              {resetLoading ? 'Enviando...' : 'Esqueci minha senha'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
