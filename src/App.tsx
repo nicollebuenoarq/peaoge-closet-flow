@@ -12,6 +12,7 @@ import Fornecedoras from "./pages/Fornecedoras";
 import Configuracoes from "./pages/Configuracoes";
 import Planejamento from "./pages/Planejamento";
 import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import { supabase } from "@/integrations/supabase/client";
 import { seedSupabase } from "@/lib/seedSupabase";
@@ -58,6 +59,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route
             path="*"
             element={
