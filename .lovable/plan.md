@@ -1,60 +1,35 @@
-## O que está acontecendo
+## Login em 1 clique (sem senha visível)
 
-O site está abrindo (verifiquei o publicado). O que falha é o `signInWithPassword` no Lovable Cloud: hoje qualquer erro vira o toast genérico **"Senha incorreta"** — então não dá pra saber se foi senha errada, email não confirmado, conta bloqueada ou falha de rede. Além disso, não existe nenhum botão "Esqueci minha senha", então qualquer senha esquecida vira beco sem saída.
+A tela vai mostrar só os 3 cards (Nicolle, Larissa, Joice). Clicou no perfil → entrou. Por baixo, o app faz `signInWithPassword` com uma senha compartilhada embutida no código (`peaoge123`). Banco continua protegido por RLS — nada quebra.
 
-## Ações
+### Mudanças no código
 
-### 1. Reset imediato das senhas (Nicolle, Larissa, Joice → `peaoge123`)
+**1. `src/pages/Login.tsx`** — simplificar:
+- Remover input de senha, botão "ENTRAR", link "Esqueci minha senha", estado `senha`/`selected`/`resetLoading`.
+- Cada card de sócia vira um botão grande que, no clique, já chama `signInWithPassword({ email: socia.email, password: 'peaoge123' })` e navega pra `/`.
+- Adicionar estado `loadingFor` (qual card está carregando) pra mostrar spinner sutil só naquele card.
+- Mensagens de erro reais permanecem (rede, rate-limit, etc.).
 
-Migration que atualiza a senha das 3 contas em `auth.users` usando `crypt()` com salt bcrypt:
+**2. `src/pages/Configuracoes.tsx`** — remover a seção "SENHAS DE ACESSO" inteira (o card com `<SenhaField>` e o componente `SenhaField`). Imports de `Lock`, `supabase` ficam apenas se ainda forem usados (são).
 
-```sql
-UPDATE auth.users
-SET encrypted_password = crypt('peaoge123', gen_salt('bf')),
-    updated_at = now()
-WHERE email IN ('nicolle@peaoge.com','larissa@peaoge.com','joice@peaoge.com');
-```
+**3. `src/App.tsx`** — remover a rota `/reset-password` e o import.
 
-Após rodar, cada sócia entra com `peaoge123` e pode trocar em **Configurações → Senhas de Acesso**.
+**4. `src/pages/ResetPassword.tsx`** — deletar o arquivo.
 
-### 2. Mensagens de erro reais no login (`src/pages/Login.tsx`)
+### Passo manual seu (1 minuto, uma vez)
 
-Substituir o toast genérico por mensagens específicas:
+Pra cada sócia, no painel **Lovable Cloud → Users**:
+- Abrir `nicolle@peaoge.com`, `larissa@peaoge.com`, `joice@peaoge.com`
+- "Set password" → `peaoge123`
 
-- `invalid_credentials` / `Invalid login credentials` → "Senha incorreta. Tente novamente."
-- `email_not_confirmed` → "Email ainda não confirmado."
-- `over_request_rate_limit` / `429` → "Muitas tentativas. Aguarde 1 minuto."
-- Erro de rede / `Failed to fetch` → "Sem conexão. Verifique sua internet."
-- Qualquer outro → mostrar `error.message` real, não esconder.
+A partir daí: 1 clique no perfil = dentro. Sem digitar nada.
 
-### 3. Fluxo "Esqueci minha senha"
+### O que NÃO muda
 
-**a) Link "Esqueci minha senha" no `Login.tsx`**: abaixo do campo de senha, quando uma sócia está selecionada. Ao clicar, dispara:
+- Estrutura do banco, RLS, dados das peças/vendas/fornecedoras
+- Layout do resto do app (catálogo, vendas, dashboard, etc.)
+- Detecção de quem está logado em `Layout.tsx`, `Dashboard.tsx`, `LembretesPopup.tsx` (continuam lendo `supabase.auth.getUser()`)
 
-```ts
-supabase.auth.resetPasswordForEmail(socia.email, {
-  redirectTo: `${window.location.origin}/reset-password`
-})
-```
+### Trade-off (pra ficar claro)
 
-E mostra toast: "Email enviado para `email@peaoge.com`. Veja sua caixa de entrada."
-
-**b) Nova rota pública `/reset-password`** (`src/pages/ResetPassword.tsx`): página simples no mesmo layout do login. Ao chegar com `type=recovery` no hash da URL, mostra dois campos (nova senha + confirmação) e chama `supabase.auth.updateUser({ password })`. Em sucesso, redireciona para `/login`.
-
-**c) Registrar a rota em `src/App.tsx`** fora do `AuthGuard`, junto com `/login`.
-
-Os emails de reset usam o template padrão do Lovable Cloud (já funciona out-of-the-box, sem precisar configurar domínio próprio).
-
-## Arquivos alterados
-
-- **nova migration** — reset das 3 senhas
-- `src/pages/Login.tsx` — mensagens de erro + link "Esqueci minha senha"
-- `src/pages/ResetPassword.tsx` — **novo** arquivo
-- `src/App.tsx` — adicionar rota `/reset-password`
-
-## O que NÃO muda
-
-- Nenhuma lógica de catálogo, vendas, dashboard, fornecedoras, planejamento, configurações
-- Estrutura das tabelas e RLS do banco
-- Layout desktop nem mobile das outras páginas
-- Sistema de "Configurações → Senhas de Acesso" continua funcionando para troca interna
+A senha `peaoge123` fica visível no código-fonte do frontend. Qualquer pessoa que abrir o "inspecionar elemento" no navegador pode ver. Como você disse que ninguém externo tem acesso ao site, está ok — mas vale registrar.
