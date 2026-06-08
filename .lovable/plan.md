@@ -1,56 +1,60 @@
+## O que está acontecendo
 
+O site está abrindo (verifiquei o publicado). O que falha é o `signInWithPassword` no Lovable Cloud: hoje qualquer erro vira o toast genérico **"Senha incorreta"** — então não dá pra saber se foi senha errada, email não confirmado, conta bloqueada ou falha de rede. Além disso, não existe nenhum botão "Esqueci minha senha", então qualquer senha esquecida vira beco sem saída.
 
-## Corrigir: Drop opcional ao cadastrar peça (sem quebrar nada)
+## Ações
 
-### Análise de impacto
+### 1. Reset imediato das senhas (Nicolle, Larissa, Joice → `peaoge123`)
 
-Analisei todos os arquivos que usam `.drop`: **Catalogo.tsx**, **Vendas.tsx**, **Dashboard.tsx**, **Planejamento.tsx**, **supabaseStore.ts** e **types/index.ts**. Os pontos que precisam de atenção:
+Migration que atualiza a senha das 3 contas em `auth.users` usando `crypt()` com salt bcrypt:
 
-| Local | Uso atual | Risco com `null` | Ação |
-|---|---|---|---|
-| `Peca.drop` tipo | `number` | Base do problema | Mudar para `number \| null` |
-| Catálogo: `formDrop` init | `String(config.dropAtual)` | Preenche automaticamente | Iniciar com `''` |
-| Catálogo: save | `parseInt(formDrop) \|\| config.dropAtual` | Fallback impede vazio | Usar `formDrop.trim() ? parseInt(formDrop) : null` |
-| Catálogo: edit | `String(p.drop)` | Mostraria "null" | Usar `p.drop != null ? String(p.drop) : ''` |
-| Catálogo: sort por drop | `(a[sortBy] as number) - (b[sortBy] as number)` | Crash com null | Tratar null como `0` ou `Infinity` no sort |
-| Catálogo: drop filter Set | `pecas.forEach(p => s.add(p.drop))` | Adicionaria null ao Set | Filtrar nulls: `if (p.drop != null) s.add(p.drop)` |
-| Catálogo: exibição badge | `D{p.drop}` | Mostraria "Dnull" | Condicional: `p.drop != null ? 'D' + p.drop : '—'` |
-| Catálogo: CSV export | `p.drop` na row | Exportaria "null" | Usar `p.drop ?? '—'` |
-| Vendas: criar venda | `drop: pecaSelecionada.drop` | Venda herdaria null | OK — `Venda.drop` também precisa aceitar `number \| null` |
-| Vendas: drop filter/badge | `v.drop`, `D{v.drop}` | Mostraria "Dnull" | Mesma tratativa |
-| Vendas: CSV export | `v.drop` | Exportaria "null" | Usar `v.drop ?? '—'` |
-| Dashboard: drop filter Set | `p.drop`, `v.drop` | Adicionaria null | Filtrar nulls |
-| Planejamento: contagem | `pecas.filter(p => p.drop === d.drop)` | Peças sem drop não contam | OK — comportamento correto |
-| supabaseStore: pecaToDb | `drop: p.drop` | Já funciona | Garantir `p.drop ?? null` |
+```sql
+UPDATE auth.users
+SET encrypted_password = crypt('peaoge123', gen_salt('bf')),
+    updated_at = now()
+WHERE email IN ('nicolle@peaoge.com','larissa@peaoge.com','joice@peaoge.com');
+```
 
-### Plano de execução
+Após rodar, cada sócia entra com `peaoge123` e pode trocar em **Configurações → Senhas de Acesso**.
 
-**1. `src/types/index.ts`** — Mudar `drop: number` para `drop: number | null` em `Peca`. Mudar `drop: number` para `drop: number | null` em `Venda`.
+### 2. Mensagens de erro reais no login (`src/pages/Login.tsx`)
 
-**2. `src/lib/supabaseStore.ts`** — Em `pecaToDb`: `drop: p.drop ?? null`. Em `vendaToDb`: `drop: v.drop ?? null`.
+Substituir o toast genérico por mensagens específicas:
 
-**3. `src/pages/Catalogo.tsx`** (maior impacto):
-- `openNew`: `setFormDrop('')` em vez de `String(config.dropAtual)`
-- `openEdit`: `setFormDrop(p.drop != null ? String(p.drop) : '')`
-- `handleSave` (ambos os caminhos): `drop: formDrop.trim() ? parseInt(formDrop) : null`
-- Drop Set: `pecas.forEach(p => { if (p.drop != null) s.add(p.drop) })`
-- Sort: tratar null como -1 para ficar no início
-- Badge: `p.drop != null ? 'D' + p.drop : '—'` (tabela e cards)
-- CSV: `p.drop ?? '—'`
+- `invalid_credentials` / `Invalid login credentials` → "Senha incorreta. Tente novamente."
+- `email_not_confirmed` → "Email ainda não confirmado."
+- `over_request_rate_limit` / `429` → "Muitas tentativas. Aguarde 1 minuto."
+- Erro de rede / `Failed to fetch` → "Sem conexão. Verifique sua internet."
+- Qualquer outro → mostrar `error.message` real, não esconder.
 
-**4. `src/pages/Vendas.tsx`**:
-- Drop Set: filtrar nulls
-- Badge: `v.drop != null ? 'D' + v.drop : '—'`
-- CSV: `v.drop ?? '—'`
+### 3. Fluxo "Esqueci minha senha"
 
-**5. `src/pages/Dashboard.tsx`**:
-- Drop Set: filtrar nulls ao montar opções de filtro
+**a) Link "Esqueci minha senha" no `Login.tsx`**: abaixo do campo de senha, quando uma sócia está selecionada. Ao clicar, dispara:
 
-**6. `src/pages/Planejamento.tsx`** — Sem mudanças necessárias (peças sem drop simplesmente não contam para nenhum DropPlan, que é o comportamento correto).
+```ts
+supabase.auth.resetPasswordForEmail(socia.email, {
+  redirectTo: `${window.location.origin}/reset-password`
+})
+```
 
-### O que NÃO muda
-- Lógica de SKU, cálculos financeiros, comissões
-- Tipo `DropPlan` (drops planejados sempre têm número)
-- Layout desktop ou mobile
-- Fluxo de login, lembretes, configurações, fornecedoras
+E mostra toast: "Email enviado para `email@peaoge.com`. Veja sua caixa de entrada."
 
+**b) Nova rota pública `/reset-password`** (`src/pages/ResetPassword.tsx`): página simples no mesmo layout do login. Ao chegar com `type=recovery` no hash da URL, mostra dois campos (nova senha + confirmação) e chama `supabase.auth.updateUser({ password })`. Em sucesso, redireciona para `/login`.
+
+**c) Registrar a rota em `src/App.tsx`** fora do `AuthGuard`, junto com `/login`.
+
+Os emails de reset usam o template padrão do Lovable Cloud (já funciona out-of-the-box, sem precisar configurar domínio próprio).
+
+## Arquivos alterados
+
+- **nova migration** — reset das 3 senhas
+- `src/pages/Login.tsx` — mensagens de erro + link "Esqueci minha senha"
+- `src/pages/ResetPassword.tsx` — **novo** arquivo
+- `src/App.tsx` — adicionar rota `/reset-password`
+
+## O que NÃO muda
+
+- Nenhuma lógica de catálogo, vendas, dashboard, fornecedoras, planejamento, configurações
+- Estrutura das tabelas e RLS do banco
+- Layout desktop nem mobile das outras páginas
+- Sistema de "Configurações → Senhas de Acesso" continua funcionando para troca interna
